@@ -1,0 +1,118 @@
+============================================================
+README Documentation for iGPSd
+
+Written by: Dave Billin
+============================================================
+
+
+===============================================================================
+<<<  TABLE OF CONTENTS  >>>
+===============================================================================
+	1.) Description
+	2.) Usage info
+	3.) MOOS variables published by iGPSd
+	4.) MOOS variables subscribed to by iGPSd
+	5.) MOOS Mission file parameters
+	6.) Protocol Buffer Support
+	7.) Build Dependencies
+===============================================================================	
+
+
+-------------------------------------------------------------
+1.) Description
+
+iGPSd publishes GPS fix information reported by GPSd, the Linux GPS daemon, to
+the MOOS database
+
+
+-------------------------------------------------------------
+2.) Usage Info
+
+USAGE:   iGPSd MISSION_FILE [APPNAME] 
+
+MISSION_FILE
+	A MOOS mission file containing runtime configuration parameters
+
+APPNAME
+	Alternate name the application will use when registering with
+	the MOOS database.
+
+
+		 
+-------------------------------------------------------------
+3.) MOOS VARIABLES PUBLISHED BY iGPSd
+
+	Variable:				 Description:
+	--------------------	 -------------------------------------------------
+    GPS_FIX_IS_VALID         TRUE if a valid GPS fix is available; else FALSE
+    GPS_FIX_MODE             GPS fix mode as one of the following strings: 
+                             "not seen", "none", "2D", or "3D"
+    GPS_LATITUDE_DEG         Latitude in degrees
+    GPS_LONGITUDE_DEG        Longitude in degrees
+    GPS_HEADING_DEG          Heading in degrees relative to true North
+    GPS_GROUND_SPEED_MPS     Speed over ground in meters per second
+    GPS_ALTITUDE_M           Altitude in meters (only published if GPS_FIX_MODE
+                             is "3D")
+    GPS_VERTICAL_SPEED_MPS   Vertical speed (rate of climb) in meters/sec (only 
+                             published if GPS_FIX_MODE is "3D")
+
+    GPS_PBREPORT             If iGPSd is compiled with Google Protocol Buffer
+                             support, iGPSd will publish a string containing
+                             a serialized data structure that includes the
+                             aforementioned data values and more.
+	
+	
+-------------------------------------------------------------
+5.) MOOS MISSION FILE PARAMETERS
+
+	=============================
+	 *** REQUIRED PARAMETERS ***
+	=============================
+	Parameter:					Description:
+	--------------------		--------------------------------
+
+								
+
+	=============================
+	 *** OPTIONAL PARAMETERS ***
+	=============================
+	
+	Parameter:							Description
+	------------------------------	---------------------------------------
+    GPSD_HOSTNAME                   Hostname or IP (v4 or 6) address where
+                                    the GPSd server is running (default is
+                                    localhost)
+                                        
+    GPSD_PORT                       TCP port to connect to on the GPSd 
+                                    server (default is 2947 per GPSd docs)
+
+    FIX_IS_VALID_PUBLISHTO          Alternate published variable name for GPS_FIX_IS_VALID
+    FIX_MODE_PUBLISHTO              Alternate published variable name for GPS_FIX_MODE
+    LATITUDE_DEG_PUBLISHTO          Alternate published variable name for GPS_LATITUDE_DEG
+    LONGITUDE_DEG_PUBLISHTO         Alternate published variable name for GPS_LONGITUDE_DEG
+    HEADING_DEG_PUBLISHTO           Alternate published variable name for GPS_HEADING_DEG
+    ALTITUDE_M_PUBLISHTO            Alternate published variable name for GPS_ALTITUDE_M
+    GROUND_SPEED_MPS_PUBLISHTO      Alternate published variable name for GPS_GROUND_SPEED_MPS
+    VERTICAL_SPEED_MPS_PUBLISHTO    Alternate published variable name for GPS_VERTICAL_SPEED_MPS 
+    PBREPORT_PUBLISHTO          Alternate published variable name for GPS_FIX
+
+NOTE: If a _PUBLISHTO parameter is assigned the value of "NOT_PUBLISHED", 
+      iGPSd will refrain from publishing to the corresponding MOOS variable.
+
+
+-------------------------------------------------------------
+7.) PROTOCOL BUFFER SUPPORT
+    If the Google Protocol Buffer libraries are found on the build system,
+    iGPSd will be built with protobuf functionality enabled, and will publish
+    to the variable GPS_PBREPORT.
+    
+    In addition, the shared library libiGPSdProtobuf.so will be built.  Fields
+    in the serialized data structure are detailed in build/iGPSd_FixData.proto,
+    with the corresponding protocol buffer API supplied in iGPSd_FixData.pb.h.
+    An install rule will be created for the executable
+    
+-------------------------------------------------------------
+7.) BUILD DEPENDENCIES
+    libprotobuf (Google's protocol buffer library)
+
+	

@@ -1,0 +1,35 @@
+//=============================================================================
+// A communications cycle configuration file for testing pAcousticCommsAgent
+//=============================================================================
+
+//============================
+// CYCLE 1
+//============================
+{
+	NAME		= CYCLE 1	// Sub 1 talks
+	ORDER		= 1
+	DURATION	= 1.0
+	CONDITION	= VEHICLE_ID == 1
+
+	ALWAYSPUBLISH	= COMMS_CYCLE = Cycle1
+	
+	PUBLISH			= CYCLE1_JOB = Running
+}
+
+
+//============================
+// CYCLE 2
+//============================
+{
+	NAME		= CYCLE 2
+	ORDER		= 2
+	DURATION	= 2.0
+	CONDITION	= VEHICLE_ID == 2
+
+	ALWAYSPUBLISH	= COMMS_CYCLE = Cycle2
+	
+	PUBLISH			= CYCLE1_JOB = Running
+	PUBLISH			= iWhoiMicroModem_CMD = CMD=Send13bit,2,15,0x0FFF
+}
+
+

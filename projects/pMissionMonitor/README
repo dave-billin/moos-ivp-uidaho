@@ -1,0 +1,156 @@
+============================================================
+README Documentation for pMissionMonitor
+
+Written by: Dave Billin
+============================================================
+
+
+===============================================================================
+<<<  TABLE OF CONTENTS  >>>
+===============================================================================
+	1.) Description
+	2.) Usage info
+	3.) MOOS variables published by pMissionMonitor
+	4.) Application Commands
+	5.) MOOS variables subscribed to by pMissionMonitor
+	6.) Monitor configuration (.mcf) file syntax
+	7.) Mission File Parameters
+	8.) Build Dependencies
+===============================================================================	
+
+
+-------------------------------------------------------------------------------
+1.) Description
+
+	pMissionMonitor monitors one or more logical conditions imposed on 
+	specified variables in the MOOS database.  If any of these conditions
+	evaluates to FALSE, a corresponding set of variables and values is 
+	published to the MOOS database.  All logical conditions are evaluated any 
+	time mail is received from the MOOS database, and also in the application's 
+	Iterate() method.  Thus, conditions are continuously enforced at a rate 
+	determined by the value of the APP_TICK mission file parameter.
+	
+	  
+
+
+
+-------------------------------------------------------------
+2.) Usage Info
+
+USAGE:   pMissionMonitor MISSION_FILE
+
+MISSION_FILE
+        A MOOS mission file containing configuration parameters for the
+        pMissionMonitor application
+
+
+
+
+-------------------------------------------------------------
+3.) MOOS VARIABLES PUBLISHED BY pMissionMonitor
+
+	Variable:		        Description:
+	------------	        -------------------------------------------------------
+	PMISSIONMONITOR_CMD		Used to issue a command to pMissionMonitor.  See 
+					        Section 4 - Application Commands for details
+
+	Additional variables published to are set from the contents of a Monitor 
+	configuration file loaded at startup.  See section
+	 
+
+
+
+-------------------------------------------------------------
+4.) APPLICATION COMMANDS
+
+The following command strings may be published to the MOOS variable PMMon_CMD
+in order to issue simple commands to the application:
+
+ 
+ 
+ 
+
+-------------------------------------------------------------
+5.) MOOS VARIABLES SUBSCRIBED TO BY pMissionMonitor
+
+	Variable: pMM_ResetMonitor
+	Value:
+		Post a value of TRUE to this variable to reset the Critical Stop
+		condition.  Bear in mind that if the fault condition still exists,
+		pMissionMonitor will simply detect the fault and re-enforce the
+		Critical Stop again.
+
+	
+-------------------------------------------------------------
+6.) Monitor configuration (.mcf) file syntax
+
+	Monitor configuration (.mcf) files shall consist of ASCII text specifying  
+	one or more variables and logical conditions to monitor.  Each block shall
+	be composed of a matching set of brace characters ("{" and "}") between
+	which are found fields describing a logical condition in the MOOS database  
+	be monitored. 
+	
+	{
+		NAME		= <string>
+		
+		CONDITION	= <logic expression>
+		  ...
+		CONDITION	= <logic expression>
+		
+		PUBLISH		= <MOOS variable name> = <string or double value>
+		  ...
+		PUBLISH		= <MOOS variable name> = <string or double value>
+		
+		PRINT		= <string>
+	}
+ 
+	NAME 
+		A name or short description to associate with the configuration block
+	 
+	CONDITION 
+		One or more of these fields may be used to specify a logical condition
+		that is to be monitored.  A string containing one or more logical 
+		expressions involving MOOS variables to be monitored.  If any of these
+		logical conditions evaluate to FALSE, the corresponding PUBLISH 
+		directives given in the configuration block will be carried out, and 
+		values will be published to the MOOS database.  
+		
+		Logical expressions are the same as those used in the run conditions of 
+		pHelmIvP behaviors.  The left-hand side of an expression is assumed to 
+		be the name of a MOOS variable, while the right-hand side is a literal 
+		value.
+		
+	PUBLISH
+		One or more lines each specifying a MOOS variable and value to publish 
+		if any CONDITIONS given in the block evaluate to FALSE.
+
+	PRINT
+		An optional parameter that specifies a string to be printed to stdio
+		if CONDITION evaluates to FALSE 
+
+
+
+
+-------------------------------------------------------------
+7.) Mission File Parameters
+
+=======================
+REQUIRED PARAMETERS:
+=======================
+
+	Parameter				Description
+	-----------------		---------------------------------------------------
+	MONITOR_CONFIG_FILE		A string value holding the absolute path of a file 
+							from which variables and conditions to be monitored
+							should be loaded.
+
+
+
+-------------------------------------------------------------
+8.) BUILD DEPENDENCIES
+	
+	pMissionManager depends on the following MOOS and IvP libraries:
+		- MOOS
+		- MOOSGen
+		- logic (IVP)
+		- mbutil (IVP)

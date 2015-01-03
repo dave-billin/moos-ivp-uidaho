@@ -1,0 +1,57 @@
+//  global variables anyone can use them
+ServerHost = localhost
+//ServerHost = 192.168.2.3
+ServerPort = 9000
+
+// you can name tag processes connected to a particular
+// DB under a community name
+Community = V1
+
+//some processes look at this flag to see wether things are real
+Simulator = false
+
+
+//---------------------------------------
+ProcessConfig = ANTLER
+{
+    // pAntler launches processes for you
+    // you can specify whether or not each process gets a new window or not
+    // you can specify the name under which each process registers with MOOSDB
+    // Run = PROC_NAME @ [ NewConsole = [TRUE/FALSE] [~ MOOSNAME]]
+
+
+    //crucial processes
+    Run = MOOSDB        @   NewConsole = true
+  
+   //this next line sets the executable paths explicitly
+   //ExecutablePath = /home/pnewman/code/MOOS/MOOSBin
+
+   //this tells pAntler to use the system the path to find executables
+   ExecutablePath = SYSTEMPATH
+
+   //this specifies an amount of time to wait after each process is launched
+   MSBetweenLaunches = 200
+}
+//---------------------------------------
+
+
+
+//---------------------------------------
+ProcessConfig = iYellowSubDAQ
+{
+	//------------------------------------
+	// *** MOOS APPLICATION PARAMETERS
+	// How fast should iterate be called? (used by CMOOSApp)
+	AppTick= 10
+
+	// How responsive should comms be? (used by CommsClient)
+	CommsTick = 10
+
+    // Hostname or IP address of the SPOCK module
+    DAQ_HOSTNAME = 192.168.1.105
+    
+    // Network port to connect to on the SPOCK module
+    DAQ_PORT = 20025
+    
+    VERBOSITY = 2
+}

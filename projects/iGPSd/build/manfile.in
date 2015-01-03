@@ -1,0 +1,155 @@
+.\"============================================================================
+.\" Linux man file for ${PROJECT_NAME} ${PROJECT_VERSION}
+
+.\"==============================================================
+.\" **** MAN FILE (nroff) MARKUP REFERENCE ****
+.\"==============================================================
+.\" The nroff/troff markup language is a bit archaic, so this
+.\" section is included as a non-comprehensive quick-reference
+.\"
+.\" To configure the man page header:
+.\"    .TH  <top-left text>  <top-center text>  <top-right text>
+.\"
+.\" Create a man page section:
+.\"    .SH <section heading>
+.\"    <section text>
+.\"
+.\" Create a man page sub-section:
+.\"    .SS <sub-section heading>
+.\"    <sub-section text>
+.\"
+.\" Create an indented list:
+.\"    .TP <list item>
+.\"    <list item text>
+.\"
+.\" Text formatting:
+.\"    .B <text>        Make text on the current line bold
+.\"    \f<text>\R       Make text in <text> underlined
+.\"    .IP              Indent the current paragraph/line
+.\"    .br              Insert an empty line
+.\"    .P               New paragraph
+.\"    \c               Use if text must span multiple lines
+.\"==============================================================
+
+
+.\"==============================
+.\" Project info
+.\"==============================
+.TH ${PROJECT_NAME} 1  "version ${PROJECT_VERSION}" "MOOS APPLICATION" "version ${PROJECT_VERSION}"
+.SH NAME 
+${PROJECT_NAME}: A MOOS application
+
+.\"==============================
+.\" Command line usage and
+.\" Description
+.\"==============================
+.SH SYNOPSIS
+.B ${PROJECT_NAME}
+[OPTIONS] MISSION_FILE [AppName]
+
+.SH DESCRIPTION
+Enter a description of the application here
+
+
+.SH "COMMAND LINE ARGUMENTS"
+
+.\"==============================
+.\" OPTION switches
+.\"==============================
+.SS "OPTIONS"
+
+.\" *** SWITCHES COMMON TO ALL moos-ivp-uidaho apps ***
+.TP
+.B \-h,\-\-help
+Prints command line usage
+
+.TP
+.B \-e,\-\-example
+Prints an example of the application's mission file configuration block
+
+.TP
+.B \-v,\-\-version
+Prints application version
+
+
+.\"==============================
+.SS "MISSION FILE"
+Required parameter that specifies a MOOS mission file containing \c
+application parameters.
+
+.\"==============================
+.SS AppName
+Optional parameter for specifying a name to use when registering with the \c
+MOOS database
+
+
+.\"==============================
+.\" Command line example
+.\"==============================
+.SH EXAMPLES
+.TP
+Run the ${PROJECT_NAME} application, opening the alpha.moos mission file and \c
+registering with the MOOS database as "Bullwinkle"
+.B ${PROJECT_NAME}
+alpha.moos Bullwinkle
+
+.\"================================================
+.\" Description of MOOS variables published by the 
+.\" application
+.\"================================================
+.SH "PUBLISHED MOOS VARIABLES"
+.br
+.TP
+.B PUBLISHED_VARIABLE_1
+A description of PUBLISHED_VARIABLE_1's contents.
+
+
+.\"================================================
+.\" Description of MOOS variables subscribed to by 
+.\" the application
+.\"================================================
+.SH "SUBSCRIBED MOOS VARIABLES"
+.br
+.TP
+.B SUBSCRIBED_VARIABLE_1
+A description of SUBSCRIBED_VARIABLE_1's contents.
+
+
+
+.\"================================================
+.\" Description of parameters that may appear in
+.\" the application's mission file configuration
+.\" block
+.\"================================================
+.SH MISSION FILE PARAMETERS
+
+.\"==========================
+.\" Required parameters
+.\"==========================
+.SS \fIREQUIRED\fR
+
+.TP
+.B REQUIRED_PARAMETER_1
+Description of the contents of REQUIRED_PARAMETER_1
+
+
+.\"==========================
+.\" Optional parameters
+.\"==========================
+.SS \fIOPTIONAL\fR
+
+.TP
+.B OPTIONAL_PARAMETER_1
+Description of OPTIONAL_PARAMETER_1
+
+
+
+
+.\"================================================
+.\" EXIT STATUS, etc.
+.\"================================================
+.SH "EXIT STATUS"
+Always returns an exit status of zero
+
+.SH AUTHOR
+${PROJECT_AUTHOR} (${PROJECT_EMAIL})

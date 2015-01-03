@@ -1,0 +1,54 @@
+package iGPSdProtobuf;
+
+option optimize_for = LITE_RUNTIME;
+
+message iGPSd_Report 
+{
+    //--------------------------
+    // GPS Fix Status
+    //--------------------------
+    required bool HaveFix = 1;  // True if GPS fix data is valid
+
+    message GPSFixData
+    {
+        enum e_GPS_Fix_Mode 
+        {
+            FIX_MODE_NOT_SEEN = 0;   // No info from the GPS yet
+            FIX_MODE_NO_FIX   = 1;   // No GPS fix
+            FIX_MODE_2D       = 2;   // sufficient for latitude, longitude
+            FIX_MODE_3D       = 3;   // sufficient for lat/lon, altitude, and climb
+        }
+        
+        required e_GPS_Fix_Mode FixMode = 1;  // GPS fix mode
+        required int32 NumSatellites = 2;     // Number of satellites used in solution
+        required double UnixTimestamp = 3;    // Time stamp of fix (seconds.fractional_seconds since UNIX) 
+    
+        //--------------------------
+        // 2D GPS Fix Data
+        //--------------------------
+        required double Latitude_deg = 4;    // Latitude in degrees
+        required double Longitude_deg = 5;   // Longitude in degrees
+        required double Heading_deg = 6;     // Heading (degrees from True North)
+        required double GroundSpeed_mps = 7; // Speed over ground (meters/sec)
+        
+        //--------------------------
+        // 3D GPS Fix Data
+        //--------------------------
+        required double Altitude_deg = 8;      // Altitude in meters
+        required double VerticalSpeed_mps = 9; // Rate of climb
+        
+        //--------------------------
+        // Uncertainty Data
+        //--------------------------
+        required double ePosition = 10;     // spherical position error, 95% confidence (meters)
+        required double eTime = 11;         // Expected time uncertainty
+        required double eLatitude = 12;     // Expected latitude uncertainty
+        required double eLongitude = 13;    // Expected longitude uncertainty
+        required double eHeading = 14;      // Expected heading uncertainty
+        required double eGroundSpeed = 15;  // Expected ground speed uncertainty
+        required double eAltitude = 16;     // Expected altitude uncertainty
+        required double eVerticalSpeed = 17; // Expected vertical speed uncertainty
+    }
+
+    optional GPSFixData FixData = 2;
+}

@@ -1,0 +1,105 @@
+============================================================
+README Documentation for pFakeModemReport
+
+Written by: Brandt Pedrow
+============================================================
+
+
+===============================================================================
+<<<  TABLE OF CONTENTS  >>>
+===============================================================================
+	1.) Description
+	2.) Usage info
+	3.) MOOS variables published by pFakeModemReport
+	4.) Application Commands
+	5.) MOOS variables subscribed to by pFakeModemReport
+	6.) Blank...for now
+	7.) Mission File Parameters
+	8.) Build Dependencies
+===============================================================================	
+
+
+-------------------------------------------------------------------------------
+1.) Description
+
+	pFakeModemReport --This program is used to cut out the iWhoiMicroModem altogether. Its main purpose is to cut out the actual need for nav beacons when on a 'walk in the park' mission when the positions of theoretical nav beacons AND the actual position of the sub are. This only works on missions out of the water because it relies on knowing the GPS location of the sub at all times. This starts running when it gets the normal "CMD=TxRemusPing" that would start the iWhoi modem to send out a nav ping and find out how long it takes for the ping to return. By storing the posistions of where nav beacons would be placed, and querying the MOOSDB for the current sub location, the program figures out the distance from the sub to each of the beacons, then finds out the time that would be expected for each nav ping. After this, it sends out a message just like one that would be sent out from the iWhoiMicroModem.
+	
+	  
+
+
+
+-------------------------------------------------------------
+2.) Usage Info
+
+USAGE:   pFakeModemReport MISSION_FILE
+
+MISSION_FILE
+        A MOOS mission file containing configuration parameters for the
+        pFakeModemReport application
+
+
+
+
+-------------------------------------------------------------
+3.) MOOS VARIABLES PUBLISHED BY pFakeModemReport
+
+	Variable:				Description:
+	------------			-------------------------------------------------------
+	LBL_2WAYTRAVELTIME	    Same information that is posted from the iWhoiMicroModem. 
+							The total ping times for each of the nave beacons.
+									
+
+
+
+
+
+-------------------------------------------------------------
+4.) APPLICATION COMMANDS
+
+The following command strings may be published to the MOOS variable PMMon_CMD
+in order to issue simple commands to the application:
+
+
+
+ 
+ 
+ 
+
+-------------------------------------------------------------
+5.) MOOS VARIABLES SUBSCRIBED TO BY pFakeModemReport
+
+	Variable: GPS_Latitude, GPS_Longitude, iWhoiMicroModem_CMD 
+	Value:
+		
+
+	
+-------------------------------------------------------------
+6.) Blank
+
+-------------------------------------------------------------
+7.) Mission File Parameters
+
+=======================
+REQUIRED PARAMETERS:
+=======================
+
+	Parameter				 Description
+	-----------------		 ---------------------------------------------------
+Global:
+	LatOrigin				 Latitude of the Origin for the reference geodesey
+	LongOrigin				 Longitude of the Origin for the reference geodesey
+	Beacon(Letter)_North	 Location (in m) North of the Origin of the becaon of letter "letter"
+	Beacon(Letter)_East		 Location (in m) East of the Origin of the becaon of letter "letter"
+	Beacon(Letter)_Latitude	 Latitude of the becaon of letter "letter"
+	Beacon(Letter)_Longitude Longitude of the becaon of letter "letter"
+	Beacon(Letter)_Depth	 Depth (in m below surface) of the becaon of letter "letter"
+	SSH20					 Speed of sound in the water that the sub is in. Units of meters/ms are to be used
+
+-------------------------------------------------------------
+8.) BUILD DEPENDENCIES
+	
+	pFakeModemReport depends on the following MOOS and IvP libraries:
+		- MOOS
+		- MOOSGen
+		- logic (IVP)
+		- MOOSUtilityLib/MOOSGeodesey

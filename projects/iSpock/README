@@ -1,0 +1,143 @@
+============================================================
+README Documentation for iSpock
+
+Written by: Dave Billin
+============================================================
+
+
+===============================================================================
+<<<  TABLE OF CONTENTS  >>>
+===============================================================================
+	1.) Description
+	2.) Usage info
+	3.) MOOS variables published by iSpock
+	4.) MOOS variables subscribed to by iSpock
+	5.) MOOS Mission file parameters
+	6.) Build Dependencies
+===============================================================================	
+
+
+-------------------------------------------------------------
+1.) Description
+
+	iSpock interfaces the Rabbit 3000-based SPOCK sensor module to the MOOS
+	community via a BunnySock network connection
+
+
+-------------------------------------------------------------
+2.) Usage Info
+
+USAGE:   iSpock MISSION_FILE
+
+MISSION_FILE
+        A MOOS mission file containing configuration parameters for the
+        iSpock application
+
+
+
+-------------------------------------------------------------
+3.) MOOS VARIABLES PUBLISHED BY iSpock
+
+	By default, sensor readings from the SPOCK module are published to the
+	following set of variables.  iSpock may be configured via mission file
+	parameters to publish sensor measurements to alternate MOOS variables. See
+	section 5 of this document for further details.
+
+	Variable:				Description:
+	--------------------	--------------------------------------------------
+	COMPASS_HEADING			Digital compass heading (degrees)
+	COMPASS_YAW				Digital compass yaw (radians) from compass heading
+	COMPASS_PITCH			Digital compass pitch angle (radians)
+	COMPASS_ROLL			Digital compass roll angle (radians)
+	COMPASS_DIP				Digital compass dip (radians)
+	DEPTH					Depth measurement (meters) from pressure sensor
+	ACCEL_PITCH				Pitch angle (radians) from SPOCK accelerometers
+	ACCEL_ROLL				Roll angle (radians) from SPOCK accelerometers
+	GPS_LONGITUDE			GPS longitude (degrees)
+	GPS_LATITUDE			GPS latitude (degrees)
+	GPS_VELOCITY			GPS velocity (meters per second)
+	GPS_HPE					GPS horizontal position error (meters)
+	GPS_HEADING				GPS heading (degrees)
+	GPS_YAW					GPS yaw (radians) translated from GPS heading
+	GPS_HOURS				Hours in the day from GPS time
+	GPS_MINUTES				Minutes in the hour from GPS time
+	GPS_SECONDS				Seconds in the minute from GPS time
+	WATERLEAKISDETECTED		"TRUE" if a water leak is detected; else "FALSE"
+	TEMPERATURE				Temperature on the SPOCK module in degrees Celsius
+	BATTERY_VOLTAGE			AUV battery bus voltage (DC Volts)
+
+
+
+
+-------------------------------------------------------------
+4.) MOOS VARIABLES SUBSCRIBED TO BY iSpock
+
+	Variable:			Description
+	-----------------	------------------------------------------------------
+	ISPOCK_CMD			The following string values may be published to this
+						variable to issue commands to the SPOCK module:
+						
+						"AllSensorZero"		
+							Registers current SPOCK sensor readings as the 
+							reference point for subsequent measurements.
+											
+						"DepthSensorZero"
+							Registers current SPOCK depth (pressure) sensor 
+							reading as the reference point for subsequent 
+							measurements.
+
+
+
+-------------------------------------------------------------
+6.) MOOS MISSION FILE PARAMETERS
+
+============================
+*** REQUIRED PARAMETERS ***
+============================
+	Parameter:			Description:
+	-----------------	-------------------------------------------------------
+	SPOCK_HOSTNAME		Hostname or dotted IP address string of the SPOCK module
+	SPOCK_PORT			Network port to connect to on the SPOCK module
+
+
+============================
+*** OPTIONAL PARAMETERS ***
+============================
+
+	The following mission file parameters may be used to override the MOOS
+	variables that SPOCK sensors are published to:
+	
+	Parameter						Description
+	-----------------------------	-------------------------------------------
+	COMPASS_HEADING_PUBLISHTO		MOOS variable to receive compass heading
+	COMPASS_YAW_PUBLISHTO			MOOS variable to receive compass yaw
+	COMPASS_PITCH_PUBLISHTO			MOOS variable to receive compass pitch
+	COMPASS_ROLL_PUBLISHTO			MOOS variable to receive compass roll
+	COMPASS_DIP_PUBLISHTO			MOOS variable to receive compass dip
+	DEPTH_PUBLISHTO					MOOS variable to receive depth
+	ACCEL_PITCH_PUBLISHTO			MOOS variable to receive accelerometer pitch
+	ACCEL_ROLL_PUBLISHTO			MOOS variable to receive accelerometer roll
+	GPS_LONGITUDE_PUBLISHTO			MOOS variable to receive GPS longitude
+	GPS_LATITUDE_PUBLISHTO			MOOS variable to receive GPS latitude
+	GPS_VELOCITY_PUBLISHTO			MOOS variable to receive GPS velocity
+	GPS_HPE_PUBLISHTO				MOOS variable to receive GPS HPE
+	GPS_HEADING_PUBLISHTO			MOOS variable to receive GPS heading
+	GPS_YAW_PUBLISHTO				MOOS variable to receive GPS yaw
+	GPS_HOURS_PUBLISHTO				MOOS variable to receive GPS hours
+	GPS_MINUTES_PUBLISHTO			MOOS variable to receive GPS minutes
+	GPS_SECONDS_PUBLISHTO			MOOS variable to receive GPS seconds
+	WATERLEAKISDETECTED_PUBLISHTO	MOOS variable to receive water leak status
+	TEMPERATURE_PUBLISHTO			MOOS variable to receive temperature
+	BATTERY_VOLTAGE_PUBLISHTO		MOOS variable to receive battery voltage
+	
+	PUBLISH_ONLY_CHANGES			Set to "TRUE" if sensors should only be
+									published when they change.  Omit or set to
+									"FALSE" (default setting) if sensors should
+									be published at a rate determined by the 
+									value of the APP_TICK parameter
+
+-------------------------------------------------------------
+6.) BUILD DEPENDENCIES
+
+	Uses only MOOS and system libraries
+	

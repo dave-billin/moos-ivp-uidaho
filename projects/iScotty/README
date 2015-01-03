@@ -1,0 +1,335 @@
+============================================================
+README Documentation for iScotty
+
+Written by: Dave Billin
+============================================================
+
+
+===============================================================================
+<<<  TABLE OF CONTENTS  >>>
+===============================================================================
+	1.) Description
+	2.) Usage info
+	3.) MOOS variables published by iScotty
+	4.) MOOS variables subscribed to by iScotty
+	5.) MOOS Mission file parameters
+	6.) Vehicle-specific configuration file parameters
+	7.) Build Dependencies
+===============================================================================	
+
+
+-------------------------------------------------------------
+1.) Description
+
+	iScotty interfaces the Rabbit 3000-based SCOTTY actuator control module to 
+	the MOOS community via a BunnySock network connection
+
+
+-------------------------------------------------------------
+2.) Usage Info
+
+USAGE:   iScotty MISSION_FILE
+
+MISSION_FILE
+        A MOOS mission file containing configuration parameters for the
+        iScotty application
+
+
+
+
+		 
+-------------------------------------------------------------
+3.) MOOS VARIABLES PUBLISHED BY iScotty
+
+Variable:				Description:
+-----------------		-------------------------------------------------------
+PROPELLER_RPM			Measured propeller RPM on the Scotty module
+
+RPM_VELOCITY_ESTIMATE	Estimated vehicle velocity based on current propeller 
+						RPM
+
+SCOTTY_SERVO_CENTERS	A string indicating the value of trim values applied to 
+						actuator commands sent to the Scotty module.  This  
+						report is published once when the application connects 
+						to the MOOSDB.  The format of this string is:
+
+			"Rudder=[INT], ElevL=[INT], ElevR=[INT], CouplingCoeff=[DOUBLE]"
+
+
+
+
+-------------------------------------------------------------
+4.) MOOS VARIABLES SUBSCRIBED TO BY iScotty
+
+Variable:			Description:
+-----------------	----------------------------------------------------------
+NAV_YAW			    The current vehicle yaw in radians
+NAV_SPEED			The current vehicle speed in meters/sec
+NAV_DEPTH			The current vehicle depth in meters
+NAV_PITCH			The current vehicle pitch in radians
+NAV_ROLL			The current vehicle roll in radians
+
+
+DESIRED_HEADING		Desired vehicle heading in degrees as published by pHelmIvP
+DESIRED_SPEED		Desired vehicle speed in meters/sec published by pHelmIvP
+DESIRED_DEPTH		Desired vehicle depth in meters published by pHelmIvP
+DESIRED_PITCH		Desired vehicle pitch in radians (currently unused, but
+					included for future enhancements)
+DESIRED_ROLL		Desired vehicle roll in radians published by pHelmIvP
+
+
+DESIRED_RUDDER		Desired rudder angle in radians (0..+/- Pi).  Each time
+					a value is published to this variable, an actuator command 
+					will be sent to the Scotty module.  A value of 0.0 will
+					center the rudder in its null position.  Positive values 
+					result in negative vehicle yaw (positive heading) and a
+					change in direction toward starboard.
+
+DESIRED_ELEVATOR	Desired elevator angle in radians (0..+/- Pi).  Each time
+					a value is published to this variable, an actuator command 
+					will be sent to the Scotty module.  A value of 0.0 will 
+					center the elevator actuators in their null position.
+					Positive values result in a negative vehicle pitch (i.e. 
+		    		they will cause the vehicle to dive deeper).
+
+DESIRED_AILERON		Desired elevator aileron setting in radians (0..+/- Pi).  
+					Each time a value is published to this variable, an 
+					actuator command will be sent to the Scotty module.  A 
+					value of 0.0 results in zero aileron (i.e. pure elevator)
+					actuator operation.  Positive values will result in a 
+					positive change in vehicle roll.  Negative values will 
+					result in a negative change in vehicle roll. 
+
+DESIRED_THRUST		Desired propeller thrust as a percentage of full scale 
+					(0..+/-100).  Each time a value is published to this 
+					variable, an actuator command will be sent to the Scotty 
+					module.  Positive values result in forward (bow-ward) 
+					vehicle motion.  Negative values drive the propeller in 
+					reverse, resulting in aft-ward vehicle motion.
+
+
+MOOS_MANUAL_OVERIDE	Used to enable/disable and initialize PID controllers that
+					regulate vehicle heading, speed, depth, and roll.  When
+					MOOS_MANUAL_OVERIDE has the value "TRUE", the controllers 
+					are reset and do not issue any actuator commands to the 
+					Scotty module.  When MOOS_MANUAL_OVERIDE has the value 
+					"FALSE", the controllers are enabled, and produce no 
+					actuator commands.  NOTE: Actuator commands are always 
+					issued whenever values are published to	DESIRED_YAW, 
+					DESIRED_SPEED, DESIRED_DEPTH, or DESIRED_ROLL.  
+
+
+iScotty_MAX_DEPTH	The maximum depth in meters allowed by the PID depth 
+					controller in iScotty.  This is used to saturate values 
+					received in DESIRED_DEPTH.  The default maximum depth
+					setting applied when iScotty starts is 20.0 meters.
+
+
+YAW_PID_Kp			Proportional gain used in the yaw PID controller
+YAW_PID_Ki			Integral gain used in the yaw PID controller
+YAW_PID_Kd			Derivative gain used in the yaw PID controller
+YAW_PID_IntSat		Integral saturation value for the yaw PID controller
+YAW_PID_OutSat		Output saturation value for the yaw PID controller
+
+SPEED_PID_Kp		Proportional gain used in the speed PID controller
+SPEED_PID_Ki		Integral gain used in the speed PID controller
+SPEED_PID_Kd		Derivative gain used in the speed PID controller
+SPEED_PID_IntSat	Integral saturation value for the speed PID controller
+SPEED_PID_OutSat	Output saturation value for the speed PID controller
+
+DEPTH_PID_Kp		Proportional gain used in the depth PID controller
+DEPTH_PID_Ki		Integral gain used in the depth PID controller
+DEPTH_PID_Kd		Derivative gain used in the depth PID controller
+DEPTH_PID_IntSat	Integral saturation value for the depth PID controller
+DEPTH_PID_OutSat	Output saturation value for the depth PID controller
+
+ROLL_PID_Kp			Proportional gain used in the roll PID controller
+ROLL_PID_Ki			Integral gain used in the roll PID controller
+ROLL_PID_Kd			Derivative gain used in the roll PID controller
+ROLL_PID_IntSat		Integral saturation value for the roll PID controller
+ROLL_PID_OutSat		Output saturation value for the roll PID controller
+
+PITCH_PID_Kp		Proportional gain applied to the pitch error input of the 
+					pitch controller
+PITCH_PID_KpDepth	Proportional gain applied to depth law input to the 
+					pitch controller
+PITCH_PID_Ki		Integral gain used in the pitch controller
+PITCH_PID_Kd		Derivative gain used in the pitch controller
+PITCH_PID_IntSat	Integral saturation value for the pitch controller
+PITCH_PID_OutSat	Output saturation value for the pitch controller
+
+SCOTTY_SERVO_TRIMS	A string specifying trim values to be sent to SCOTTY in
+					the form: "EL=<int>,ER=<int>,R=<int>,CC=<real>"
+					Where <int> and <float> indicate the value to use
+					for the servo setting and
+						EL = Left elevator servo center (1..255)
+						ER = Right elevator servo center (1..255)
+						RR = Rudder servo center (1..255)
+						CC = Servo coupling coefficient (0.0...1.0)
+						
+						
+
+ISCOTTY_CMD		This variable may be used to issue one of the following command
+				strings to control iScotty behavior:
+				
+				"YawControlIsEnabled=[TRUE/FALSE]"
+					Enables/disables the Yaw PID controller
+					
+				"SpeedControlIsEnabled=[TRUE/FALSE]"
+					Enables/disables the Speed PID controller
+				
+				"DepthControlIsEnabled=[TRUE/FALSE]"
+					Enables/disables the Depth PID controller
+				
+				"RollControlIsEnabled=[TRUE/FALSE]"
+					Enables/disables the Roll PID controller
+					
+				"PitchControlIsEnabled=[TRUE/FALSE]"
+					Enables/disables the Pich PID controller
+							
+				"ResetPIDs"		Resets all PID controllers
+				"DisableProp"	Disables all thrust sent to SCOTTY (mainly for
+								benchtop or walk-in-the-park testing) 
+				"EnableProp"	Enables thrust commands sent to SCOTTY (mainly for
+								benchtop or walk-in-the-park testing) 
+
+
+-------------------------------------------------------------
+5.) MOOS MISSION FILE PARAMETERS
+
+-------------------------
+** Required parameters **
+-------------------------
+
+	Global Parameter:			Description:
+	-------------------------	-----------------------------------------------
+	VEHICLE_CONFIG_FILE_PATH	Path of the vehicle-specific configuration file
+								containing trim settings.
+
+
+
+	Parameter:					Description:
+	-----------------			-----------------------------------------------
+	SCOTTY_HOSTNAME				Hostname or dotted IP address of the SCOTTY 
+								module to connect to
+								
+	SCOTTY_PORT					Network port of the SCOTTY module as an integer 
+								value (0..65535)
+	
+	YAW_PID_Kp					Yaw controller Proportional gain
+	YAW_PID_Ki					Yaw controller Integral gain
+	YAW_PID_Kd					Yaw controller Derivative gain
+	YAW_PID_IntSat				Yaw controller Integral saturation value
+	YAW_PID_OutSat				Yaw controller output saturation value (rad)
+
+	SPEED_PID_Kp				Speed controller Proportional gain
+	SPEED_PID_Ki				Speed controller Integral gain
+	SPEED_PID_Kd				Speed controller Derivative gain
+	SPEED_PID_IntSat			Speed controller Integral saturation value
+	SPEED_PID_OutSat			Speed controller output saturation value (rad)
+
+	DEPTH_PID_Kp				Depth controller Proportional gain
+	DEPTH_PID_Ki				Depth controller Integral gain
+	DEPTH_PID_Kd				Depth controller Derivative gain
+	DEPTH_PID_IntSat			Depth controller Integral saturation value
+	DEPTH_PID_OutSat			Depth controller output saturation value (rad)
+	
+	ROLL_PID_Kp					Roll controller Proportional gain
+	ROLL_PID_Ki					Roll controller Integral gain
+	ROLL_PID_Kd					Roll controller Derivative gain
+	ROLL_PID_IntSat				Roll controller Integral saturation value
+	ROLL_PID_OutSat				Roll controller output saturation value (rad)	
+
+	PITCH_PID_Kp				Pitch controller Proportional gain on error
+	PITCH_PID_KpDepth			Pitch controller proprotional gain on depth law
+	PITCH_PID_Ki				Gain on integral of pitch error 
+	PITCH_PID_Kd				Gain on derivative of pitch error
+	PITCH_PID_IntSat			Pitch controller Integral saturation value
+	PITCH_PID_OutSat			Pitch controller output saturation value (rad)
+	
+	VELOCITY_PER_RPM			Empirical value used to estimate vehicle 
+								velocity based on propeller RPM.  Known values 
+								from the Rabbit AUV are:
+									0.001138	- Magnetometer mounted on AUV
+									0.001167	- No magnetometer on AUV
+
+	VELOCITY_PER_RPM_OFFSET		Empirical value used to estimate vehicle 
+								velocity based on propeller RPM.  Known values 
+								from the Rabbit AUV are:
+									-0.2533		- Magnetometer mounted on AUV
+									-0.1988		- No magnetometer on AUV
+	
+		
+-------------------------
+** Optional parameters **
+-------------------------
+
+	Parameter:					Description:
+	-----------------			-----------------------------------------------
+	YAW_PID_LOGFILE				Absolute path of a file to which yaw controller 
+								values will be logged.  If this parameter is 
+								omitted, no logging of the controller will be 
+								performed.
+	
+	SPEED_PID_LOGFILE			Absolute path of a file to which speed 
+								controller values will be logged.  If this 
+								parameter is omitted, no logging of the 
+								controller will be performed.
+								
+	DEPTH_PID_LOGFILE			Absolute path of a file to which depth
+								controller values will be logged.  If this 
+								parameter is omitted, no logging of the 
+								controller will be performed.
+								
+	ROLL_PID_LOGFILE			Absolute path of a file to which roll
+								controller values will be logged.  If this 
+								parameter is omitted, no logging of the 
+								controller will be performed.								
+
+	PITCH_PID_LOGFILE			Absolute path of a file to which pitch
+								controller values will be logged.  If this 
+								parameter is omitted, no logging of the 
+								controller will be performed.	
+																									
+	MAX_DEPTH					A double specifying the maximum depth in meters
+								allowed by the Depth controller.  If this
+								parameter is omitted, the default value of 20 
+								meters is used instead.
+
+
+-------------------------------------------------------------
+6.) Vehicle-specific configuration file parameters
+
+	The following parameters may be optionally specified in the 
+	vehicle-specific configuration file given in mission file parameter 
+	VEHICLE_CONFIG_FILE_PATH:
+
+	SERVO_CENTER_RUDDER
+		(1 to 255) Servo position to use as the center (0 degrees) 
+		setting for the rudder
+
+	SERVO_CENTER_ELEV_L
+		(1 to 255) Servo position to use as the center (0 degrees) 
+		setting for the left elevator
+
+	SERVO_CENTER_ELEV_R
+		(1 to 255) Servo position to use as the center (0 degrees) 
+		setting for the right elevator
+
+	SERVO_COUPLINGCOEFF
+		(0.0 to +/- 1.0) Coefficient of coupling between the rudder 
+		and elevators.  More positive values introduce more control
+		coupling between the elevators and rudder.  More negative values
+		have the same effect, only they introduce an inverse coupling
+		relationship.
+
+
+
+-------------------------------------------------------------
+7.) BUILD DEPENDENCIES
+
+iScotty depends on the following libraries:
+	- MOOS
+	- MOOSGen
+	- MOOSNav
+	

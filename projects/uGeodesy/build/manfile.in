@@ -1,0 +1,154 @@
+.\"============================================================================
+.\" Linux man file for ${PROJECT_VERSION}
+
+.\"==============================================================
+.\" **** MAN FILE (nroff) MARKUP REFERENCE ****
+.\"==============================================================
+.\" The nroff/troff markup language is a bit archaic, so this
+.\" section is included as a non-comprehensive quick-reference
+.\"
+.\" To configure the man page header:
+.\"    .TH  <top-left text>  <top-center text>  <top-right text>
+.\"
+.\" Create a man page section:
+.\"    .SH <section heading>
+.\"    <section text>
+.\"
+.\" Create a man page sub-section:
+.\"    .SS <sub-section heading>
+.\"    <sub-section text>
+.\"
+.\" Create an indented list:
+.\"    .TP <list item>
+.\"    <list item text>
+.\"
+.\" Text formatting:
+.\"    .B <text>        Make text on the current line bold
+.\"    \f<text>\R       Make text in <text> underlined
+.\"    .IP              Indent the current paragraph/line
+.\"    .br              Insert an empty line
+.\"    .P               New paragraph
+.\"==============================================================
+
+
+.\"==============================
+.\" Project info
+.\"==============================
+.TH ${PROJECT_NAME} 1  "version ${PROJECT_VERSION}" "MOOS APPLICATION" "version ${PROJECT_VERSION}"
+.SH NAME 
+${PROJECT_NAME}: A utility to translate between local and earth coordinates \c
+
+.\"==============================
+.\" Command line usage and
+.\" Description
+.\"==============================
+.SH SYNOPSIS
+.B ${PROJECT_NAME}
+[OPTIONS] MISSION_FILE
+
+.SH DESCRIPTION
+This utility is used to display the location of one or more points specified in
+a mission file using both local (North, East) and Earth (longitude, latitude) 
+coordinates.
+
+
+.SH "COMMAND LINE ARGUMENTS"
+
+.\"==============================
+.\" OPTION switches
+.\"==============================
+.SS "OPTIONS"
+
+.TP
+.B \-h,\-\-help
+Prints command line usage
+
+.TP
+.B \-e,\-\-example
+Prints an example of the application's mission file configuration block
+
+.TP
+.B \-v,\-\-version
+Prints application version
+
+
+.\"==============================
+.SH "MISSION FILE"
+Required parameter that specifies a MOOS mission file containing \c
+application parameters.
+
+
+.\"==============================
+.\" Command line example
+.\"==============================
+.SH EXAMPLES
+.TP
+Translate points specified in the mission file Points.moos
+.B ${PROJECT_NAME}
+Points.moos
+
+
+.\"================================================
+.\" Description of parameters that may appear in
+.\" the application's mission file configuration
+.\" block
+.\"================================================
+.SH GLOBAL-SCOPE MISSION FILE PARAMETERS
+
+.TP
+.B OriginLat = ***
+Defines the latitude of the local coordinate system origin (0,0)
+
+.TP
+.B OriginLong = ***
+Defines the longitude of the local coordinate system origin (0,0)
+
+
+.\"==========================
+.\" Configuration block parameters
+.\"==========================
+.SH CONFIGURATION BLOCK MISSION FILE PARAMETERS
+
+.SS Specifying points using local coordinates
+Points may be specified in local coordinates using the syntax
+POINT:NAME=nnnn,North=****,East=****
+
+.TP
+.B NAME=nnnn
+The string nnnn contains a friendly name for the point (optional)
+
+.TP
+.B North=****
+This value (****) specifies the North coordinate of the point
+
+.TP
+.B North=****
+This value (****) specifies the East coordinate of the point
+
+
+
+.SS Specifying points using earth coordinates
+Points may be specified in earth coordinates using the syntax
+POINT:NAME=nnnn,Lat=****,Long=****
+
+.TP
+.B NAME=nnnn
+The string nnnn contains a friendly name for the point (optional)
+
+.TP
+.B Lat=****
+This value (****) specifies the Latitude of the point
+
+.TP
+.B Long=****
+This value (****) specifies the Longitude of the point
+
+
+.\"================================================
+.\" EXIT STATUS, etc.
+.\"================================================
+.SH "EXIT STATUS"
+Zero on success, or -1 to signal an error
+
+.SH AUTHOR
+${PROJECT_AUTHOR} (${PROJECT_EMAIL})

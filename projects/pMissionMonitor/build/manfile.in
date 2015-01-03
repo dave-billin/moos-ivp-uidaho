@@ -1,0 +1,184 @@
+.\"============================================================================
+.\" Linux man file for ${PROJECT_VERSION}
+
+.\"==============================
+.\" Project info
+.\"==============================
+.TH ${PROJECT_NAME} 1  "version ${PROJECT_VERSION}" "MOOS APPLICATION" "version ${PROJECT_VERSION}"
+
+.SH NAME 
+${PROJECT_NAME}: A MOOS app to monitor critical system MOOSDB variables.
+
+.SH DESCRIPTION
+pMissionMonitor monitors one or more logical conditions imposed on specified \c
+MOOSDB variables.  If any of these conditions evaluate to FALSE, a \c
+corresponding set of variables and values is published to the MOOS database. \c
+Logical conditions are repeatedly evaluated at a rate determined by the \c
+AppTick mission file parameter AND whenever mail is received from the \c 
+MOOSDB.
+
+
+
+.\"==============================
+.\" Command line usage and
+.\" Description
+.\"==============================
+.SH SYNOPSIS
+.B ${PROJECT_NAME}
+[OPTIONS] \fBMISSION_FILE\fR [AppName]
+
+.SH "COMMAND LINE ARGUMENTS"
+
+.\"==============================
+.\" OPTION switches
+.\"==============================
+.SS "OPTIONS"
+
+.TP
+.B \-h,\-\-help
+Prints command line usage
+
+.TP
+.B \-e,\-\-example
+Prints an example of the application's mission file configuration block
+
+.TP
+.B \-v,\-\-version
+Prints application version
+
+
+.\"==============================
+.SS "MISSION_FILE"
+\fIRequired\fR parameter that specifies a MOOS mission file containing \c
+application parameters.
+
+.\"==============================
+.SS AppName
+Optional parameter for specifying a name to use when registering with the \c
+MOOS database
+
+
+.\"==============================
+.\" Command line example
+.\"==============================
+.SH \fIEXAMPLE\fR
+.TP
+Open the alpha.moos mission file and register with the MOOSDB as "Bullwinkle"
+.B ${PROJECT_NAME}
+alpha.moos Bullwinkle
+
+.\"==================================================
+.\" Published MOOS variables
+.\" The .B causes the variable name to be displayed 
+.\" in bold typeface
+.\"==================================================
+.SH "PUBLISHED MOOS VARIABLES"
+.br
+MOOS variables published by this application are determined by the PUBLISHTO \c
+fields of monitor targets defined in a (.mcf) monitor configuration file \c
+specified in the application's mission file.
+
+
+
+.\"==================================================
+.\" Subscribed MOOS variables
+.\" The .B causes the variable name to be displayed 
+.\" in bold typeface
+.\"==================================================
+.SH "SUBSCRIBED MOOS VARIABLES"
+.br
+MOOS variables subscribed to by this application are determined by the \c
+CONDITION fields of monitor targets defined in a (.mcf) monitor \c
+configuration file specified in the application's mission file.
+
+
+
+.\"==============================
+.\" MISSION FILE PARAMETERS
+.\"==============================
+.SH "MISSION FILE PARAMETERS"
+
+.SS \fIREQUIRED PARAMETERS\fR
+
+.TP
+.B MONITOR_CONFIG_FILE
+A string specifying the absolute path of a monitor configuration file to be \c
+loaded at startup.
+
+
+
+.\"=====================================
+.\" MONITOR CONFIGURATION FILE SYNTAX
+.\"=====================================
+.SH "MONITOR CONFIGURATION FILE (.mcf) SYNTAX"
+Monitor configuration (.mcf) files shall consist of ASCII text specifying \c 
+one or more variables and logical conditions to monitor.  Each block shall \c
+be composed of a matching set of brace characters ("{" and "}") between \c
+which are found fields describing a logical condition in the MOOS database \c
+be monitored:
+.P
+{
+.RS
+NAME        = <string>
+.br
+ORDER       = <integer>
+.br
+DURATION    = <double>
+.P
+CONDITION   = <logic expression>
+.br
+   ...
+.br
+CONDITION   = <logic expression>
+.P
+PUBLISH     = <MOOS variable name> = <string or double value>
+.br
+   ...
+.br
+PUBLISH     = <MOOS variable name> = <string or double value>
+.P
+PRINT       = <string>
+.RE
+}
+
+
+.SS "MONITOR CONFIGURATION BLOCK FIELDS"
+
+.TP
+.I NAME 
+A name or short description to associate with the configuration block.
+
+.TP
+.I CONDITION 
+One or more of these fields may be used to specify a logical condition \c
+that is to be monitored.  A string containing one or more logical \c
+expressions involving MOOS variables to be monitored.  If any of these \c
+logical conditions evaluate to FALSE, the corresponding PUBLISH \c
+directives given in the configuration block will be carried out, and \c
+values will be published to the MOOS database. \c
+Logical expressions are the same as those used in the run conditions of \c
+pHelmIvP behaviors.  The left-hand side of an expression is assumed to \c
+be the name of a MOOS variable, while the right-hand side is a literal \c
+value.
+
+
+
+.TP
+.I PUBLISH
+One or more lines each specifying a MOOS variable and value to publish if \c
+any logical conditions given in a CONDITION field of the configuration \c
+block evaluate to FALSE.
+
+.TP
+.I PRINT
+An optional parameter that specifies a string to be printed to stdio if \c
+any logical conditions given in a CONDITION field of the configuration \c
+block evaluate to FALSE.
+
+
+
+.SH "EXIT STATUS"
+Returns an exit status of zero
+
+.SH AUTHOR
+${PROJECT_AUTHOR} (${PROJECT_EMAIL})

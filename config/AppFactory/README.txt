@@ -1,0 +1,73 @@
+============================================================
+README Documentation for MOOSAPPFACTORY_NAME
+
+Written by: MOOSAPPFACTORY_AUTHOR
+============================================================
+
+
+===============================================================================
+<<<  TABLE OF CONTENTS  >>>
+===============================================================================
+	1.) Description
+	2.) Usage info
+	3.) MOOS variables published by MOOSAPPFACTORY_NAME
+	4.) MOOS variables subscribed to by MOOSAPPFACTORY_NAME
+	5.) MOOS Mission file parameters
+	6.) Build Dependencies
+===============================================================================	
+
+
+-------------------------------------------------------------
+1.) Description
+
+	<< Add a description of MOOSAPPFACTORY_NAME here >>
+
+
+-------------------------------------------------------------
+2.) Usage Info
+
+USAGE:   MOOSAPPFACTORY_NAME MISSION_FILE [APPNAME] 
+
+MISSION_FILE
+	A MOOS mission file containing runtime configuration parameters
+
+APPNAME
+	Alternate name the application will use when registering with
+	the MOOS database.
+
+
+		 
+-------------------------------------------------------------
+3.) MOOS VARIABLES PUBLISHED BY MOOSAPPFACTORY_NAME
+
+	Variable:				Description:
+	--------------------	---------------------------------------------------
+	
+	
+	
+-------------------------------------------------------------
+5.) MOOS MISSION FILE PARAMETERS
+
+	=============================
+	 *** REQUIRED PARAMETERS ***
+	=============================
+	Parameter:					Description:
+	--------------------		--------------------------------
+
+								
+
+	=============================
+	 *** OPTIONAL PARAMETERS ***
+	=============================
+	
+	Parameter:							Description
+	----------------------------------	---------------------------------------
+
+
+
+
+-------------------------------------------------------------
+6.) BUILD DEPENDENCIES
+
+    << List any libraries not provided by MOOS or MOOS-IvP >>
+	

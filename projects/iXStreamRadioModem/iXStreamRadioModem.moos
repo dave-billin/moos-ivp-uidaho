@@ -1,0 +1,130 @@
+//  Global mission parameters that all processes can access
+//ServerHost = localhost
+ServerHost = 192.168.2.3
+ServerPort = 9000
+
+// you can name tag processes connected to a particular DB under a community name
+Community = Yelsub
+
+// Used by some processes to determine whether they are running under a simulation
+Simulator = false
+
+
+// The name or path of the file containing vehicle-specific settings.  If used,
+// this should contain the following name=value parameters:
+// AUV_VEHICLE_ID	- (1..253) the vehicle's ID
+//VEHICLE_CONFIG_FILE_PATH = "/media/RINGO/VehicleConfig.cfg"
+
+
+
+
+//---------------------------------------
+// This signals whether MOOS applications
+// are running under a simulator [true]
+// or normal execution [false]
+//---------------------------------------
+Simulator = false
+
+
+//---------------------------------------
+ProcessConfig = ANTLER
+{
+    // pAntler launches processes for you
+    // you can specify whether or not each process gets a new window or not
+    // you can specify the name under which each process registers with MOOSDB
+    // Run = PROC_NAME @ [ NewConsole = [TRUE/FALSE] [~ MOOSNAME]]
+
+    //crucial processes
+    Run = MOOSDB        @   NewConsole = TRUE
+	Run = iXStreamRadioModem @ NewConsole = TRUE
+	//Run = uMS @ NewConsole = FALSE
+	
+   //this next line sets the executable paths explicitly
+   //ExecutablePath = /home/pnewman/code/MOOS/MOOSBin
+
+   //this tells pAntler to use the system the path to find executables
+   ExecutablePath = SYSTEMPATH
+
+   //this specifies an amount of time to wait after each process is launched
+   MSBetweenLaunches = 200
+}
+//---------------------------------------
+
+
+
+
+//=============================================================================
+ProcessConfig = iXStreamRadioModem
+{
+	//------------------------------------------------
+	// This determines how many times per second the
+	// application's Iterate() method gets called
+	//------------------------------------------------
+	AppTick= 10		
+
+	//------------------------------------------------
+	// This determines how many times per second the
+	// application's connection to the MOOS Database
+	// gets serviced
+	//------------------------------------------------
+	CommsTick = 10
+
+	
+	//------------------------------------
+	// ** SERIAL PORT SETTINGS **
+	//	Gumstix OVERO serial ports are:
+	//
+	//	OMAP Serial Port	Value for 'Port'
+	//	-----------------	-----------------
+	//	 UART 1				  /dev/ttyS0
+	//	 UART 3				  /dev/ttyS2
+	//------------------------------------
+	Port = /dev/ttyUSB0
+	BaudRate = 38400	// UART baud rate [19200, 56600, 115200, etc...]
+	//Verbose = true	// Turns on extra debugging info for the serial port
+	Handshaking = false // Enable hardware handshaking [true/false]
+	Streaming = true	// [true] Use a thread to buffer data in the background
+						// [false] Use blocking calls to receive data
+
+
+	// If the vehicle ID cannot be loaded from the file specified in
+	// VEHICLE_CONFIG_FILE_PATH, this value will be used for the modem's address
+	DEFAULT_MODEM_ADDRESS = 3
+
+	// Radio network parameters
+	HOPPING_CHANNEL = 1
+	ADDRESS_MASK = 255
+	SENSOR_REPORT_PERIOD_SEC = 1
+
+
+	// MOOS variables that supply sensor values broadcast to the base station 
+	MOOSVAR_COMPASS_HEADING_DEG = NAV_HEADING
+	MOOSVAR_DEPTH_M = NAV_DEPTH
+	MOOSVAR_BATTERY_VOLTS = BATTERY_VOLTAGE
+	MOOSVAR_H20_LEAK_DETECTED = WATERLEAKISDETECTED
+	MOOSVAR_TEMPERATURE_C = TEMPERATURE
+	MOOSVAR_LONGITUDE_DEG = GPS_LONGITUDE
+	MOOSVAR_LATITUDE_DEG = GPS_LATITUDE
+	MOOSVAR_GPS_VELOCITY_MPS = GPS_VELOCITY
+	MOOSVAR_GPS_HPE_M = GPS_HPE
+	MOOSVAR_GPS_HEADING_DEG = GPS_HEADING
+	MOOSVAR_GYRO_PITCH_RAD = NAV_PITCH
+	MOOSVAR_GYRO_ROLL_RAD = NAV_ROLL
+	MOOSVAR_MISSION_NUMBER = MISSION_NUMBER
+	MOOSVAR_RUN_NUMBER = RUN_NUMBER
+	MOOSVAR_ACTUAL_THRUST_PERCENT = DESIRED_THRUST
+	MOOSVAR_LAST_ABORT_CODE = ABORT_CODE
+	MOOSVAR_LBL_BUOY_FLAGS = LBL_ActiveBuoys
+	MOOSVAR_COORDINATE_N = NAV_Y
+	MOOSVAR_COORDINATE_E = NAV_X
+
+
+	// Setting the value to TRUE will cause serial data sent to the modem to be
+	// printed to stdio
+	PRINT_SERIAL_TX = true
+
+	// Setting the value to TRUE will cause serial data received from the modem to
+	// be printed to stdio
+	PRINT_SERIAL_RX = true
+		
+}

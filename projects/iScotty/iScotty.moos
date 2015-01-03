@@ -1,0 +1,134 @@
+//  global variables anyone can use them
+ServerHost = 192.168.2.3
+//ServerHost = localhost
+ServerPort = 9000
+
+// you can name tag processes connected to a particular
+// DB under a community name
+Community = Yelsub
+
+//some processes look at this flag to see wether things are real
+Simulator = false
+
+
+// The name or path of the file containing vehicle-specific settings.  At
+// startup, iWhoiMicroModem first looks for a parameter in this file called 
+// AUV_VEHICLE_ID, and uses its value as the Acoustic Network ID for the 
+// modem.  If the file or parameter cannot be read, the NVRAM parameter SRC is
+// used instead
+VEHICLE_CONFIG_FILE_PATH = "/media/Phobos_2GB/moos-ivp/MOOS/YellowSub/iScotty/src/AuvConfig.cfg"
+
+
+
+//---------------------------------------
+ProcessConfig = ANTLER
+{
+    // pAntler launches processes for you
+    // you can specify whether or not each process gets a new window or not
+    // you can specify the name under which each process registers with MOOSDB
+    // Run = PROC_NAME @ [ NewConsole = [TRUE/FALSE] [~ MOOSNAME]]
+
+
+    //crucial processes
+    Run = MOOSDB        @   NewConsole = true
+  	//Run = iScotty		@	NewConsole = true
+  	Run = uMS
+  	
+   //this next line sets the executable paths explicitly
+   //ExecutablePath = /media/RINGO/moos-ivp/MOOS/YellowSub/iSpock/src
+
+   //this tells pAntler to use the system the path to find executables
+   ExecutablePath = SYSTEMPATH
+
+   //this specifies an amount of time to wait after each process is launched
+   MSBetweenLaunches = 200
+}
+//---------------------------------------
+
+
+//---------------------------------------
+ProcessConfig = iScotty
+{
+	//------------------------------------
+	// ** MOOS APPLICATION PARAMETERS **
+	//------------------------------------
+	
+	// AppTick determines the rate (in Hz) at which the Scotty
+	// PID controllers will be updated.
+	AppTick = 10
+
+	// CommsTick sets the number of times each second the 
+	// application checks for new mail from the MOOSDB
+	CommsTick = 8
+
+
+	//---------------------------
+	// CONNECTION SETTINGS
+	//---------------------------
+	// Hostname or IP address of the SCOTTY module
+	SCOTTY_HOSTNAME = 192.168.2.3
+	
+	// Network port to connect to on the SCOTTY module
+	SCOTTY_PORT = 20024
+	
+	
+	//---------------------------
+	// HEADING CONTROLLER GAINS
+	//---------------------------
+	YAW_PID_Kp = 0.8			// Proportional gain
+	YAW_PID_Ki = 0.0			// Integral gain
+	YAW_PID_Kd = 0.0			// Derivative gain
+	YAW_PID_IntSat = 0.0		// Integral saturation value
+	
+	YAW_PID_OutSat = 1.483529839	// Maximum output value
+									// (+/- 85 degrees for rudder) 
+
+	//---------------------------
+	// SPEED CONTROLLER GAINS
+	//---------------------------
+	SPEED_PID_Kp = 1.0			// Proportional gain
+	SPEED_PID_Ki = 0.0			// Integral gain
+	SPEED_PID_Kd = 0.0			// Derivative gain
+	SPEED_PID_IntSat = 0.0		// Integral saturation value
+	
+	SPEED_PID_OutSat = 100.0	// Maximum output value 
+
+
+	//---------------------------
+	// DEPTH CONTROLLER GAINS
+	//---------------------------
+	DEPTH_PID_Kp = 1.0			// Proportional gain
+	DEPTH_PID_Ki = 0.0			// Integral gain
+	DEPTH_PID_Kd = 0.0			// Derivative gain
+	DEPTH_PID_IntSat = 100.0	// Integral saturation value
+	DEPTH_PID_OutSat = 100.0
+
+
+	//---------------------------
+	// ROLL CONTROLLER GAINS
+	//---------------------------
+	ROLL_PID_Kp = 1.0			// Proportional gain
+	ROLL_PID_Ki = 0.0			// Integral gain
+	ROLL_PID_Kd = 0.0			// Derivative gain
+	ROLL_PID_IntSat = 0.0			// Integral saturation value
+	ROLL_PID_OutSat = 1.483529839	// +/- Maximum output value
+										// (+/- 85 deg) for aileron 
+	
+	
+	//---------------------------
+	// PITCH CONTROLLER GAINS
+	//---------------------------
+	PITCH_PID_Kp = 2.0			// Proportional gain on pitch error
+	PITCH_PID_KpDepth = 0.0		// Proportional gain on depth controller output
+	PITCH_PID_Ki = 1.0			// Integral gain
+	PITCH_PID_Kd = 0.0			// Derivative gain
+	PITCH_PID_IntSat = 2.0			// Integral saturation value
+	PITCH_PID_OutSat = 1.483529839	// +/- Maximum output value
+										// (+/- 85 deg) for elevator 
+
+	// Values used to estimate RPM-based velocity
+	VELOCITY_PER_RPM = 0.001167		
+	VELOCITY_PER_RPM_OFFSET = -0.1988;
+										
+	VERBOSITY = 1	// (optional) verbosity level of debugging messages
+}

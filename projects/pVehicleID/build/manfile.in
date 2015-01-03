@@ -1,0 +1,147 @@
+.\"============================================================================
+.\" Linux man file for ${PROJECT_VERSION}
+
+.\"==============================
+.\" Project info
+.\"==============================
+.TH ${PROJECT_NAME} 1  "version ${PROJECT_VERSION}" "MOOS APPLICATION" "version ${PROJECT_VERSION}"
+
+.SH NAME 
+${PROJECT_NAME}: MOOS application used to publish the ID of the host \c
+vehicle, loaded from a vehicle-specific configuration file, to the MOOSDB.
+
+.SH DESCRIPTION
+pVehicleID reads the ID of the host vehicle from a specified \c
+vehicle-specific configuration file, publishes it once to the MOOSDB, then \c
+exits.  This is essentially what uPokeDB would normally be used for, but \c
+pVehicleID provides the cross-platform ability to parse a vehicle-specific \c
+configuration file.
+
+
+
+.\"==============================
+.\" Command line usage and
+.\" Description
+.\"==============================
+.SH SYNOPSIS
+.B ${PROJECT_NAME}
+[OPTIONS] \fBMISSION_FILE\fR [AppName]
+
+.SH "COMMAND LINE ARGUMENTS"
+
+.\"==============================
+.\" OPTION switches
+.\"==============================
+.SS "OPTIONS"
+
+.TP
+.B \-h,\-\-help
+Prints command line usage
+
+.TP
+.B \-e,\-\-example
+Prints an example of the application's mission file configuration block
+
+.TP
+.B \-v,\-\-version
+Prints application version
+
+
+.\"==============================
+.SS "MISSION_FILE"
+\fIRequired\fR parameter that specifies a MOOS mission file containing \c
+application parameters.
+
+.\"==============================
+.SS AppName
+Optional parameter for specifying a name to use when registering with the \c
+MOOS database
+
+
+.\"==============================
+.\" Command line example
+.\"==============================
+.SH \fIEXAMPLE\fR
+.TP
+Open the alpha.moos mission file and register with the MOOSDB as "Bullwinkle"
+.B ${PROJECT_NAME}
+alpha.moos Bullwinkle
+
+
+
+.\"==================================================
+.\" Published MOOS variables
+.\" The .B causes the variable name to be displayed 
+.\" in bold typeface
+.\"==================================================
+.SH "PUBLISHED MOOS VARIABLES"
+.br
+
+.TP
+.B VEHICLE_ID
+Numeric (integer) value containing the ID of the host vehicle in a fleet. \c
+An alternate MOOSDB variable to publish this ID to may optionally be \c
+specified using the VEHICLE_ID_PUBLISHTO mission file parameter.
+
+
+.\"==================================================
+.\" Subscribed MOOS variables
+.\" The .B causes the variable name to be displayed 
+.\" in bold typeface
+.\"==================================================
+.SH "SUBSCRIBED MOOS VARIABLES"
+pVehicleEKF does not subscribe to any MOOSDB variables
+.br
+
+
+
+.\"==============================
+.\" MISSION FILE PARAMETERS
+.\"==============================
+.SH "MISSION FILE PARAMETERS"
+.br
+
+.\"===================================
+.\" GLOBAL PARAMETERS
+.\"===================================
+.SS GLOBAL-SCOPE PARAMETERS
+.br
+
+.TP
+.B VEHICLE_CONFIG_FILE_PATH
+Path of a vehicle-specific configuration file containing the vehicle ID
+ID.
+
+
+.\"===================================
+.\" OPTIONAL APPLICATION PARAMETERS
+.\"===================================
+.SS OPTIONAL APPLICATION-SCOPE PARAMETERS
+.br
+
+.TP
+.B VEHICLE_ID_PUBLISHTO
+This parameter may be used to specify an alternate MOOSDB variable to \c
+which the vehicle ID will be published.
+
+
+.\"==============================
+.\" VEHICLE CONFIG FILE PARAMS
+.\"==============================
+.SH "VEHICLE-SPECIFIC CONFIGURATION FILE PARAMETERS"
+The vehicle-specific configuration file specified via the mission file \c
+parameter VEHICLE_CONFIG_FILE_PATH should contain a line with the form:
+.P
+.IP 
+VEHICLE_ID = <\fIID\fR>
+.P
+.IP
+Where \fIID\fR = The integer ID of the host vehicle in the fleet.
+
+
+
+.SH "EXIT STATUS"
+Returns an exit status of zero
+
+.SH AUTHOR
+${PROJECT_AUTHOR} (${PROJECT_EMAIL})

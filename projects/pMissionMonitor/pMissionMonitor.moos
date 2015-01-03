@@ -1,0 +1,62 @@
+//=============================================================================
+
+//==========================================
+// GLOBAL MISSION FILE PARAMETERS
+//	The parameters in this section are
+//	available to all MOOS Applications
+//==========================================
+
+//---------------------------------------
+// These parameters tell MOOS Apps how 
+// to connect to the Database
+//---------------------------------------
+ServerHost = localhost
+ServerPort = 9000
+
+
+
+//---------------------------------------
+// You can name tag processes connected 
+// to a particular Database under a 
+// community name
+//---------------------------------------
+Community = V1
+
+
+
+
+//---------------------------------------
+// This signals whether MOOS applications
+// are running under a simulator [true]
+// or normal execution [false]
+//---------------------------------------
+Simulator = false
+
+
+
+
+//==========================================
+// MOOS APPLICATION PARAMETERS FOR
+// pMissionMonitor
+//==========================================
+ProcessConfig = pMissionMonitor
+{
+	//-----------------------------------------------------------------
+	// Frequency at which Iterate() is called.  This value can be left
+	// at a very low setting (1), since pMissionMonitor doesn't do
+	// anything in Iterate().
+	//-----------------------------------------------------------------
+	AppTick= 1		
+
+	//------------------------------------------------
+	// Frequency at which mail gets fetched from the
+	// MOOS Database
+	//------------------------------------------------
+	CommsTick = 20
+
+
+	//------------------------------------------------
+	// Monitor configuration file
+	MONITOR_CONFIG_FILE = /media/Phobos_2GB/moos-ivp/MOOS/YellowSub/pMissionMonitor/MonitorConfigTest.mcf
+	
+}

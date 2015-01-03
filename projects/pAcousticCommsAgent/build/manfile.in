@@ -1,0 +1,251 @@
+.\"============================================================================
+.\" Linux man file for ${PROJECT_VERSION}
+
+.\"==============================
+.\" Project info
+.\"==============================
+.TH ${PROJECT_NAME} 1  "version ${PROJECT_VERSION}" "MOOS APPLICATION" "version ${PROJECT_VERSION}"
+
+.SH NAME 
+${PROJECT_NAME}: A MOOS application providing simple TDMA for acoustic \c
+communications and navigation.
+
+.SH DESCRIPTION
+pAcousticCommsAgent provides a simple method by which acoustic \c
+communications, navigation pings, etc. may be scheduled to occur in a \c
+cyclical set of time slots.  This is primarily intended to implement a time \c
+domain multiple access (TDMA) scheme for acoustic events within a fleet of \c
+vehicles whose clocks are synchronized (via GPS or some other means).
+.P
+The TDM cycle consists of a sequence of 'time slots' - each of which \c
+represents a fixed duration in which some acoustic traffic occurs in the \c
+acoustic network.  The current position (in seconds) in a time slot sequence \c
+is calculated as the number of seconds elapsed since midnight modulus \c
+the sum of all time slot durations in the sequence.  A time slot n becomes \c
+active when the current position in the sequence is greater than or equal to \c
+the durations of all (n-1) preceding time slots.  When a slot becomes \c
+active, one or more values may conditionally (or unconditionally) be \c
+published to the MOOSDB.  
+.P
+Once a time slot sequence is loaded from a \c
+configuration text file, the number and order of time slots is fixed.  \c
+Furthermore, it is assumed that the configuration is common to all entities \c
+in the acoustic network.  No attempt is made to adapt to the presence or \c
+absence of fleet members, or success/failure of acoustic communications.  \c
+
+
+.SH EXAMPLE SCENARIO
+.P
+As a greatly simplified example of how pAcousticCommsAgent might be used, \c
+consider a fleet of two AUV's - each of which is equipped with a WHOI \c
+acoustic Micro-Modem - and a base station (either dockside or a surface \c
+vessel.  Each AUV must transmit navigation (LBL) pings to determine their \c
+respective position within the area of operations.  In addition, the AUV's \c
+must report their positions in an acoustic data packet approximately every \c
+12 seconds. The base station, on the other hand, primarily monitors acoustic \c
+traffic, but must occasionally send commands in acoustic data packets to the \c
+AUV's. The time clocks of the AUV's and the Base Station may be assumed to \c
+be synchronized to within 0.5 second of one another.
+.P
+To address these requirements, a timing cycle configuration for \c
+pAcousticCommsAgent would be created containing the following time slots:
+.br
+.RS
+
+.TP
+.I SLOT 1
+A slot with a 4-second duration that posts a MOOSDB command to trigger \c
+sending a navigation ping if the AUV vehicle ID equals 1.
+
+.TP
+.I SLOT 2
+A slot with an 8-second duration that posts a command to trigger \c
+transmission of an acoustic AIS report data packet if the AUV vehicle ID \c
+equals 1.
+
+.TP
+.I SLOT 3
+A slot with a 4-second duration that posts a MOOSDB command to trigger \c
+sending a navigation ping if the AUV vehicle ID equals 2.
+
+.TP
+.I SLOT 4
+A slot with an 8-second duration that posts a command to trigger \c
+transmission of an acoustic AIS report data packet if the AUV vehicle ID \c
+equals 2.
+
+.TP
+.I SLOT 5
+A slot with an 8-second duration that posts no commands.  This serves as a \c
+window within which the base station may send commands to the AUV's.
+
+.RE
+
+
+.\"==============================
+.\" Command line usage and
+.\" Description
+.\"==============================
+.SH SYNOPSIS
+.B ${PROJECT_NAME}
+[OPTIONS] \fBMISSION_FILE\fR [AppName]
+
+.SH "COMMAND LINE ARGUMENTS"
+
+.\"==============================
+.\" OPTION switches
+.\"==============================
+.SS "OPTIONS"
+
+.TP
+.B \-h,\-\-help
+Prints command line usage
+
+.TP
+.B \-e,\-\-example
+Prints an example of the application's mission file configuration block
+
+.TP
+.B \-v,\-\-version
+Prints application version
+
+
+.\"==============================
+.SS "MISSION_FILE"
+\fIRequired\fR parameter that specifies a MOOS mission file containing \c
+application parameters.
+
+.\"==============================
+.SS AppName
+Optional parameter for specifying a name to use when registering with the \c
+MOOS database
+
+
+.\"==============================
+.\" Command line example
+.\"==============================
+.SH \fIEXAMPLE\fR
+.TP
+Open the alpha.moos mission file and register with the MOOSDB as "Bullwinkle"
+.B ${PROJECT_NAME}
+alpha.moos Bullwinkle
+
+.\"==================================================
+.\" Published MOOS variables
+.\" The .B causes the variable name to be displayed 
+.\" in bold typeface
+.\"==================================================
+.SH "PUBLISHED MOOS VARIABLES"
+.br
+MOOS variables published by this application are determined by the contents of 
+the time slot configurations in the communication cycle (.cyc) file.
+.P
+.TP
+.B ACTIVE_COMMS_TIMESLICE
+A string containing the NAME field of the currently active time slice in the \c
+current communications cycle.
+
+
+.\"==================================================
+.\" Subscribed MOOS variables
+.\" The .B causes the variable name to be displayed 
+.\" in bold typeface
+.\"==================================================
+.SH "SUBSCRIBED MOOS VARIABLES"
+.br
+Subscribed MOOS variables are determined by the logic conditions given in time
+slot configurations in the communication cycle file.
+
+
+
+.\"==============================
+.\" MISSION FILE PARAMETERS
+.\"==============================
+.SH "MISSION FILE PARAMETERS"
+
+.SS \fIREQUIRED\fR
+.RS
+
+.TP
+.B TIMING_CYCLE_FILE
+A string containing the full path of a .tdm file from which a timing cycle \c
+configuration will be loaded.
+
+
+.SH "TIMING CYCLE (.cyc) FILE SYNTAX"
+Timing cycle (.tdm) files shall consist of ASCII text specifying one or more \c
+time slice blocks.  Each of these blocks shall have the following format:
+.br
+{
+.RS
+NAME        = <string>
+.br
+ORDER       = <integer>
+.br
+DURATION    = <double>
+.br
+CONDITION   = <logic expression>
+.P
+PUBLISH     = <MOOS variable name> = <string or double value>
+.br
+   ...
+.br
+PUBLISH     = <MOOS variable name> = <string or double value>
+.P
+ALWAYSPUBLISH = <MOOS variable name> = <string or double value>  
+.br
+   ...
+.br
+ALWAYSPUBLISH = <MOOS variable name> = <string or double value>  
+.RE
+}
+
+
+.SS "TIMING CYCLE FILE FIELDS"
+
+.TP
+.I NAME 
+A name or short description to associate with the time slice.
+
+.TP
+.I ORDER
+A positive integer value used to order this slice among other time slice \c
+blocks.  Slices with the lowest ORDER value occur earlier than slices with \c
+higher ORDER values within the timing cycle.
+		    
+.TP
+.I DURATION
+The duration of the time slice (i.e. the length of time it will be active) \c
+in seconds.
+
+.TP
+.I CONDITION
+A string containing one or more logical expressions used to  enable the time \c
+slice's PUBLISH activities.  Logical expressions are the same as those used \c
+in the run conditions of pHelmIvP behaviors.  The left-hand side of an \c
+expression is assumed to be the name of a MOOS variable, while the \c
+right-hand side is a literal value.  If the specified CONDITION expression \c
+evaluates to TRUE, all of the time slice's PUBLISH activities will be \c
+carried out when the slice becomes active.  If the condition evaluates to \c
+FALSE, only PUBLISH activities specified with the "@ALWAYS" flag will be \c
+carried out.  The string "TRUE" may be substituted for a logical expression, \c
+in which case, the slice's PUBLISH activities will be carried out anytime \c
+the slice is active.
+
+.TP
+.I PUBLISH
+One or more lines specifying a MOOS variable and value to publish if the \c
+time slice becomes active and its CONDITION is satisfied.
+
+.TP
+.I ALWAYSPUBLISH
+One or more lines specifying a MOOS variable and value that will be \c
+published whenever the time slice becomes active regardless of whether its \c
+CONDITION fields are satisfied.
+
+
+.SH "EXIT STATUS"
+Returns an exit status of zero
+
+.SH AUTHOR
+${PROJECT_AUTHOR} (${PROJECT_EMAIL})

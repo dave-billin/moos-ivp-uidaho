@@ -1,0 +1,76 @@
+//  global variables anyone can use them
+ServerHost = localhost
+ServerPort = 9000
+
+// you can name tag processes connected to a particular
+// DB under a community name
+Community = Yelsub
+
+//some processes look at this flag to see wether things are real
+Simulator = true
+
+
+//---------------------------------------
+ProcessConfig = ANTLER
+{
+    // pAntler launches processes for you
+    // you can specify whether or not each process gets a new window or not
+    // you can specify the name under which each process registers with MOOSDB
+    // Run = PROC_NAME @ [ NewConsole = [TRUE/FALSE] [~ MOOSNAME]]
+
+    //crucial processes
+    Run = MOOSDB                @ NewConsole = true
+    Run = MOOSAPPFACTORY_NAME   @ NewConsole = true
+
+    //this next line sets the executable paths explicitly
+    //ExecutablePath = <some other system path>
+
+    //this tells pAntler to use the system the path to find executables
+    ExecutablePath = SYSTEMPATH
+
+    //this specifies an amount of time to wait after each process is launched
+    MSBetweenLaunches = 200
+}
+//---------------------------------------
+
+
+
+// The name or path of the file containing vehicle-specific settings.  At
+// startup, iWhoiMicroModem first looks for a parameter in this file called 
+// AUV_VEHICLE_ID, and uses its value as the Acoustic Network ID for the 
+// modem.  If the file or parameter cannot be read, the NVRAM parameter SRC is
+// used instead
+VEHICLE_CONFIG_FILE_PATH = "vehicleconfig.cfg"
+
+
+//---------------------------------------
+ProcessConfig = MOOSAPPFACTORY_NAME
+{ 
+	//------------------------------------
+	// *** MOOS APPLICATION PARAMETERS
+	// Number of calls to the application's Iterate() method per second
+	AppTick= 5
+
+    // Frequency at which updates are received from the MOOS database
+	CommsTick = 5
+
+	//----------------------------------------------------------------
+	// ** SERIAL PORT SETTINGS **
+	//	For Gumstix OVERO hardware, serial ports are typically one of 
+	//	the following:
+	//
+	//	   Port Value:			OMAP Serial Port
+	//	-----------------		-------------
+	//		/dev/ttyO0				UART 1
+	//      /dev/ttyO1              UART 2
+	//		/dev/ttyO2				UART 3
+	//------------------------------------
+	//Port = /dev/ttyO1
+	//BaudRate = 57600
+	//Streaming = false 
+	//Verbose = false
+
+	
+	// Debugging verbosity
+	VERBOSITY = 1
+}

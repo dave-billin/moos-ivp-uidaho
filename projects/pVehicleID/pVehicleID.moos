@@ -1,0 +1,67 @@
+/////////////////////////////////////////////////////////////////////////
+// This example MOOS file shows (will show) some of the configuration that
+// Core MOOS applications support. In time each application subdirectory 
+// will sport an Example.moos which will illustrate the configuration
+// options offered by that process
+/////////////////////////////////////////////////////////////////////////
+
+
+//name of the machine hosting the MOOSDB 
+//(can be an I.P address aswell as a FQDN)
+ServerHost = localhost
+
+//port DB listens on (make sure you are blocking the port you request)
+ServerPort = 9000
+
+//optional global simualtion flags (some processes use this to fake reality when required)
+Simulator = false
+
+//all connected process can be tagged as belonging to a named community
+Community = V1
+
+// The name or path of the file containing vehicle-specific settings.  This
+// should contain the following name=value parameters:
+// AUV_VEHICLE_ID	- (1..253) A unique ID (sub number) of the vehicle
+VEHICLE_CONFIG_FILE_PATH = "/home/i87tumadre/moos-ivp/MOOS-2300-Dec0309/AWalkInThePark/walk-in-the-park/VehicleConfig.cfg"
+
+
+//////////////////////////////////
+// pAntler configuration  block  //
+//////////////////////////////////
+ProcessConfig = ANTLER
+{
+    // pAntler launches processes for you
+    // you can specify whether or not each process gets a new window or not
+    // you can specify the name under which each process registers with MOOSDB
+    // Run = PROC_NAME @ [ NewConsole = [TRUE/FALSE] [~ MOOSNAME]]
+
+
+    //crucial processes
+    //Run = MOOSDB        @   NewConsole = true
+	Run = pVehicleID @ NewConsole = false
+  
+   //this next line sets the executable paths explicitly
+   //ExecutablePath = /home/pnewman/code/MOOS/MOOSBin
+
+   //this uses system the path
+   ExecutablePath = SYSTEMPATH
+
+   //this sets how quickly processes are launched in milliseconds
+   MSBetweenLaunches = 200
+}
+
+
+
+
+ProcessConfig = pVehicleID
+{
+    AppTick     = 1
+    CommsTick   = 1
+
+    //------------------------------------
+    // OPTIONAL MISSION FILE PARAMETERS
+    //------------------------------------
+    // Alternate MOOSDB variable to publish the vehicle ID to
+	//PUBLISHTO_VEHICLEID = <MOOSDB variable name>
+}
+

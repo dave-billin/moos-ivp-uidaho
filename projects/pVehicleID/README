@@ -1,0 +1,101 @@
+============================================================
+README Documentation for pVehicleID
+
+Written by: Brandt Pedrow
+============================================================
+
+
+===============================================================================
+<<<  TABLE OF CONTENTS  >>>
+===============================================================================
+	1.) Description
+	2.) Usage info
+	3.) MOOS variables published by pVehicleID
+	4.) Application Commands
+	5.) MOOS variables subscribed to by pVehicleID
+	6.) Blank...for now
+	7.) Mission File Parameters
+	8.) Build Dependencies
+===============================================================================	
+
+
+-------------------------------------------------------------------------------
+1.) Description
+
+	pVehicleID --This program is used to post the current vehicle's ID number to the MOOSDB
+	  
+
+
+
+-------------------------------------------------------------
+2.) Usage Info
+
+USAGE:   pVehicleID MISSION_FILE
+
+MISSION_FILE
+        A MOOS mission file containing configuration parameters for the
+        pVehicleID application
+
+
+
+
+-------------------------------------------------------------
+3.) MOOS VARIABLES PUBLISHED BY pVehicleID
+
+	Variable:						Description:
+	------------					-------------------------------------------------------
+	VehicleID						A double containing the ID number of the current vehicle 
+									
+									
+
+
+
+
+
+-------------------------------------------------------------
+4.) APPLICATION COMMANDS
+
+The following command strings may be published to the MOOS variable PMMon_CMD
+in order to issue simple commands to the application:
+
+
+
+ 
+ 
+ 
+
+-------------------------------------------------------------
+5.) MOOS VARIABLES SUBSCRIBED TO BY pVehicleID
+
+	None
+		
+
+	
+-------------------------------------------------------------
+6.) Blank
+
+-------------------------------------------------------------
+7.) Mission File Parameters
+
+=======================
+REQUIRED PARAMETERS:
+=======================
+
+	Parameter				 Description
+	-----------------		 ---------------------------------------------------
+
+=======================
+OPTIONAL PARAMETERS:
+=======================
+
+	Parameter				 Description
+	-----------------		 ---------------------------------------------------
+	PUBLISHTO_VEHICLEID		 Sets what variable name the ID is set to
+
+-------------------------------------------------------------
+8.) BUILD DEPENDENCIES
+	
+	pVehicleID depends on the following MOOS and IvP libraries:
+		- MOOS
+		- logic (IVP)
+

@@ -1,0 +1,74 @@
+//  global variables anyone can use them
+ServerHost = localhost
+ServerPort = 9000
+
+// you can name tag processes connected to a particular
+// DB under a community name
+Community = Yelsub
+
+//some processes look at this flag to see wether things are real
+Simulator = true
+
+// The location of the geodesy origin must be specified
+// in global scope within the mission file
+LatOrigin  = 47.97872169999999
+LongOrigin = -116.5596272
+
+
+//---------------------------------------
+ProcessConfig = ANTLER
+{
+    // pAntler launches processes for you
+    // you can specify whether or not each process gets a new window or not
+    // you can specify the name under which each process registers with MOOSDB
+    // Run = PROC_NAME @ [ NewConsole = [TRUE/FALSE] [~ MOOSNAME]]
+
+    //crucial processes
+    Run = MOOSDB                @ NewConsole = true
+    Run = uGeodesy   @ NewConsole = true
+
+    //this next line sets the executable paths explicitly
+    //ExecutablePath = <some other system path>
+
+    //this tells pAntler to use the system the path to find executables
+    ExecutablePath = SYSTEMPATH
+
+    //this specifies an amount of time to wait after each process is launched
+    MSBetweenLaunches = 200
+}
+//---------------------------------------
+
+
+
+// The name or path of the file containing vehicle-specific settings.  At
+// startup, iWhoiMicroModem first looks for a parameter in this file called 
+// AUV_VEHICLE_ID, and uses its value as the Acoustic Network ID for the 
+// modem.  If the file or parameter cannot be read, the NVRAM parameter SRC is
+// used instead
+VEHICLE_CONFIG_FILE_PATH = "vehicleconfig.moos"
+
+//---------------------------------------
+ProcessConfig = uGeodesy
+{ 
+	//------------------------------------
+	// *** MOOS APPLICATION PARAMETERS
+	// Number of calls to the application's Iterate() method per second
+	AppTick= 5
+
+    // Frequency at which updates are received from the MOOS database
+	CommsTick = 5
+
+	// Debugging verbosity
+	//VERBOSITY = 1	
+
+    POINT:NAME=OriginLocalCoord,North=0,East=0
+    POINT: NAME=OriginEarthCoord,Lat=47.97872169999999,Long=-116.5596272
+    
+    POINT:NAME=GoodSpec_Earth,Long=-116.537718,Lat=47.979337
+    POINT:NAME=GoodSpec_Local,North=-100, East=100
+    POINT:NAME=BadSpec_Lat,Long=-116.535578,Lat-47.97901900000001 // Bad Lat
+    POINT:NAME-BadSpec_Name,Long=-116.535283,Lat=47.97744500000001 // Bad name!
+    POINT:NAME=BadSpec_North,North-116.537582,East=47.976941
+    
+}
+

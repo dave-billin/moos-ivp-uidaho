@@ -1,0 +1,83 @@
+/////////////////////////////////////////////////////////////////////////
+// This example MOOS file shows (will show) some of the configuration that
+// Core MOOS applications support. In time each application subdirectory 
+// will sport an Example.moos which will illustrate the configuration
+// options offered by that process
+/////////////////////////////////////////////////////////////////////////
+
+
+//name of the machine hosting the MOOSDB 
+//(can be an I.P address aswell as a FQDN)
+ServerHost = localhost
+
+//port DB listens on (make sure you are blocking the port you request)
+ServerPort = 9000
+
+//optional global simualtion flags (some processes use this to fake reality when required)
+Simulator = false
+
+//all connected process can be tagged as belonging to a named community
+Community = V1
+
+LatOrigin = 46.7302
+LongOrigin = -117.00893
+BeaconA_North = 0
+BeaconA_East = 0
+BeaconA_Depth = 0
+BeaconB_North = 100
+BeaconB_East = 0
+BeaconB_Depth = 0
+BeaconC_North = 50
+BeaconC_East = -50
+BeaconC_Depth = 0
+BeaconD_North = -50
+BeaconD_East = -50
+BeaconD_Depth = 0
+SSH20 = 1.470 //(meters/ms)
+
+
+//////////////////////////////////
+// pAntler configuration  block  //
+//////////////////////////////////
+ProcessConfig = ANTLER
+{
+    // pAntler launches processes for you
+    // you can specify whether or not each process gets a new window or not
+    // you can specify the name under which each process registers with MOOSDB
+    // Run = PROC_NAME @ [ NewConsole = [TRUE/FALSE] [~ MOOSNAME]]
+
+
+    //crucial processes
+    //Run = MOOSDB        @   NewConsole = true
+	Run = pFakeModemReport @ NewConsole = false
+  
+   //this next line sets the executable paths explicitly
+   //ExecutablePath = /home/pnewman/code/MOOS/MOOSBin
+
+   //this uses system the path
+   ExecutablePath = SYSTEMPATH
+
+   //this sets how quickly processes are launched in milliseconds
+   MSBetweenLaunches = 200
+}
+
+
+
+//////////////////////////////////
+// Logger configuration  block  //
+//////////////////////////////////
+ProcessConfig = pFakeModemReport
+{
+    //over loading basic params...
+    //How often to run and how often to contact the MOOSDB
+    AppTick     = 4
+    CommsTick   = 4
+    
+    //------------------------------------
+    // OPTIONAL MISSION FILE PARAMETERS
+    //------------------------------------
+    // Alternate MOOSDB variable to publish the travel times to
+	//PUBLISHTO_VEHICLEID = <MOOSDB variable name>
+
+}
+

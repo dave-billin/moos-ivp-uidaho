@@ -1,0 +1,312 @@
+============================================================
+README Documentation for pVehicleEKF
+
+Written by: Dave Billin
+============================================================
+
+
+===============================================================================
+<<<  TABLE OF CONTENTS  >>>
+===============================================================================
+	1.) Description
+	2.) Usage info
+	3.) MOOS variables published by pVehicleEKF
+	4.) MOOS variables subscribed to by pVehicleEKF
+	5.) Mission file parameters
+	6.) Build Dependencies
+===============================================================================	
+
+
+-------------------------------------------------------------
+1.) Description
+
+	pVehicleEKF is a MOOS application that wraps an instance of the VehicleEKF 
+	class found in libYellowSubNav.  This object implements an Extended Kalman 
+	Filter (EKF) to estimate the AUV's (local grid) coordinates, speed, 
+	heading, and heading bias.  This estimate is derived from a combination of
+	sensor readings (compass heading, propeller RPM, and IMU accelerations) and 
+	acoustic ranging by means of LBL transponder beacons.
+
+	When the AUV is close to the surface of the water, acoustic ranging tends
+	to become unreliable.  Since acoustic ranging is the primary input by which
+	the EKF estimates AUV local coordinates, the the VehicleEKF's estimated 
+	location begins to diverge from the AUV's actual location.  
+
+	Fortunately, the AUV can obtain its position, heading, and speed from the
+	on-board GPS when at the surface.  Use of GPS data is triggered by the 
+	following two criteria being satisfied:
+		1) The AUV's depth is less than a threshold value specified in the 
+		   mission file.
+		2) GPS data is received that indicates a Horizontal Position Error 
+		   (HPE) less than a threshold value specified in the mission file.
+
+	If one or both of these criteria are unsatisfied for a specified length of
+	time, estimated values provided by the VehicleEKF object will be reported
+	instead of GPS coordinates.
+
+
+
+-------------------------------------------------------------
+2.) Usage Info
+
+USAGE:   pVehicleEKF MISSION_FILE [APPNAME]
+
+MISSION_FILE
+	MOOS mission file containing application parameters
+
+APPNAME
+	Name the application will use when registering with the MOOS database
+
+
+
+
+-------------------------------------------------------------
+3.) MOOS VARIABLES PUBLISHED BY pVehicleEKF
+	
+pVehicleEKF publishes the following values to MOOS variables
+specified by mission file parameters:
+
+	Variable:				Description:
+	---------------------	--------------------------
+	NAV_X					Local grid East coordinate (meters) of the vehicle
+	NAV_Y					Local grid North coordinate (meters) of the vehicle
+	NAV_DEPTH				Depth (meters) of the AUV
+	NAV_HEADING				Vehicle heading in degrees (using MOOS conventions)
+	NAV_YAW					Yaw of the AUV (using MOOS conventions)
+	NAV_SPEED				Speed of the AUV in meters per second
+    NAV_PITCH               Pitch of the vehicle in radians bounded to +/- PI
+    NAV_ROLL                Roll of the vehicle in radians bounded to +/- PI
+	EST_YAW_BIAS			Estimated yaw bias (radians) in sensor readings.  
+							This bias is already compensated for in NAV_Y.  The
+							bias value is only published in the interest of
+							logging for later analysis and diagnostics.
+						
+NOTE: Different MOOS variables may be substituted for those listed above by 
+using the nnn_PUBLISHTO mission file parameters.  See section 5 of this 
+document for details.
+
+---------------------------------
+Non-mutable variables published 
+by pVehicleEKF:
+---------------------------------
+	Variable:					Description:
+	---------------------		--------------------------
+	[appname]_VehicleEKFMode	A string indicating the nature of values published  
+								by pVehicleEKF: 
+								"ESTIMATED" - Values are estimated using the 
+											  VehicleEKF object
+								"SENSORS"	- pVehicleEKF is publishing 
+											  (non-estimated) values from GPS 
+											  and sensor inputs.
+								
+	[appname]_EKFError			A string indicating an error condition (such as a 
+								failed matrix inversion) detected by the Vehicle 
+								EKF object.  Error strings include:
+									"Matrix invert failed"
+									"Bad position jump"
+
+NOTE: [appname] indicates the name the VehicleEKF application used when registering 
+	  with the MOOSDB
+
+
+
+-------------------------------------------------------------
+4.) MOOS VARIABLES SUBSCRIBED TO BY pVehicleEKF
+
+
+------------------------------
+EKF input MOOS variables:
+------------------------------
+pVehicleEKF depends on the following sensor readings from
+the MOOS database:
+
+	Variable:					Description:
+	-----------------------		----------------------------------------
+	GPS_LATITUDE				GPS latitude (Degrees)
+	GPS_LONGITUDE				GPS longitude (Degrees)
+	GPS_HEADING					GPS heading (degrees)
+	GPS_VELOCITY				GPS velocity (meters per second)
+	GPS_HPE						GPS horizontal position error (meters)
+
+	DEPTH_SENSOR				Depth sensor reading (meters)
+	COMPASS_HEADING				Digital compass heading (degrees)
+
+	PITCH_SENSOR				Rotation (radians) about AUV y-axis (using MOOS
+								conventions)
+
+	ROLL_SENSOR					Rotation (radians) about AUV x-axis (using MOOS
+								conventions)
+
+	IMU_WZ						Angular velocity about the IMU z-axis (rad/s)
+	IMU_WY						Angular velocity about the IMU y-axis (rad/s)
+	
+	LBL_2WAYTRAVELTIME			Travel times (seconds) of acoustic navigation 
+								PING's from LBL beacons A through D
+
+	LBL_RANGEPERIOD				The period at which LBL beacon ranges are 
+								received.
+
+	RPM_VELOCITY_ESTIMATE		RPM-based estimate of vehicle velocity
+	
+NOTE: Different MOOS variables may be substituted for those listed above by 
+using the nnn_SUBSCRIBETO mission file parameters.  See section 5 of this 
+document for details.
+
+------------------------------
+Application Commands
+------------------------------
+The following command strings may be published to the MOOS variable
+[appname]_Command (where appname is the name that an instance of pVehicleEKF
+used when registering with the MOOSDB) in order to invoke specific behaviors:
+
+	Command String			Description
+	------------------		---------------------------------
+	"EKF_INIT"				Forces the EKF to be initialized with the most
+							recent GPS and sensor values.  Use with caution.
+
+
+
+-------------------------------------------------------------
+5.) MOOS MISSION FILE PARAMETERS
+
+
+====================================
+	<< REQUIRED PARAMETERS >>
+====================================
+
+	Parameter:				Description:
+	-------------------		----------------------------------------
+	SSH20		            Speed of sound in water (meters per second)
+	
+						 
+							 
+==================================
+Local coordinate system origin:
+==================================
+	Parameter:				Description:
+	-------------------		----------------------------------------
+	LatOrigin			Latitude of the local coordinate system origin
+	LongOrigin		   Longitude of the local coordinate system origin
+	
+	BeaconA_Longitude		Longitude of LBL transponder beacon A
+	BeaconA_Latitude		Latitude of LBL transponder beacon A
+	BeaconB_Longitude		Longitude of LBL transponder beacon B
+	BeaconB_Latitude		Latitude of LBL transponder beacon B
+	BeaconC_Longitude		Longitude of LBL transponder beacon C
+	BeaconC_Latitude		Latitude of LBL transponder beacon C
+	BeaconD_Longitude		Longitude of LBL transponder beacon D
+	BeaconD_Latitude		Latitude of LBL transponder beacon D
+
+	BeaconA_East			Local East coordinate (meters) of beacon A
+	BeaconA_North			Local North coordinate (meters) of beacon A
+	BeaconB_East			Local East coordinate (meters) of beacon B
+	BeaconB_North			Local North coordinate (meters) of beacon B
+	BeaconC_East			Local East coordinate (meters) of beacon C
+	BeaconC_North			Local North coordinate (meters) of beacon C
+	BeaconD_East			Local East coordinate (meters) of beacon D
+	BeaconD_North			Local North coordinate (meters) of beacon D
+
+	BeaconA_Depth			Depth (meters) of LBL transponder beacon A
+	BeaconB_Depth			Depth (meters) of LBL transponder beacon B
+	BeaconC_Depth			Depth (meters) of LBL transponder beacon C
+	BeaconD_Depth			Depth (meters) of LBL transponder beacon D
+
+    NOTE: If beacon locations are specified in both latitude/longitude AND 
+          local North/East coordinates, only the Latitude/Longitude values
+          will be used.
+
+
+    EKFDepthThreshold       Depth (meters) above which pVehicleEKF will stop
+                            publishing estimated values from the VehicleEKF
+                            object and start publishing values based on GPS and
+                            sensor readings.
+
+    GPS_HPE_Threshold       GPS coordinates with an HPE value less than or 
+                            equal to this threshold are elligible to be 
+                            published directly when the vehicle is at the 
+                            water's surface.
+
+============================
+*** OPTIONAL PARAMETERS ***
+============================
+
+    The following mission file parameters may be used to override the MOOS
+    variables that pVehicleEKF subscribes to for sensor inputs:
+
+    Parameter                       Description
+    -----------------------------   -------------------------------------------
+    GPS_LATITUDE_SUBSCRIBETO        MOOSDB variable containing GPS latitude.        
+    GPS_LONGITUDE_SUBSCRIBETO       MOOSDB variable containing GPS longitude.
+    GPS_YAW_SUBSCRIBETO             MOOSDB variable containing GPS yaw in
+                                    radians bounded to +/- PI.
+    GPS_VELOCITY_SUBSCRIBETO        MOOSDB variable containing GPS velocity in
+                                    meters per second.
+    GPS_HPE_SUBSCRIBETO             MOOSDB variable containing GPS horizontal
+                                    position error (HPE).
+    DEPTH_SENSOR_SUBSCRIBETO        MOOSDB variable containing depth sensor 
+                                    reading in meters.
+    HEADING_COMPASS_SUBSCRIBETO     MOOSDB variable containing digital compass
+                                    heading in degrees.
+    PITCH_SENSOR_SUBSCRIBETO        MOOSDB variable containing pitch sensor 
+                                    readings in radians bounded to +/- PI.
+    ROLL_SENSOR_SUBSCRIBETO         MOOSDB variable containing roll sensor 
+                                    readings in radians bounded to +/- PI.
+    IMU_WZ_SENSOR_SUBSCRIBETO       MOOSDB variable containing rotational
+                                    velocity about the IMU z-axis.
+    IMU_WY_SUBSCRIBETO              MOOSDB variable containing rotational
+                                    velocity about the IMU y-axis.
+    LBL_2WAYTRAVELTIME_SUBSCRIBETO  MOOSDB variable used to receive LBL active
+                                    navigation ping travel times (seconds).
+    LBL_RANGEPERIOD_SUBSCRIBETO     MOOSDB variable used to receive the period
+                                    (seconds) at which LBL pings are sent. 
+    RPM_VELOCITY_ESTIMATE_SUBSCRIBETO   MOOSDB variable containing an estimated
+                                        velocity based on propeller RPM.
+
+
+
+    The following mission file parameters may be used to override the MOOS
+    variables that pVehicleEKF publishes to
+
+    Parameter                       Description
+    -----------------------------   -------------------------------------------
+    NAV_X_PUBLISHTO                 Current East position in local coordinates
+    NAV_Y_PUBLISHTO                 Current North position in local coordinates
+    NAV_DEPTH_PUBLISHTO             Current depth (meters)
+    NAV_HEADING_PUBLISHTO           Current heading (degrees)
+    NAV_YAW_PUBLISHTO               Current heading (radians bounded to +/- PI)
+    NAV_SPEED_PUBLISHTO             Current speed (meters per second)
+    EST_YAW_BIAS_PUBLISHTO          Estimated yaw bias from EKF
+    
+
+
+----------------------------------------------
+The following optional mission file parameters 
+are used to calculate an estimated vehicle 
+speed based on propeller RPM
+----------------------------------------------
+
+VELOCITY_PER_RPM = [double]
+	Empirical value used to estimate vehicle velocity based on propeller RPM.
+	If not specified in the mission file, the default value is 0.001138.  Known
+	values from the Rabbit AUV are:
+	0.001138	- Magnetometer mounted on AUV
+	0.001167	- No magnetometer on AUV
+
+VELOCITY_PER_RPM_OFFSET = [double]
+	Empirical value used to estimate vehicle velocity based on propeller RPM.
+	If not specified in the mission file, the default value is -0.2533.  Known
+	values from the Rabbit AUV are:
+	-0.2533		- Magnetometer mounted on AUV
+	-0.1988		- No magnetometer on AUV
+
+
+-------------------------------------------------------------
+6.) BUILD DEPENDENCIES
+
+pVehicleEKF depends on the following libraries:
+	MOOS
+	MOOSGenLib
+	libnewmat
+	libYellowSubNav
+
+

@@ -1,0 +1,221 @@
+//=============================================================================
+// MonitorConfigTest.mcf
+//
+// A monitor config file for testing pMissionMonitor
+//=============================================================================
+
+//==============================================
+// Monitor the variable "iXRM_RxAbort" used to
+// receive manual aborts via the radio modem.
+// Alarm whenever its value is not "FALSE" 
+//==============================================
+{
+	NAME = DOCKSIDE ABORT
+	PRINT = *** A manual ABORT was received from the radio modem ***
+	
+	CONDITION = (iXRM_RxAbort == "FALSE") OR (iXRM_RxAbort == "false") 
+	
+	PUBLISH = 	ABORTCODE = "DOCKSIDE MANUAL ABORT"
+	PUBLISH = 	MOOS_MANUAL_OVERRIDE = TRUE
+}
+
+
+//==============================================
+// Monitor the variable "BATTERY_VOLTAGE" that
+// is published by SPOCK.  Alarm whenever its
+// value falls below 24 Volts 
+//==============================================
+{
+	NAME = BATTERY VOLTAGE ALARM
+	PRINT = *** Low Battery voltage! ***
+	
+	CONDITION = (BATTERY_VOLTAGE >= 24.0) 
+	
+	PUBLISH = 	ABORTCODE = "LOW BATTERY VOLTAGE"
+	PUBLISH = 	MOOS_MANUAL_OVERRIDE = TRUE
+}
+
+
+
+//==============================================
+// Monitor the variable "BATTERY_VOLTAGE" that
+// is published by SPOCK.  Alarm whenever its
+// value falls below 24 Volts 
+//==============================================
+{
+	NAME = BATTERY VOLTAGE ALARM
+	PRINT = *** Low Battery voltage! ***
+	
+	CONDITION = (BATTERY_VOLTAGE >= 24.0) 
+	
+	PUBLISH = 	ABORTCODE = "LOW BATTERY VOLTAGE"
+	PUBLISH = 	MOOS_MANUAL_OVERRIDE = TRUE
+}
+
+
+
+//==============================================
+// Monitor the variable "WATERLEAKISDETECTED"
+// and make sure its value is either "FALSE" or 
+// "false"
+//==============================================
+{
+	NAME = Water Leak Alarm
+	PRINT = *** A water leak has been detected! ***
+	
+	CONDITION = (WATERLEAKISDETECTED == "FALSE") OR (WATERLEAKISDETECTED == "false") 
+	
+	PUBLISH = 	ABORTCODE = "WATER LEAK"
+	PUBLISH = 	MOOS_MANUAL_OVERRIDE = TRUE
+}
+
+
+
+//==============================================
+// Monitor the variable "NAV_DEPTH" and make
+// sure its value is less than a maximum depth  
+// in meters
+//==============================================
+{
+	NAME = Depth Alarm
+	PRINT = *** Maximum vehicle depth of 10 meters exceeded! ***
+	
+	CONDITION = (NAV_DEPTH < 10) 
+	
+	PUBLISH = 	ABORTCODE = "MAX DEPTH EXCEEDED"
+	PUBLISH = 	MOOS_MANUAL_OVERRIDE = TRUE
+}
+
+
+
+//==============================================
+// Monitor the variable "NAV_PITCH" and make
+// sure its value (radians) is within a safe   
+// range
+//==============================================
+{
+	NAME = Pitch Alarm
+	PRINT = *** Maximum Pitch of -50 degrees exceeded! ***
+	
+	CONDITION = (NAV_PITCH > -0.872664611) 
+	
+	PUBLISH = 	ABORTCODE = "MAX PITCH EXCEEDED"
+	PUBLISH = 	MOOS_MANUAL_OVERRIDE = TRUE
+}
+
+
+
+
+//==============================================
+// Monitor the variable "DIVE_FAILURE" and make  
+// sure it is "FALSE"
+//==============================================
+{
+	NAME = Dive Failure Alarm
+	PRINT = *** Failed to dive! ***
+	
+	CONDITION = (DIVE_FAILURE == "FALSE") OR (DIVE_FAILURE == "false") 
+	
+	PUBLISH = 	ABORTCODE = "DIVE FAILURE"
+	PUBLISH = 	MOOS_MANUAL_OVERRIDE = TRUE
+}
+
+
+
+//==============================================
+// Monitor the variable "LEADER_ABORT" and make  
+// sure it is "FALSE"
+//==============================================
+{
+	NAME = Leader Abort Alarm
+	PRINT = *** Formation leader signaled an ABORT! ***
+	
+	CONDITION = (LEADER_ABORT == "FALSE") OR (LEADER_ABORT == "false") 
+	
+	PUBLISH = 	ABORTCODE = "FORMATION LEADER ABORTED"
+	PUBLISH = 	MOOS_MANUAL_OVERRIDE = TRUE
+}
+
+
+
+//==============================================
+// Monitor the variable "VehicleEKF_EKFError" 
+// and make sure no bad jump errors are posted
+//==============================================
+{
+	NAME = EKF Bad Jump Alarm
+	PRINT = *** Bad position jump in EKF estimate! ***
+	
+	CONDITION = (VehicleEKF_EKFError != "Bad position jump") 
+	
+	PUBLISH = 	ABORTCODE = "EKF JUMP ERROR"
+	PUBLISH = 	MOOS_MANUAL_OVERRIDE = TRUE
+}
+
+
+
+//==============================================
+// Monitor the variable "VehicleEKF_EKFError" 
+// and make sure no bad range errors are posted
+//==============================================
+{
+	NAME = EKF Bad Beacon Ranges Alarm
+	PRINT = *** EKF got too many bad nav ranges! ***
+	
+	CONDITION = (VehicleEKF_EKFError != "Bad nav beacon ranges") 
+	
+	PUBLISH = 	ABORTCODE = "EKF BAD RANGE ERROR"
+	PUBLISH = 	MOOS_MANUAL_OVERRIDE = TRUE
+}
+
+
+
+//==============================================
+// Monitor the variable "VehicleEKF_EKFError" 
+// and make sure no matrix invert errors are 
+// posted
+//==============================================
+{
+	NAME = EKF Matrix Invert Alarm
+	PRINT = *** EKF: matrix inversion failed! ***
+	
+	CONDITION = (VehicleEKF_EKFError != "Matrix invert failed") 
+	
+	PUBLISH = 	ABORTCODE = "EKF MATRIX INVERT FAILURE"
+	PUBLISH = 	MOOS_MANUAL_OVERRIDE = TRUE
+}
+
+
+
+
+//==============================================
+// Monitor the variable "IMU_CONNECTED" and make 
+// sure it is "TRUE"
+//==============================================
+{
+	NAME = IMU Alarm
+	PRINT = *** The IMU is not responding! ***
+	
+	CONDITION = (IMU_CONNECTED == "TRUE") or (IMU_CONNECTED == "true") 
+	
+	PUBLISH = 	ABORTCODE = "IMU NOT RESPONDING"
+	PUBLISH = 	MOOS_MANUAL_OVERRIDE = TRUE
+}
+
+
+
+//==============================================
+// Monitor the variable "IMU_CONNECTED" and make 
+// sure it is "TRUE"
+//==============================================
+{
+	NAME = IMU Alarm
+	PRINT = *** The IMU is not responding! ***
+	
+	CONDITION = (IMU_CONNECTED == "TRUE") or (IMU_CONNECTED == "true") 
+	
+	PUBLISH = 	ABORTCODE = "IMU NOT RESPONDING"
+	PUBLISH = 	MOOS_MANUAL_OVERRIDE = TRUE
+}
+
+

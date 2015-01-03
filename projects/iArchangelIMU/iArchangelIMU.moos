@@ -1,0 +1,131 @@
+//  global variables anyone can use them
+ServerHost = localhost
+ServerPort = 9000
+
+// you can name tag processes connected to a particular
+// DB under a community name
+Community = Yelsub
+
+//some processes look at this flag to see wether things are real
+Simulator = true
+
+
+//---------------------------------------
+ProcessConfig = ANTLER
+{
+    // pAntler launches processes for you
+    // you can specify whether or not each process gets a new window or not
+    // you can specify the name under which each process registers with MOOSDB
+    // Run = PROC_NAME @ [ NewConsole = [TRUE/FALSE] [~ MOOSNAME]]
+
+
+    //crucial processes
+    Run = MOOSDB        @ NewConsole = true
+  	//Run = pLogger       @NewConsole = true
+  	Run = uXMS			@NewConsole = true
+  	Run = iArchangelIMU	@ NewConsole = true
+
+  	
+   //this next line sets the executable paths explicitly
+   //ExecutablePath = /media/RINGO/moos-ivp/MOOS/YellowSub/iSpock/src
+
+   //this tells pAntler to use the system the path to find executables
+   ExecutablePath = SYSTEMPATH
+
+   //this specifies an amount of time to wait after each process is launched
+   MSBetweenLaunches = 1000
+}
+//---------------------------------------
+
+
+
+// The name or path of the file containing vehicle-specific settings.  At
+// startup, iWhoiMicroModem first looks for a parameter in this file called 
+// AUV_VEHICLE_ID, and uses its value as the Acoustic Network ID for the 
+// modem.  If the file or parameter cannot be read, the NVRAM parameter SRC is
+// used instead
+VEHICLE_CONFIG_FILE_PATH = "vehicleconfig.moos"
+
+//---------------------------------------
+ProcessConfig = iArchangelIMU
+{ 
+	//------------------------------------
+	// *** MOOS APPLICATION PARAMETERS
+	// How fast should iterate be called? (used by CMOOSApp)
+	AppTick= 100
+
+	// How responsive should comms be? (used by CommsClient)
+	CommsTick = 100
+
+	//----------------------------------------------------------------
+	// ** SERIAL PORT SETTINGS **
+	//	For Gumstix OVERO hardware, serial ports are typically one of 
+	//	the following:
+	//
+	//	   Port Value:			OMAP Serial Port
+	//	-----------------		-------------
+	//		/dev/ttyO0				UART 1
+	//		/dev/ttyO2				UART 3
+	//------------------------------------
+	PORT = /dev/ttyUSB0
+	//PORT = /home/dave/moos-ivp-uidaho-ssh/src/iArchangelIMU/Matlab/800-packets-synchronized.dat
+	//PORT = /home/dave/moos-ivp-uidaho-ssh/src/iArchangelIMU/ImuData2.bin
+	Verbose = false
+
+	// Overrides of default variables to publish sensors to: 
+	//IMU_DELTA_ROLL_ANGLE_PUBLISHTO = NAV_ROLL;
+	//IMU_DELTA_PITCH_ANGLE_PUBLISHTO = NAV_PITCH;
+	
+	// Debugging verbosity
+	VERBOSITY = 1	
+}
+
+
+
+
+//------------------------------------------
+// pLogger config block
+
+ProcessConfig = pLogger
+{
+  AppTick	= 5
+  CommsTick	= 5
+
+  File		= iArchangelIMU_Test
+  PATH		= ./
+  //SyncLog 	= true @ 0.2
+  AsyncLog 	= true
+  FileTimeStamp = true
+
+  LogAuxSrc = true
+  WildCardLogging = true
+  //LoggingDirectorySummaryFile = ~/.pLogger
+}
+
+
+
+//------------------------------------------
+// uXMS config block
+
+ProcessConfig = uXMS
+{
+  AppTick   = 100
+  CommsTick = 100
+
+  VAR = IMU_DELTA_ROLL_ANGLE
+  VAR = IMU_DELTA_PITCH_ANGLE
+  VAR = IMU_DELTA_YAW_ANGLE
+  VAR = IMU_DELTAV_LONGITUDINAL
+  VAR = IMU_DELTAV_LATERAL
+  VAR = IMU_DELTAV_NORMAL
+  VAR = IMU_INERTIAL_ROLL
+  VAR = IMU_INERTIAL_PITCH
+  VAR = IMU_INERTIAL_YAW
+  VAR = IMU_INERTIAL_ROLLRATE
+  VAR = IMU_INERTIAL_PITCHRATE
+  VAR = IMU_INERTIAL_YAWRATE
+  VAR = IMU_FLAGS
+  
+  VAR = IMU_CONNECTED
+}
+

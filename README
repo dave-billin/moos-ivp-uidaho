@@ -1,0 +1,138 @@
+##=============================================================================
+# FILE:        moos-ivp-uidaho
+# DATE:        August 28, 2011
+# DESCRIPTION: 
+#   Information and build instructions for the moos-ivp-uidaho source tree
+##=============================================================================
+
+#===========================
+# Introduction
+#===========================
+    The moos-ivp-uidaho source tree contains applications and libraries 
+developed at the University of Idaho in Moscow, Idaho.  The majority of these 
+modules have been developed solely for use on native (x86/x86_64) Linux or 
+Gumstix (TI OMAP3 running Angstrom Linux) target platforms, and do not build
+under Windows.
+
+
+#===========================
+# Directory Structure
+#===========================
+The structure of the moos-ivp-uidaho source tree is decribed below:
+--------------
+DIRECTORIES:
+--------------
+arch                  - Directory where static libraries are placed
+bin                   - Directory where executable files are placed
+build                 - Directory containing build object files
+data                  - Directory for storing data and resources common to all
+                        moos-ivp-uidaho applications.
+src                   - Directory containing source code for all modules
+
+docs                  - Top-level documentation directory.  This will typically
+                        contain:
+                            - man   Generated UNIX man-files for applications
+                            - html  Doxygen-generated source code documentation
+
+lib                   - Directory where shared libraries are placed
+
+--------------
+FILES:
+--------------
+build.sh              - Script to configure, build, and clean the source tree
+                        Run with '--help' for details
+
+build-clean.sh        - Script to clean and re-build the moos-ivp-uidaho tree
+build-gumstix.sh      - Script to configure and build the source tree for a
+                        Gumstix CPU target.
+CMakeLists.txt        - Top-level CMake configuration file for the project
+
+README                - This file
+
+
+
+
+#===========================
+# Build Instructions
+#===========================
+
+NOTE: This project depends on libraries provided by the MOOS and the MOOS-IvP
+source trees.  It is assumed that these libraries have already been built or
+installed on the local machine.  If building against a moos-ivp source tree,
+the moos-ivp-uidaho source tree or trunk may be checked out directly into the \
+"moos-ivp" source folder, or into the same directory that contains the 
+"moos-ivp" folder.  If the "moos-ivp" folder must reside in some other path,
+the location may be entered into the CMake variable MOOS_IVP_SOURCE_TREE_BASE
+via one of the CMake GUI's.
+
+
+#-----------------------
+# Linux and Mac Users
+#-----------------------
+
+To build on Linux and Apple platforms, run the build script provided in the
+top-level directory of the moos-ivp-uidaho source tree:
+
+   #> ./build.sh
+
+
+#----------------------------------------
+# Building for Gumstix (TI OMAP3) CPU
+#----------------------------------------
+To build for the Gumstix, you must first install the appropriate cross-compiler 
+toolchain.  This can be done using the following steps:
+    1.) Set up the OpenEmbedded build system on your computer.  Instructions on
+        how to do this can be found on the www.Gumstix.org website: 
+        http://gumstix.org/software-development/open-embedded/61-using-the-open
+        -embedded-build-system.html
+
+    2.) Type 'bitbake meta-toolchain' at the command line.  This will build the
+        cross-compiler toolchain for your (native) OS and processor and place
+        it in a tar file in ${OVEROTOP}/tmp/deploy/glibc/sdk
+
+    3.) Copy the toolchain tar file (typically called something like
+        "angstrom-<vvv>.X-test-<ggg>-armv7a-linux-gnueabi-toolchain.tar.bz2")
+        to your file system root and extract it using the following 
+        commands:
+
+            sudo cp ${OVEROTOP}/tmp/deploy/glibc/sdk/angstrom-<vvv>.X-test- ...
+                   <ggg>-armv7a-linux-gnueabi-toolchain.tar.bz2
+            cd /
+            
+            tar -xjvpf angstrom-<vvv>.X-test-<ggg>-armv7a-linux-gnueabi- ...
+                   toolchain.tar.bz2
+
+    4.) Run the provided script used to build for the gumstix:
+        #> ./build-gumstix.sh
+
+NOTE: If you are manually configuring CMake, a CMake toolchain file for Gumstix
+      builds can be found in ./build/toolchain-gumstix-omap3.cmake
+
+
+
+#-----------------------
+# Windows Users
+#-----------------------
+Software in the moos-ivp-uidaho source tree has been primarily designed for a
+UNIX-like (Linux or MacOS) target.  Consequently, builds for the Windows OS
+are currently disabled.  Support for a Windows target may be included in future
+releases of the moos-ivp-uidaho project.
+
+
+
+
+
+#===========================
+# Environment variables
+#===========================
+The /bin directory in the moos-ivp-uidaho source tree should be added to your 
+PATH environment variable to allow launching apps using pAntler.  Those using
+the BASH or DASH shells can do this by executing the following terminal command 
+from within the moos-ivp-uidaho source tree:
+
+    #> echo 'export PATH=$PATH:$(pwd)/bin' >> ~/.bashrc
+
+This command need only be executed once, since it causes the moos-ivp-uidaho 
+binary path to be registered for all subsequent terminal sessions.
+
+

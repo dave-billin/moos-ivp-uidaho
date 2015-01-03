@@ -1,0 +1,101 @@
+//=============================================================================
+// 3-vehicle Fleet Communications Cycle 
+// Configuration for pAcousticCommsAgent:
+//
+// Created: 06-06-2011
+// Author: Dave Billin
+//=============================================================================
+
+//=================================
+// SUB 1 NAV PING
+//=================================
+{
+	NAME		= SUB1 Nav PING		// Sub 1 LBL navigation PING time slot
+	ORDER		= 1
+	DURATION	= 2.0
+	CONDITION	= VEHICLE_ID == 1
+
+	PUBLISH	= 	iWhoiMicroModem_CMD = 	Cmd=TxRemusPing,Group=1,Channel=1,false,SyncTimeoutms=0,ListenTimeoutms=4000,Beacons=ABCD,Notify=LBL_TRAVEL_TIMES
+}
+
+
+//=================================
+// SUB 1 13-bit user mini-packet
+//=================================
+{
+	NAME		= SUB1 13-bit message
+	ORDER		= 2
+	DURATION	= 2.0
+	CONDITION	= VEHICLE_ID == 1
+
+	PUBLISH	= 	CMD_ReportFormation = "Send a 13-bit formation report" 
+}
+
+
+
+//=================================
+// SUB 2 NAV PING
+//=================================
+{
+	NAME		= SUB2 Nav PING		// Sub 1 LBL navigation PING time slot
+	ORDER		= 3
+	DURATION	= 2.0
+	CONDITION	= VEHICLE_ID == 2
+
+	PUBLISH	= 	iWhoiMicroModem_CMD = 	Cmd=TxRemusPing,Group=1,Channel=1,false,SyncTimeoutms=0,ListenTimeoutms=4000,Beacons=ABCD,Notify=LBL_TRAVEL_TIMES
+}
+
+
+
+//=================================
+// SUB 2 13-bit user mini-packet
+//=================================
+{
+	NAME		= SUB2 13-bit message
+	ORDER		= 4
+	DURATION	= 2.0
+	CONDITION	= VEHICLE_ID == 2
+
+	PUBLISH	= 	CMD_ReportFormation = "Send a 13-bit formation report" 
+}
+
+
+
+//=================================
+// SUB 3 NAV PING
+//=================================
+{
+	NAME		= SUB3 Nav PING		// Sub 1 LBL navigation PING time slot
+	ORDER		= 5
+	DURATION	= 2.0
+	CONDITION	= VEHICLE_ID == 3
+
+	PUBLISH	= 	iWhoiMicroModem_CMD = 	Cmd=TxRemusPing,Group=1,Channel=1,false,SyncTimeoutms=0,ListenTimeoutms=4000,Beacons=ABCD,Notify=LBL_TRAVEL_TIMES
+}
+
+
+//=================================
+// SUB 3 13-bit user mini-packet
+//=================================
+{
+	NAME		= SUB3 13-bit message
+	ORDER		= 6
+	DURATION	= 2.0
+	CONDITION	= VEHICLE_ID == 3
+
+	PUBLISH	= 	CMD_ReportFormation = "Send a 13-bit formation report" 
+}
+
+
+//=================================
+// Leader: 32-Byte Message
+//=================================
+{
+	NAME		= Leader 32-Byte message
+	ORDER		= 7
+	DURATION	= 8.0
+	CONDITION	= I_AM_LEADER == TRUE
+
+	PUBLISH	= 	CMD_Send32ByteReport = "Send a 32-Byte report" 
+}
+

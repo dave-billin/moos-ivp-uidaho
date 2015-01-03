@@ -1,0 +1,207 @@
+.\"============================================================================
+.\" Linux man file for ${PROJECT_NAME}
+
+.\"==============================
+.\" Project info
+.\"==============================
+.TH ${PROJECT_NAME} 1  "version ${PROJECT_VERSION}" "MOOS APPLICATION" "version ${PROJECT_VERSION}"
+.SH NAME 
+${PROJECT_NAME}: An IvP behavior used to implement diving in reverse.
+
+
+.\"==============================
+.\" Command line usage and
+.\" Description
+.\"==============================
+.SH SYNOPSIS
+.B ${PROJECT_NAME}
+[OPTIONS] MISSION_FILE [AppName]
+
+.SH DESCRIPTION
+	BHV_YellowSubReverseDive is an IvP behavior used to implement a reverse-
+	dive sequence for an AUV in which the AUV dives aft-first rather than using
+	forward motion.  For positively-buoyant AUV's that derive their propulsion
+	from an aft-mounted propeller, this may prove a faster, more effective way
+	to make the vehicle dive than other, more conventional alternatives.  
+	
+	The reverse-dive sequence is implemented as a state machine with the 
+	following states:
+	
+.SS INIT
+This state runs for a single Helm iteration when the dive starts, then \c
+immediately transitions to the PitchDown state.  It is used to prepare \c
+internal variables used by the behavior.
+
+
+.SS PitchUp
+In this state, the AUV's propeller is driven in reverse and the elevators \c
+are angled upward.  This results in aft-ward motion that tends to push the \c
+aft of the vehicle further into the water, increasing its pitch.  This state \c
+continues to run until the vehicle's pitch meets or exceeds a specified \c
+target value; at which point the dive transitions to the DiveToDepth state.  \c
+If the desired pitch is not attained within a timeout configured for the \c
+state, a transition is made to the Error state instead.
+	                
+.SS DiveToDepth
+In this state, the AUV continues its aft-ward motion, descending further \c
+into the water at a positive pitch.  Once a configured target depth is \c
+reached, the dive transitions to the LevelOut state.  If the target depth is \c
+not attained within the timeout configured for the state, a transition is \c
+instead made to the Error state instead.
+
+.SS LevelOut
+In this state, the AUV continues aftward, but decreases its pitch to a \c
+target value (typically 0 degrees).  If a pitch equal to or less than the \c
+target is attained, the state machine transitions to the Success state.  If \c
+the timeout configured for the state elapses, a transition is made to the \c
+Error state instead.
+	
+.SS Success
+This state runs for a single iteration, during which the behavior signals a \c
+successful dive and posts flags signaling success (typically enabling \c
+pending behaviors.  Following this, the dive state will be reset to INIT, \c
+and the behavior will mark itself as complete. 
+
+.SS Error
+Upon failure of any other dive state, this state runs for one iteration. \c
+Error flags specified in the behavior configuration are published on entry. \c
+After this, the dive state will be reset to INIT, and the behavior marks \c
+itself as complete.
+
+
+.SH "BEHAVIOR FILE PARAMETERS"
+All standard IvP Helm behavior parameters (duration, runflags, endflags, \c
+etc.) are supported by BHV_ReverseDive.  In addition, the following optional \c
+parameters may be supplied to control dive particulars:
+
+.SS init_flag
+One or more of these entries may be used to specify variable-value pairs to \c
+be published once when the dive sequence begins.  These flags could, for \c
+instance, be used to send vehicle-specific commands to a front-side \c
+controller - such as reversing the drive direction of the the propeller.
+
+.SS pitchdown_pitch_deg
+Target pitch (degrees) used in the PitchDown state.  If this parameter is \c
+not specified, a default pitch target of 20 degrees is used.
+                        
+.SS pitchdown_timeout
+Timeout (in seconds) used for the PitchDown state.  If not specified, a \c
+default timeout of 5 seconds is used.
+
+.SS pitchdown_speed
+Target speed (meters per second) used to create an objective function in the \c
+speed domain when the PitchDown state is running.  Speed values may be \c
+either negative or positive.  It is left to the vehicle's front-side \c
+controller or additional commands issued via the pitchdown_flag parameter to \c
+handle driving the propeller in a reverse direction.  If not specified \c
+in the behavior configuration, a default speed of 5.0 m/sec. is used.
+
+.SS pitchdown_flag
+One or more of these entries may be used to specify variable-value pairs to \c
+be published each pHelmIvP iteration that the PitchDown state is running.
+
+.SS divetodepth_target
+Target depth (meters) to drive to in the DiveToDepth state.  If not \c
+specified in the behavior configuration, a default value of 0.5 meters is \c
+used.
+
+.SS divetodepth_timeout
+Timeout (in seconds) used in the DiveToDepth state.  If not specified in the \c
+behavior configuration, a default value of 5.0 seconds is used.
+
+.SS divetodepth_speed
+Target speed (meters per second) used to create an objective function in the \c
+speed domain while the DiveToDepth state is running.  Speed values may be \c
+negative or positive.  It is left to the vehicle's front-side \c
+controller or additional commands issued via the pitchdown_flag parameter to \c
+handle driving the propeller in a reverse direction.  If not specified \c
+in the behavior configuration, a default speed of 5.0 m/sec. is used.
+
+.SS divetodepth_flag
+One or more of these entries may be used to specify variable-value pairs to \c
+be published on each Helm iteration that the DiveToDepth state is running.
+
+.SS levelout_pitch_deg
+Target pitch (degrees) sought in the LevelOut state.  If not specified in \c
+the behavior configuration, a default value of 0.0 is used.
+
+.SS levelout_timeout
+Timeout (in seconds) used in the LevelOut state.  If not specified, in the \c
+behavior configuration, a default value of 5.0 seconds is used.
+
+.SS levelout_speed
+Target speed (meters per second) used to create an objective function in the \c
+speed domain when the LevelOut state is running.  Speed values may be \c
+negative or positive.  It is left to the vehicle's front-side \c
+controller or additional commands issued via the pitchdown_flag parameter to \c
+handle driving the propeller in a reverse direction.  If not specified \c
+in the behavior configuration, a default speed of 5.0 m/sec. is used.
+
+.SS levelout_flag
+One or more of these entries may be used to specify variable-value pairs to \c
+be published on each Helm iteration that the LevelOut state is running.
+
+.SS error_flag
+One or more of these entries may be used to specify variable-value pairs to \c
+be published once when a dive state fails.  A short description of the 
+reason for the dive error will always be published as a string to the MOOSDB \c
+variable DIVE_ERROR.
+
+success_flag
+One or more of these entries may be used to specify variable-value pairs to \c
+be published once when a dive completes successfully.  The string "true" is \c
+always published to the MOOSDB variable DIVE_SUCCESS.
+
+.SS is_simulation
+A boolean string value ("true" or "false") indicating whether the behavior \c
+is running within a simulation.  If this value is "true", the dive sequence \c
+will not be carried out, and the behavior will complete successfully right \c
+away.  If not specified, this setting defaults to "false".
+
+
+
+.\"==============================
+.\" PUBLISHED MOOSDB VARIABLES
+.\"==============================
+.SH "PUBLISHED MOOSDB VARIABLES"
+The following variables are always published by BHV_ReverseDive
+
+.TP
+.B DIVE_STATE
+A string containing the current dive state.  This variable is updated \c
+whenever the dive state changes. 
+
+.TP
+.B DIVE_ERROR
+A string published on a dive failure.  Contains a short description of what \c
+caused the dive failure.
+
+.TP
+.B DIVE_SUCCESS
+Contains the string "true" when a dive has completed successfully.
+
+
+.\"==============================
+.\" SUBSCRIBED MOOSDB VARIABLES
+.\"==============================
+.SH "SUBSCRIBED MOOSDB VARIABLES"
+The following variables are always subscribed to by BHV_ReverseDive
+
+.TP
+.B NAV_PITCH
+The current vehicle pitch in radians
+
+.TP
+.B NAV_DEPTH
+The current vehicle depth in meters
+
+
+
+.\"==============================
+.\" EXIT STATUS, etc.
+.\"==============================
+.SH "EXIT STATUS"
+Returns an exit status of zero
+
+.SH AUTHOR
+${PROJECT_AUTHOR} (${PROJECT_EMAIL})

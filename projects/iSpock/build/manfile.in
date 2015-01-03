@@ -1,0 +1,280 @@
+.\"============================================================================
+.\" Linux man file for ${PROJECT_VERSION}
+
+.\"==============================
+.\" Project info
+.\"==============================
+.TH ${PROJECT_NAME} 1  "version ${PROJECT_VERSION}" "MOOS APPLICATION" "version ${PROJECT_VERSION}"
+
+.SH NAME 
+${PROJECT_NAME}: A MOOS app to interface with the SCOTTY (Rabbit 3000) motor \c
+controller.
+
+.SH DESCRIPTION
+This application provides a MOOS interface and Front-side driver \c
+using the SCOTTY motor control module in the University of Idaho AUV. \c
+Communication with the Rabbit 3000 microcontroller on the SCOTTY module is \c
+accomplished via a BunnySock TCP connection.  This module natively provides \c
+control over the speed and direction of the AUV propeller and the three \c
+aft-mounted control surfaces (fins).  These elements may be controlled by \c
+issuing direct actuator commands via the MOOS variables \c
+DESIRED_ELEVATOR, DESIRED_AILERON, DESIRED_RUDDER, and DESIRED_THRUST.
+.P 
+The MOOS interface adds five PID controllers for heading, speed, depth, \c 
+pitch and roll.  These controllers (unless specifically disabled via \c
+application commands) are active whenever the MOOSDB variables \c
+MOOS_MANUAL_OVERIDE or MOOS_MANUAL_OVERRIDE have the string value "true". \c
+When active, the controllers produce direct actuator commands that are sent \c
+both to SCOTTY and the MOOSDB (for logging purposes).  When disabled, the \c
+controllers produce no direct actuator commands, allowing the AUV to be \c
+driven via radio control.
+.P
+The SCOTTY module is programmed such that if no direct actuator command is \c
+received within a 2-second period, the propeller is disengaged and all \c
+control surfaces are reset to their null setting.  Thus, in the case of a \c
+critical software failure, the AUV's drive mechanisms will be disabled, \c
+allowing it to float to the surface.
+
+.\"==============================
+.\" Command line usage and
+.\" Description
+.\"==============================
+.SH SYNOPSIS
+.B ${PROJECT_NAME}
+[OPTIONS] \fBMISSION_FILE\fR [AppName]
+
+.SH "COMMAND LINE ARGUMENTS"
+
+.\"==============================
+.\" OPTION switches
+.\"==============================
+.SS "OPTIONS"
+
+.TP
+.B \-h,\-\-help
+Prints command line usage
+
+.TP
+.B \-e,\-\-example
+Prints an example of the application's mission file configuration block
+
+.TP
+.B \-v,\-\-version
+Prints application version
+
+
+.\"==============================
+.SS "MISSION_FILE"
+\fIRequired\fR parameter that specifies a MOOS mission file containing \c
+application parameters.
+
+.\"==============================
+.SS AppName
+Optional parameter for specifying a name to use when registering with the \c
+MOOS database
+
+
+.\"==============================
+.\" Command line example
+.\"==============================
+.SH \fIEXAMPLE\fR
+.TP
+Open the alpha.moos mission file and register with the MOOSDB as "Bullwinkle"
+.B ${PROJECT_NAME}
+alpha.moos Bullwinkle
+
+.\"==================================================
+.\" Published MOOS variables
+.\" The .B causes the variable name to be displayed 
+.\" in bold typeface
+.\"==================================================
+.SH "PUBLISHED MOOS VARIABLES"
+.br
+.TP
+.B COMPASS_HEADING
+Digital compass heading (degrees)
+
+.TP
+.B COMPASS_YAW
+Digital compass yaw in radians bounded to +/- PI
+
+.TP
+.B COMPASS_PITCH
+Digital compass pitch angle in radians bounded to +/- PI
+
+.TP
+.B COMPASS_ROLL
+Digital compass roll angle in radians bounded to +/- PI
+
+.TP
+.B COMPASS_DIP
+Digital compass dip in radians bounded to +/- PI
+
+.TP
+.B DEPTH
+Depth measurement (meters) from pressure sensor
+
+.TP
+.B ACCEL_PITCH
+Pitch angle from SPOCK accelerometers in radians bounded to +/- PI
+
+.TP
+.B ACCEL_ROLL
+Roll angle from SPOCK accelerometers radians bounded to +/- PI
+
+.TP
+.B GPS_LONGITUDE
+GPS longitude (degrees)
+
+.TP
+.B GPS_LATITUDE
+GPS latitude (degrees)
+
+.TP
+.B GPS_VELOCITY
+GPS velocity (meters per second)
+
+.TP
+.B GPS_HPE
+GPS horizontal position error (meters)
+
+.TP
+.B GPS_HEADING
+GPS heading (degrees)
+
+.TP
+.B GPS_YAW
+GPS yaw (radians bounded to +/- PI) translated from GPS heading
+
+.TP
+.B GPS_HOURS
+Hours in the day from GPS time
+
+.TP
+.B GPS_MINUTES
+Minutes in the hour from GPS time
+
+.TP
+.B GPS_SECONDS
+Seconds in the minute from GPS time
+
+.TP
+.B WATERLEAKISDETECTED
+"TRUE" if a water leak is detected; else "FALSE"
+
+.TP
+.B TEMPERATURE
+Temperature on the SPOCK module in degrees Celsius
+
+.TP
+.B BATTERY_VOLTAGE
+AUV battery bus voltage (DC Volts)
+
+
+
+
+.\"==================================================
+.\" Subscribed MOOS variables
+.\" The .B causes the variable name to be displayed 
+.\" in bold typeface
+.\"==================================================
+.SH "SUBSCRIBED MOOS VARIABLES"
+.br
+
+.TP
+.B ISPOCK_CMD
+The following string values may be published to this variable to issue \c
+commands to the SPOCK module:
+.br
+.RS
+
+.TP
+"AllSensorZero"     
+Registers current SPOCK sensor readings as the reference point for \c
+subsequent measurements.
+
+.TP
+"DepthSensorZero"
+Registers current SPOCK depth (pressure) sensor reading as the reference \c
+point for subsequent measurements.
+
+.RE                     
+
+
+
+.\"==============================
+.\" MISSION FILE PARAMETERS
+.\"==============================
+.SH "MISSION FILE PARAMETERS"
+
+.SS \fIREQUIRED\fR
+.RS
+
+.TP
+.B SPOCK_HOSTNAME
+Hostname or dotted IP address string of the SPOCK module
+
+.TP
+.B SPOCK_PORT
+Network port to connect to on the SPOCK module
+
+.RE
+
+
+.SS \fIOPTIONAL\fR
+.br
+The following variables may be used to specify alternate variables to publish
+SPOCK sensor values to.
+
+.P
+.B COMPASS_HEADING_PUBLISHTO = \fR<variable name>
+.P
+.B COMPASS_YAW_PUBLISHTO = \fR<variable name>
+.P
+.B COMPASS_PITCH_PUBLISHTO = \fR<variable name>
+.P
+.B COMPASS_ROLL_PUBLISHTO = \fR<variable name>
+.P
+.B COMPASS_DIP_PUBLISHTO = \fR<variable name>
+.P
+.B DEPTH_PUBLISHTO = \fR<variable name>
+.P
+.B ACCEL_PITCH_PUBLISHTO = \fR<variable name>
+.P
+.B ACCEL_ROLL_PUBLISHTO = \fR<variable name>
+.P
+.B GPS_LONGITUDE_PUBLISHTO = \fR<variable name>
+.P
+.B GPS_LATITUDE_PUBLISHTO = \fR<variable name>
+.P
+.B GPS_VELOCITY_PUBLISHTO = \fR<variable name>
+.P
+.B GPS_HPE_PUBLISHTO = \fR<variable name>
+.P
+.B GPS_HEADING_PUBLISHTO = \fR<variable name>
+.P
+.B GPS_YAW_PUBLISHTO = \fR<variable name>
+.P
+.B GPS_HOURS_PUBLISHTO = \fR<variable name>
+.P
+.B GPS_MINUTES_PUBLISHTO = \fR<variable name>
+.P
+.B GPS_SECONDS_PUBLISHTO = \fR<variable name>
+.P
+.B WATERLEAKISDETECTED_PUBLISHTO = \fR<variable name>
+.P
+.B TEMPERATURE_PUBLISHTO = \fR<variable name>
+.P
+.B BATTERY_VOLTAGE_PUBLISHTO = \fR<variable name>
+.TP
+.B PUBLISH_ONLY_CHANGES
+Set to "TRUE" if sensors should only be published when they change.  Omit or \c
+set to "FALSE" (default setting) if sensors should be published at a rate \c
+determined by the value of the APP_TICK parameter
+
+
+.SH "EXIT STATUS"
+Returns an exit status of zero
+
+.SH AUTHOR
+${PROJECT_AUTHOR} (${PROJECT_EMAIL})

@@ -1,0 +1,202 @@
+.\"============================================================================
+.\" Linux man file for ${PROJECT_VERSION}
+
+.\"==============================
+.\" Project info
+.\"==============================
+.TH ${PROJECT_NAME} 1  "version ${PROJECT_VERSION}" "MOOS APPLICATION" "version ${PROJECT_VERSION}"
+
+.SH NAME 
+${PROJECT_NAME}: A MOOS app to interface with the SCOTTY (Rabbit 3000) motor \c
+controller.
+
+.SH DESCRIPTION
+This application provides a MOOS interface to the DSP data acquisition module 
+in the University of Idaho AUV. Communication with the DAQ module is \c
+accomplished via a BunnySock TCP connection.  From this connection, DAQ \c
+module recordings may be started and stopped.  In addition, telemetry is sent \c
+to the DAQ module and interleaved into recorded data when a recording is made.
+.P 
+
+.\"==============================
+.\" Command line usage and
+.\" Description
+.\"==============================
+.SH SYNOPSIS
+.B ${PROJECT_NAME}
+[OPTIONS] \fBMISSION_FILE\fR [AppName]
+
+.SH "COMMAND LINE ARGUMENTS"
+
+.\"==============================
+.\" OPTION switches
+.\"==============================
+.SS "OPTIONS"
+
+.TP
+.B \-h,\-\-help
+Prints command line usage
+
+.TP
+.B \-e,\-\-example
+Prints an example of the application's mission file configuration block
+
+.TP
+.B \-v,\-\-version
+Prints application version
+
+
+.\"==============================
+.SS "MISSION_FILE"
+\fIRequired\fR parameter that specifies a MOOS mission file containing \c
+application parameters.
+
+.\"==============================
+.SS AppName
+Optional parameter for specifying a name to use when registering with the \c
+MOOS database
+
+
+.\"==============================
+.\" Command line example
+.\"==============================
+.SH \fIEXAMPLE\fR
+.TP
+Open the alpha.moos mission file and register with the MOOSDB as "Bullwinkle"
+.B ${PROJECT_NAME}
+alpha.moos Bullwinkle
+
+.\"==================================================
+.\" Published MOOS variables
+.\" The .B causes the variable name to be displayed 
+.\" in bold typeface
+.\"==================================================
+.SH "PUBLISHED MOOS VARIABLES"
+.br
+.TP
+.B DAQ_STATUS
+The current status of the DAQ record engine as one of the following string \c
+values:
+.P
+.RS
+.TP
+"Not Connected"
+The DAQ module is not connected to the network.
+
+.TP
+"Stalled"
+The DAQ module is connected, but a critical error prevents it from recording.
+
+.TP
+"No Disk"
+The DAQ module is connected, but cannot record because no FLASH media card \c
+is installed.
+
+.TP
+"Idle"
+The DAQ module is ready, but no recording is in process.
+
+.TP
+"Preparing"
+The DAQ module is preparing to record.
+
+.TP
+"Recording"
+The DAQ module is recording data to disk.
+
+.TP
+"Stopping"
+The DAQ module is in the process of finalizing a recording.
+
+.RE
+
+
+
+.\"==================================================
+.\" Subscribed MOOS variables 
+.\" The .B causes the variable name to be displayed 
+.\" in bold typeface
+.\"==================================================
+.SH "SUBSCRIBED MOOS VARIABLES"
+.br
+
+.TP
+.B NAV_X
+The current east coordinate of the vehicle
+
+.TP
+.B NAV_Y
+The current north coordinate of the vehicle
+
+.TP
+.B NAV_HEADING
+The current heading of the vehicle in degrees
+
+.TP
+.B NAV_DEPTH
+The current depth of the vehicle in meters
+
+.TP
+.B NAV_PITCH
+The pitch of the vehicle in radians bounded to +/- PI
+
+.TP
+.B NAV_ROLL
+The roll of the vehicle in radians bounded to +/- PI
+
+.TP
+.B VEHICLE_ID
+Integer identifier of the vehicle
+
+.TP
+.B MISSION_ID
+Integer identifier of the current mission
+
+.TP
+.B RUN_ID
+Integer identifier of the measurement run in the current mission
+
+
+
+
+.\"==============================
+.\" MISSION FILE PARAMETERS
+.\"==============================
+.SH MISSION FILE PARAMETERS
+
+.\"---------------------------------
+.\" REQUIRED PARAMETERS
+.\"---------------------------------
+.SS \fIREQUIRED\fR
+
+.TP
+.B DAQ_HOSTNAME
+Hostname or dotted IP address of the DAQ module to connect to
+                                
+.TP
+.B DAQ_PORT
+Network port of the DAQ module as an integer value (0..65535)
+
+.TP
+.B CONNECTION_TIMEOUT
+Timeout (milliseconds) used for the network connection with the DAQ
+
+.\"---------------------------------
+.\" OPTIONAL PARAMETERS
+.\"---------------------------------
+.SS \fIOPTIONAL\fR
+
+.TP
+.B VERBOSITY
+Verbosity of debugging messages
+
+
+.\"==============================
+.\" EXIT STATUS, etc.
+.\"==============================
+.SH "EXIT STATUS"
+Returns an exit status of zero
+
+.SH AUTHOR
+${PROJECT_AUTHOR} (${PROJECT_EMAIL})
+

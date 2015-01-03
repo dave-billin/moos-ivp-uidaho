@@ -1,0 +1,199 @@
+.\"============================================================================
+.\" Linux man file for ${PROJECT_VERSION}
+
+.\"==============================
+.\" Project info
+.\"==============================
+.TH ${PROJECT_NAME} 1  "version ${PROJECT_VERSION}" "MOOS APPLICATION" "version ${PROJECT_VERSION}"
+
+.SH NAME 
+${PROJECT_NAME}: A MOOS app to interface with the SCOTTY (Rabbit 3000) motor \c
+controller.
+
+.SH DESCRIPTION
+This application provides a comprehensive MOOS interface to the Woods Hole \c
+Oceanographic institute (WHOI) Acoustic Micro-modem.  From its initial \c
+conception, iWhoiMicroModem has been designed such that the modem's command \c
+interface is decoupled from any data communication protocols (CCL, etc.) or \c
+timing requirements (save those imposed by the modem hardware itself).  The \c
+intent is for iWhoiMicroModem to serve in a manner analogous to a traditional \c
+I/O device driver, and allow other MOOS processes to handle content, \c
+protocol, and formatting of exchanged data.\c
+.P
+Much effort has been directed towards supplying a command interface that \c 
+is at once flexible and comprehensive - exposing as much of the Micro-modem's \c
+functionality as possible, while handling the low-level handshaking required \c
+by the modem firmware for exercising high-level functionality (sending, \c
+receiving, navigation, etc.).  Additionally, iWhoiMicroModem publishes the \c
+various diagnostic and performance metric messages optionally produced by the \c 
+modem. \c
+.P
+To the best of its ability, iWhoiMicromodem attempts to act as a multiclient \c
+interface for one or more MOOS processes.  In this way, iWhoiMicromodem can \c
+be used for both navigation and data communication using various protocols.  \c
+Modem operations are invoked via a a prioritized set of application commands \c
+This serves as a common interface via which both communications and \c
+navigation functionality may be accessed, and affords client MOOS processes \c
+greater control over the timing and order of operations.
+
+
+.\"==============================
+.\" Command line usage and
+.\" Description
+.\"==============================
+.SH SYNOPSIS
+.B ${PROJECT_NAME}
+[OPTIONS] \fBMISSION_FILE\fR [AppName]
+
+.SH "COMMAND LINE ARGUMENTS"
+
+.\"==============================
+.\" OPTION switches
+.\"==============================
+.SS "OPTIONS"
+
+.TP
+.B \-h,\-\-help
+Prints command line usage
+
+.TP
+.B \-e,\-\-example
+Prints an example of the application's mission file configuration block
+
+.TP
+.B \-v,\-\-version
+Prints application version
+
+
+.\"==============================
+.SS "MISSION_FILE"
+\fIRequired\fR parameter that specifies a MOOS mission file containing \c
+application parameters.
+
+.\"==============================
+.SS AppName
+Optional parameter for specifying a name to use when registering with the \c
+MOOS database
+
+
+.\"==============================
+.\" Command line example
+.\"==============================
+.SH \fIEXAMPLE\fR
+.TP
+Open the alpha.moos mission file and register with the MOOSDB as "Bullwinkle"
+.B ${PROJECT_NAME}
+alpha.moos Bullwinkle
+
+.\"==================================================
+.\" Published MOOS variables
+.\" The .B causes the variable name to be displayed 
+.\" in bold typeface
+.\"==================================================
+.SH "PUBLISHED MOOS VARIABLES"
+.br
+
+
+
+
+
+.\"==================================================
+.\" Subscribed MOOS variables
+.\" The .B causes the variable name to be displayed 
+.\" in bold typeface
+.\"==================================================
+.SH "SUBSCRIBED MOOS VARIABLES"
+.br
+
+
+
+
+.\"==============================
+.\" MISSION FILE PARAMETERS
+.\"==============================
+.SH MISSION FILE PARAMETERS
+
+.\"---------------------------------
+.\" GLOBAL PARAMETERS
+.\"---------------------------------
+.SS \fIGLOBAL\fR
+.br
+
+.TP
+.B VEHICLE_CONFIG_FILE_PATH
+Path of a vehicle-specific configuration file containing the modem's acoustic
+ID.
+
+
+.\"---------------------------------
+.\" REQUIRED PARAMETERS
+.\"---------------------------------
+.SS \fIREQUIRED\fR
+
+.TP
+.B 	Port
+Serial port device connected to the Micro-modem module (e.g. '/dev/ttyS0' \c
+under Linux, or 'COM1' under Windows)
+
+.TP
+.B BaudRate
+Serial baud rate used to communicate with the modem.  The default baud rate \c
+of the Micro-modem is 19200 bps.  The user is advised not to change this \c
+setting unless the modem has been configured accordingly.
+
+.TP
+.B Handshaking
+Hardware Handshaking is not supported by the Micro-modem module, so this \c
+value should be neglected or set to FALSE
+
+.TP
+.B Streaming
+Setting this to "true" enables a worker thread that buffers	received data \c
+outside of Iterate().  This may reduce the amount of time required to \c
+complete Iterate(), and is generally adviseable.  If set to "false", \c
+Iterate() may require a minimum of 10 ms to complete.
+
+.TP
+.B Verbose
+Set to "true" if debugging info for the serial port should be printed to stdout
+
+.TP
+.B SRC
+Default Acoustic ID used by the modem if not specified in the vehicle \c
+configuration file specified in AUV_VEHICLE_ID
+
+
+
+
+.\"---------------------------------
+.\" OPTIONAL PARAMETERS
+.\"---------------------------------
+
+
+
+
+
+.\"==============================
+.\" VEHICLE CONFIG FILE PARAMS
+.\"==============================
+.SH "VEHICLE-SPECIFIC CONFIGURATION FILE PARAMETERS"
+The vehicle-specific configuration file specified via the mission file \c
+parameter VEHICLE_CONFIG_FILE_PATH should contain a line with the form:
+.P
+.IP 
+VEHICLE_ID = <\fIID\fR>
+.P
+.IP
+Where \fIID\fR = The integer ID of the host vehicle in the fleet.
+
+
+
+
+.\"==============================
+.\" EXIT STATUS, etc.
+.\"==============================
+.SH "EXIT STATUS"
+Returns an exit status of zero
+
+.SH AUTHOR
+${PROJECT_AUTHOR} (${PROJECT_EMAIL})

@@ -1,0 +1,175 @@
+============================================================
+README Documentation for iXStreamRadioModem
+
+Written by: Dave Billin
+============================================================
+
+
+===============================================================================
+<<<  TABLE OF CONTENTS  >>>
+===============================================================================
+	1.) Description
+	2.) Usage info
+	3.) MOOS variables published by iXStreamRadioModem
+	4.) MOOS variables subscribed to by iXStreamRadioModem
+	5.) MOOS Mission file parameters
+	6.) Build Dependencies
+===============================================================================	
+
+
+-------------------------------------------------------------
+1.) Description
+
+	iXStreamRadioModem interfaces a Digi International XStream OEM Radio Modem 
+	module with a MOOS community.  Currently, data transfer is limited to the
+	protocol exchanged between the U of I Yellow Sub AUV and AUV Control Panel
+	software.
+
+
+-------------------------------------------------------------
+2.) Usage Info
+
+USAGE:   iXStreamRadioModem MISSION_FILE [REGISTERED_APP_NAME]
+
+MISSION_FILE
+	A MOOS mission file containing configuration parameters for the
+	iXStreamRadioModem application
+
+REGISTERED_APP_NAME
+	The name to use when registering iXStreamRadioModem with the MOOS Database.
+	This provides a mechanism by which multiple instances of iXStreamRadioModem
+	can coexist peacefully within a MOOS community.
+
+
+		 
+-------------------------------------------------------------
+3.) MOOS VARIABLES PUBLISHED BY iXStreamRadioModem
+
+Variable:	iXRM_RxAbort
+Value:		A string containing "TRUE" when an ABORT command is received from
+			the AUV Control Panel software.  This value is latched in the database,
+			and is reset when a START MISSION command is received from the base
+			station.
+
+
+Variable:	DESIRED_RUDDER
+Value:		A double containing the desired rudder setting in radians (0 to +/- pi
+			where:
+				1.) 0.0 radians indicates rudder center (null) position
+				2.) Positive values result in negative yaw, positive heading, or in
+					layman's terms, a change in direction toward starboard (refer  
+					to section 4.3 in "MOOS Conventions", P. Newman, March 17 2009)
+
+					  
+Variable:	DESIRED_ELEVATOR
+Value:		A double containing the desired elevator setting in radians (0 to +/- pi
+			where:
+				1.) 0.0 radians indicates elevator center (null) position
+				2.) Positive values result in a negative pitch, or in layman's 
+				    terms, cause the vehicle to dive deeper (refer to section 4.3 in
+				    "MOOS Conventions", P. Newman, March 17 2009)
+
+
+Variable:	DESIRED_THRUST
+Value:		Desired thrust applied to the vehicle as a percentage of full scale (0.0
+			to +/-100.0).  Positive values propel the vehicle in a forward direction, 
+			while negative values result in reverse (backward) motion.
+			 
+  
+Variable:	iXRM_StartMission
+Value:		Integer mission number from a START MISSION command sent by the
+			AUV Control Panel software
+
+
+
+-------------------------------------------------------------
+4.) MOOS VARIABLES SUBSCRIBED TO BY iXStreamRadioModem
+
+Variable: 	iXStreamRadioModem_TRANSMIT
+Value:		A string containing ASCII characters to transmit via the modem.  
+
+			If iXStreamRadioModem is launched with a different registered app 
+			name, the name of the TRANSMIT variable will reflect the change.
+			Example: if iXSTreamRadioModem were launched with the registered
+			app name of "RadioModem02", then data could be sent through its
+			modem by publishing to the MOOS variable "RadioModem02_TRANSMIT".
+
+
+
+-------------------------------------------------------------
+6.) MOOS MISSION FILE PARAMETERS
+
+	VEHICLE_CONFIG_FILE_PATH = [string]
+		The absolute path of a file containing vehicle-specific settings.
+		If this parameter is specified, iXStreamRadioModem attempts to open
+		the specified file and load the value of the parameter "VEHICLE_ID".
+		If the file specified by VEHICLE_CONFIG_FILE_PATH cannot be opened,
+		or if VEHICLE_ID cannot be loaded, the mission file parameter
+		DEFAULT_DEST_ADDRESS will be used instead.
+
+	// Modem network configuration parameters
+	DEFAULT_DEST_ADDRESS = [integer]
+		The radio ID (i.e. 'address') used by the modem as an integer in the
+		range 0 to 65535.	
+
+	HOPPING_CHANNEL = [integer]
+		Frequency hopping channel used by the modem.  This value should be 
+		the same for all modems in a network that need to commnunicate.
+		Valid Range: 0 to 6
+
+	ADDRESS_MASK = [16-bit hexadecimal value]
+		Radio network address mask applied to incoming radio communications.
+		Typically set to 255.
+
+
+	SENSOR_REPORT_PERIOD_SEC = [integer]
+		Period (in seconds) at which sensor reports are transmitted to the 
+		AUV Control Panel software.  Default value is zero, causing no
+		report to be transmitted.
+
+
+	----------------------------------------------------------------------------
+	The following parameters are used to specify the names of MOOS Variables 
+	that supply the contents of sensor reports to the AUV Control Panel
+	Software.  These values can be omitted if SENSOR_REPORT_PERIOD_SEC is
+	set to a value less than 1.
+	----------------------------------------------------------------------------
+	MOOSVAR_COMPASS_HEADING_DEG		Digital compass heading (degrees from north)
+	MOOSVAR_DEPTH_M					Depth (meters)
+	MOOSVAR_BATTERY_VOLTS			Battery bus voltage (DC Volts)
+	MOOSVAR_H20_LEAK_DETECTED		TRUE if a leak is detected; else FALSE if no leak is detected
+	MOOSVAR_TEMPERATURE_C			Temperature (Celcius)
+	MOOSVAR_LONGITUDE_DEG			Longitude (degrees)
+	MOOSVAR_LATITUDE_DEG			Latitude (degrees)
+	MOOSVAR_GPS_VELOCITY_MPS		Velocity (meters per second)
+	MOOSVAR_GPS_HPE_M				GPS Horizontal position error (meters)
+	MOOSVAR_GPS_HEADING_DEG			GPS Heading (degrees from North)
+	MOOSVAR_GYRO_PITCH_RAD			Rotation about x-axis using MOOS conventions (+/- radians)
+	MOOSVAR_GYRO_ROLL_RAD			Rotation about y-axis using MOOS conventions (+/- radians)
+	MOOSVAR_MISSION_NUMBER			The active mission number
+	MOOSVAR_RUN_NUMBER				The active run number
+	MOOSVAR_ACTUAL_THRUST_PERCENT	Percentage of target thrust (0 to 100)	
+	MOOSVAR_LAST_ABORT_CODE			Code identifying the last abort
+	MOOSVAR_LBL_BUOY_FLAGS			Bitfield of active LBL transponders
+	MOOSVAR_COORDINATE_N			North component of vehicle location in local coordinate system
+	MOOSVAR_COORDINATE_E			East component of vehicle location in local coordinate system
+
+
+
+	PRINT_SERIAL_TX = [true/false]
+		Setting this value to TRUE will cause all serial data sent to the
+		XStream modem module to be printed to stdio.  The default setting is
+		false if this parameter is omitted from the mission file.
+		
+	PRINT_SERIAL_RX = [true/false]
+		Setting this value to TRUE will cause all serial data received from the
+		XStream modem module to be printed to stdio.  The default setting is
+		false if this parameter is omitted from the mission file.
+
+
+
+-------------------------------------------------------------
+6.) BUILD DEPENDENCIES
+
+	Requires only MOOS libraries
+	

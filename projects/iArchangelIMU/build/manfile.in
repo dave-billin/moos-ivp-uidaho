@@ -1,0 +1,202 @@
+.\"============================================================================
+.\" Linux man file for ${PROJECT_VERSION}
+
+.\"==============================
+.\" Project info
+.\"==============================
+.TH ${PROJECT_NAME} 1  "version ${PROJECT_VERSION}" "MOOS APPLICATION" "version ${PROJECT_VERSION}"
+.SH NAME 
+${PROJECT_NAME}: A MOOS app to interface with the Archangel Systems IMU3 \c
+inertial measurement unit.
+
+.\"==============================
+.\" Command line usage and
+.\" Description
+.\"==============================
+.SH SYNOPSIS
+.B ${PROJECT_NAME}
+[OPTIONS] MISSION_FILE [AppName]
+
+.SH DESCRIPTION
+This MOOS application publishes measurements from an Archangel Systems \c 
+IMU3 inertial measurement unit connected to a serial port.  Note that \c
+this serial port connection operates at a rate of 480600 baud/sec, which \c
+is generally not compatible with standard PC serial ports.
+
+
+.SH "COMMAND LINE ARGUMENTS"
+
+.\"==============================
+.\" OPTION switches
+.\"==============================
+.SS "OPTIONS"
+
+.TP
+.B \-h,\-\-help
+Prints command line usage
+
+.TP
+.B \-e,\-\-example
+Prints an example of the application's mission file configuration block
+
+.TP
+.B \-v,\-\-version
+Prints application version
+
+
+.\"==============================
+.SS "MISSION FILE"
+Required parameter that specifies a MOOS mission file containing \c
+application parameters.
+
+.\"==============================
+.SS AppName
+Optional parameter for specifying a name to use when registering with the \c
+MOOS database
+
+
+.\"==============================
+.\" Command line example
+.\"==============================
+.SH EXAMPLES
+.TP
+Open the alpha.moos mission file and register with the MOOSDB as "Bullwinkle"
+.B ${PROJECT_NAME}
+alpha.moos Bullwinkle
+
+.\"==============================
+.\" Published MOOS variables
+.\" The .B causes the variable
+.\" name to be displayed in bold
+.\" typeface
+.\"==============================
+.SH "PUBLISHED MOOS VARIABLES"
+.br
+.TP
+.B IMU_GYRO_DELTA_ROLL
+Gyro-measured change in angle (rad/sec) about the vehicle's Y-axis (axis \c
+running from stern to bow in the vehicle's body frame).
+
+.TP
+.B IMU_GYRO_DELTA_PITCH
+Gyro-measured change in angle (rad/sec) about the vehicle's X-axis (axis \c
+running from port to starboard in the vehicle's body frame).
+
+.TP
+.B IMU_GYRO_DELTA_PITCH
+Gyro-measured change in angle (rad/sec) about the vehicle's Z-axis (axis \c
+running from bottom to top in the vehicle's body frame).
+
+.TP
+.B IMU_DELTAV_X
+Accelerometer-measured change in velocity (meters/sec) along the vehicle's \c
+X-axis (axis running from port to starboard in the vehicle's body frame).
+
+.TP
+.B IMU_DELTAV_Y
+Accelerometer-measured change in velocity (meters/sec) along the vehicle's \c
+Y-axis (axis running from stern to bow in the vehicle's body frame).
+
+.TP
+.B IMU_DELTAV_Z
+Accelerometer-measured change in velocity (meters/sec) along the vehicle's \c
+Z-axis (axis running from bottom to top in the vehicle's body frame).
+
+.TP
+.B IMU_AHRS_ROLL
+Computed vehicle roll angle (radians) from the Archangel IMU3's AHRS output. 
+
+.TP
+.B IMU_AHRS_PITCH
+Computed vehicle pitch angle (radians) from the Archangel IMU3's AHRS output.
+
+.TP
+.B IMU_AHRS_YAW
+Computed vehicle yaw angle (radians) from the Archangel IMU3's AHRS output.
+
+.TP
+.B IMU_AHRS_ROLL_RATE
+Computed vehicle roll rate (rad/sec) from the Archangel IMU3's ARHS output.
+
+.TP
+.B IMU_AHRS_ROLL_RATE
+Computed vehicle pitch rate (rad/sec) from the Archangel IMU3's ARHS output.
+
+.TP
+.B IMU_AHRS_YAW_RATE
+Computed vehicle yaw rate (rad/sec) from the Archangel IMU3's ARHS output.
+
+.TP
+.B IMU_CONNECTED
+A string value: "TRUE" if data has been received from the IMU3 module within \c
+the past 5 seconds; otherwise "FALSE".
+
+
+
+.\"==============================
+.\" MISSION FILE PARAMETERS
+.\"==============================
+.SH MISSION FILE PARAMETERS
+
+.SS \fIREQUIRED\fR
+
+.TP
+.B Port
+Serial port device connected to the Archangel IMU3 module (e.g. "/dev/ttyS0" \c
+under Linux or "COM1" under Windows)
+
+.SS \fIOPTIONAL\fR
+.TP
+.B IMU_DELTA_ROLL_ANGLE_PUBLISHTO
+Specifies an alternate variable to publish Delta roll angle to
+
+.TP
+.B IMU_DELTA_PITCH_ANGLE_PUBLISHTO
+Specifies an alternate variable to publish Delta pitch angle to
+.TP
+.B IMU_DELTA_YAW_ANGLE_PUBLISHTO
+Specifies an alternate variable to publish Delta yaw angle to
+
+.TP
+.B IMU_DELTAV_LONGITUDE_PUBLISHTO
+Specifies an alternate variable to publish longitudinal velocity to
+
+.TP
+.B IMU_DELTAV_LATITUDE_PUBLISHTO
+Specifies an alternate variable to publish latitudinal velocity to
+
+.TP
+.B IMU_DELTAV_NORMAL_PUBLISHTO
+Specifies an alternate variable to publish normal velocity to
+    
+.TP
+.B IMU_INERTIAL_ROLL_PUBLISHTO
+Specifies an alternate variable to publish inertial roll angle to
+
+.TP
+.B IMU_INERTIAL_PITCH_PUBLISHTO
+Specifies an alternate variable to publish inertial pitch angle to
+
+.TP
+.B IMU_INERTIAL_YAW_PUBLISHTO
+Specifies an alternate variable to publish inertial yaw angle to
+
+.TP
+.B IMU_INERTIAL_ROLLRATE_PUBLISHTO
+Specifies an alternate variable to publish inertial roll rate to
+
+IMU_INERTIAL_PITCHRATE_PUBLISHTO
+Specifies an alternate variable to publish inertial pitch rate to
+
+IMU_INERTIAL_YAWRATE_PUBLISHTO
+Specifies an alternate variable to publish inertial yaw rate to
+
+
+.\"==============================
+.\" EXIT STATUS, etc.
+.\"==============================
+.SH "EXIT STATUS"
+Returns an exit status of zero
+
+.SH AUTHOR
+${PROJECT_AUTHOR} (${PROJECT_EMAIL})

@@ -1,0 +1,230 @@
+.\"============================================================================
+.\" Linux man file for ${PROJECT_VERSION}
+
+.\"==============================
+.\" Project info
+.\"==============================
+.TH ${PROJECT_NAME} 1  "version ${PROJECT_VERSION}" "MOOS APPLICATION" "version ${PROJECT_VERSION}"
+
+.SH NAME 
+${PROJECT_NAME}: A MOOS app used to simulate navigation pings in dry-land \c
+testing or simulation environments.
+
+.SH DESCRIPTION
+pFakeModemReport provides a means for simulating the use of acoustic (LBL) \c
+navigation during dry-land testing or in a simulation environment.  \c
+pFakeModemReport begins by loading the local coordinate system origin and the \c
+simulated locations of acoustic navigation beacons.  Once configured, the \c
+application actively monitors the current GPS latitude/longitude and the \c
+MOOS variable used to send commands to the WHOI Micro-modem.  
+.P
+When a command to send an acoustic navigation PING is received via this \c
+variable pFakeModemReport computes the distance between the current GPS \c
+location and each of the simulated navigation beacons.  Using this \c
+calculated distance, the application calculates the (idealized) two-way time \c
+of travel that would result from a navigation PING to each of the beacons. \c
+After waiting until the maximum time-of-travel value in the calculated set \c
+has elapsed, pFakeModemReport publishes the computed 2-way travel times to \c
+the MOOSDB.  Thus, to other MOOS processes, it appears as if a WHOI modem \c
+has carried out an acoustic navigation ping measurement.
+
+
+
+.\"==============================
+.\" Command line usage and
+.\" Description
+.\"==============================
+.SH SYNOPSIS
+.B ${PROJECT_NAME}
+[OPTIONS] \fBMISSION_FILE\fR [AppName]
+
+.SH "COMMAND LINE ARGUMENTS"
+
+.\"==============================
+.\" OPTION switches
+.\"==============================
+.SS "OPTIONS"
+
+.TP
+.B \-h,\-\-help
+Prints command line usage
+
+.TP
+.B \-e,\-\-example
+Prints an example of the application's mission file configuration block
+
+.TP
+.B \-v,\-\-version
+Prints application version
+
+
+.\"==============================
+.SS "MISSION_FILE"
+\fIRequired\fR parameter that specifies a MOOS mission file containing \c
+application parameters.
+
+.\"==============================
+.SS AppName
+Optional parameter for specifying a name to use when registering with the \c
+MOOS database
+
+
+.\"==============================
+.\" Command line example
+.\"==============================
+.SH \fIEXAMPLE\fR
+.TP
+Open the alpha.moos mission file and register with the MOOSDB as "Bullwinkle"
+.B ${PROJECT_NAME}
+alpha.moos Bullwinkle
+
+.\"==================================================
+.\" Published MOOS variables
+.\" The .B causes the variable name to be displayed 
+.\" in bold typeface
+.\"==================================================
+.SH "PUBLISHED MOOS VARIABLES"
+.br
+MOOS variables published by this application are determined by the contents of 
+the time slot configurations in the communication cycle (.cyc) file.
+.P
+.TP
+.B LBL_2WAYTRAVELTIME
+A string containing the simulated two-way travel times from each navigation \c
+beacon in the format:
+.br
+.RS
+"TimeA=<val>,TimeB=<val>,TimeC<val>,TimeD<val>"
+.P
+Where:
+.TP
+.I TimeA = 2-way time of travel to navigation beacon A (milliseconds)
+.TP
+.I TimeB = 2-way time of travel to navigation beacon A (milliseconds)
+.TP
+.I TimeC = 2-way time of travel to navigation beacon A (milliseconds)
+.TP
+.I TimeD = 2-way time of travel to navigation beacon A (milliseconds)	
+.RE
+
+
+.\"==================================================
+.\" Subscribed MOOS variables
+.\" The .B causes the variable name to be displayed 
+.\" in bold typeface
+.\"==================================================
+.SH "SUBSCRIBED MOOS VARIABLES"
+.br
+Subscribed MOOS variables are determined by the logic conditions given in time
+slot configurations in the communication cycle file.
+
+.TP
+.B iWhoiMicroModem_CMD
+MOOSDB variable used to issue commands to iWhoiMicroModem.  If the string \c
+value of this command begins with "Cmd=TxRemusPing", pFakeModemReport will \c
+simulate an acoustic navigation ping as described above.
+
+.TP
+.B GPS_Latitude
+MOOSDB variable containing the current GPS latitude.  An alternate MOOSDB \c
+variable may optionally be specified using the mission file parameter \c
+GPS_LATITUDE_SUBSCRIBETO.
+
+.TP
+.B GPS_Longitude
+MOOSDB variable containing the current GPS longitude. An alternate MOOSDB \c
+variable may optionally be specified using the mission file parameter \c
+GPS_LONGITUDE_SUBSCRIBETO.
+
+.TP
+.B DEPTH
+MOOSDB variable containing the current depth. An alternate MOOSDB \c
+variable may optionally be specified using the mission file parameter \c
+DEPTH_SUBSCRIBETO.
+
+
+
+.\"==============================
+.\" MISSION FILE PARAMETERS
+.\"==============================
+.SH "MISSION FILE PARAMETERS"
+
+.SS \f(REQUIRED) GLOBAL-SCOPE PARAMETERS\fR
+.RS
+
+.TP
+.B LatOrigin, LongOrigin
+Latitude/Longitude of the local coordinate system origin
+
+.TP
+.B BeaconA_North, BeaconA_East, BeaconA_Depth
+Location of simulated navigation beacon A in local coordinate system \c
+coordinates with depth specified in meters.
+
+.TP
+.B BeaconA_Latitude, BeaconA__Longitude, BeaconA_Depth
+Location of simulated navigation beacon A in earth coordinates with depth \c
+specified in meters.
+
+.TP
+.B BeaconB_North, BeaconB_East, BeaconB_Depth
+Location of simulated navigation beacon B in local coordinate system \c
+coordinates with depth specified in meters.
+
+.TP
+.B BeaconB_Latitude, BeaconB__Longitude, BeaconB_Depth
+Location of simulated navigation beacon B in earth coordinates with depth \c
+specified in meters.
+
+.TP
+.B BeaconC_North, BeaconC_East, BeaconC_Depth
+Location of simulated navigation beacon C in local coordinate system \c
+coordinates with depth specified in meters.
+
+.TP
+.B BeaconC_Latitude, BeaconC__Longitude, BeaconC_Depth
+Location of simulated navigation beacon C in earth coordinates with depth \c
+specified in meters.
+
+.TP
+.B BeaconD_North, BeaconD_East, BeaconD_Depth
+Location of simulated navigation beacon C in local coordinate system \c
+coordinates with depth specified in meters.
+
+.TP
+.B BeaconD_Latitude, BeaconD__Longitude, BeaconD_Depth
+Location of simulated navigation beacon C in earth coordinates with depth \c
+specified in meters.
+
+.TP
+.B SSH20
+Velocity of sound in water (meters/sec)
+
+.RE
+
+
+.SS \fIOPTIONAL\fR
+.RS
+
+.TP
+.B GPS_LATITUDE_SUBSCRIBETO
+Specifies an alternate MOOSDB variable to subscribe to for the current GPS \c
+latitude.
+
+.TP
+.B GPS_LONGITUDE_SUBSCRIBETO
+Specifies an alternate MOOSDB variable to subscribe to for the current GPS \c
+longitude.
+
+.TP
+.B DEPTH_SUBSCRIBETO
+Specifies an alternate MOOSDB variable to subscribe to for the current depth.
+
+.RE
+
+
+.SH "EXIT STATUS"
+Returns an exit status of zero
+
+.SH AUTHOR
+${PROJECT_AUTHOR} (${PROJECT_EMAIL})

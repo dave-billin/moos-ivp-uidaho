@@ -1,0 +1,625 @@
+.\"============================================================================
+.\" Linux man file for ${PROJECT_VERSION}
+
+.\"==============================
+.\" Project info
+.\"==============================
+.TH ${PROJECT_NAME} 1  "version ${PROJECT_VERSION}" "MOOS APPLICATION" "version ${PROJECT_VERSION}"
+
+.SH NAME 
+${PROJECT_NAME}: A MOOS app to interface with the SCOTTY (Rabbit 3000) motor \c
+controller.
+
+.SH DESCRIPTION
+This application provides a MOOS interface and Front-side driver \c
+using the SCOTTY motor control module in the University of Idaho AUV. \c
+Communication with the Rabbit 3000 microcontroller on the SCOTTY module is \c
+accomplished via a BunnySock TCP connection.  This module natively provides \c
+control over the speed and direction of the AUV propeller and the three \c
+aft-mounted control surfaces (fins).  These elements may be controlled by \c
+issuing direct actuator commands via the MOOS variables \c
+DESIRED_ELEVATOR, DESIRED_AILERON, DESIRED_RUDDER, and DESIRED_THRUST.
+.P 
+The MOOS interface adds five PID controllers for heading, speed, depth, \c 
+pitch and roll.  These controllers (unless specifically disabled via \c
+application commands) are active whenever the MOOSDB variables \c
+MOOS_MANUAL_OVERIDE or MOOS_MANUAL_OVERRIDE have the string value "true". \c
+When active, the controllers produce direct actuator commands that are sent \c
+both to SCOTTY and the MOOSDB (for logging purposes).  When disabled, the \c
+controllers produce no direct actuator commands, allowing the AUV to be \c
+driven via radio control.
+.P
+The SCOTTY module is programmed such that if no direct actuator command is \c
+received within a 2-second period, the propeller is disengaged and all \c
+control surfaces are reset to their null setting.  Thus, in the case of a \c
+critical software failure, the AUV's drive mechanisms will be disabled, \c
+allowing it to float to the surface.
+
+.\"==============================
+.\" Command line usage and
+.\" Description
+.\"==============================
+.SH SYNOPSIS
+.B ${PROJECT_NAME}
+[OPTIONS] \fBMISSION_FILE\fR [AppName]
+
+.SH "COMMAND LINE ARGUMENTS"
+
+.\"==============================
+.\" OPTION switches
+.\"==============================
+.SS "OPTIONS"
+
+.TP
+.B \-h,\-\-help
+Prints command line usage
+
+.TP
+.B \-e,\-\-example
+Prints an example of the application's mission file configuration block
+
+.TP
+.B \-v,\-\-version
+Prints application version
+
+
+.\"==============================
+.SS "MISSION_FILE"
+\fIRequired\fR parameter that specifies a MOOS mission file containing \c
+application parameters.
+
+.\"==============================
+.SS AppName
+Optional parameter for specifying a name to use when registering with the \c
+MOOS database
+
+
+.\"==============================
+.\" Command line example
+.\"==============================
+.SH \fIEXAMPLE\fR
+.TP
+Open the alpha.moos mission file and register with the MOOSDB as "Bullwinkle"
+.B ${PROJECT_NAME}
+alpha.moos Bullwinkle
+
+.\"==================================================
+.\" Published MOOS variables
+.\" The .B causes the variable name to be displayed 
+.\" in bold typeface
+.\"==================================================
+.SH "PUBLISHED MOOS VARIABLES"
+.br
+.TP
+.B PROPELLER_RPM
+Current measured propeller RPM reported by the Scotty module
+
+.TP 
+.B RPM_VELOCITY_ESTIMATE
+Estimated vehicle velocity based current propeller RPM using an empirical \c
+algorithm.
+
+.TP
+.B SCOTTY_SERVO_CENTERS
+A string indicating the value of trim values applied to actuator commands \c
+sent to the Scotty module.  This report is published once when the \c
+application connects to the MOOSDB.  The format of this string is:
+.br
+.br
+"Rudder=[INT], ElevL=[INT], ElevR=[INT], CouplingCoeff=[DOUBLE]"
+
+
+
+
+.\"==================================================
+.\" Subscribed MOOS variables
+.\" The .B causes the variable name to be displayed 
+.\" in bold typeface
+.\"==================================================
+.SH "SUBSCRIBED MOOS VARIABLES"
+.br
+
+.TP
+.B NAV_YAW
+The current vehicle yaw in radians
+
+.TP
+.B NAV_SPEED
+The current vehicle speed in meters/sec
+
+.TP
+.B NAV_DEPTH
+The current vehicle depth in meters
+
+.TP
+.B NAV_PITCH
+The current vehicle pitch in radians
+
+.TP
+.B NAV_ROLL
+The current vehicle roll in radians
+
+.TP
+.B DESIRED_HEADING
+Desired vehicle heading in degrees.  The value of this variable is used as \c
+the input (set-point) of the YAW PID controller when it is active.
+
+.TP
+.B DESIRED_SPEED
+Desired vehicle speed in meters per second.  The value of this variable is \c
+used as the input (set-point) of the SPEED PID controller when it is active.
+
+.TP
+.B DESIRED_DEPTH
+Desired vehicle depth in meters.  The value of this variable is used as the \c
+input (set-point) of the DEPTH PID controller when it is active.
+
+.TP
+.B DESIRED_PITCH
+Desired vehicle pitch in radians bounded to +/- PI.  The value of this \c
+variable is used as the input (set-point) of the PITCH PID controller when \c
+it is active.
+
+.TP
+.B DESIRED_ROLL
+Desired vehicle roll in radians bounded to +/- PI.    The value of this \c
+variable is used as the input (set-point) of the PITCH PID controller when \c
+it is active.
+
+
+.TP
+.B DESIRED_RUDDER
+Desired rudder angle in radians (0..+/- Pi).  Each time a value is published \c
+to this variable, an actuator command will be sent to the Scotty module.  A \c
+value of 0.0 will center the rudder in its null position.  Positive values \c 
+result in negative vehicle yaw (positive heading) and a change in direction \c
+toward starboard.
+
+.TP
+.B DESIRED_ELEVATOR
+Desired elevator angle in radians (0..+/- Pi).  Each time a value is \c
+published to this variable, an actuator command will be sent to the Scotty \c
+module.  A value of 0.0 will center the elevator actuators in their null \c
+position.  Positive values result in a negative vehicle pitch (i.e. they \c
+will cause the vehicle to dive deeper).
+
+.TP
+.B DESIRED_AILERON
+Desired elevator aileron setting in radians (0..+/- Pi).  Each time a value \c
+is published to this variable, an actuator command will be sent to the \c
+Scotty module.  A value of 0.0 results in zero aileron (i.e. pure elevator) \c
+actuator operation.  Positive values will roll toward port.  Negative values \c
+will roll toward starboard.
+
+.TP
+.B DESIRED_THRUST
+Desired propeller thrust as a percentage of full scale (0..+/-100).  Each \c
+time a value is published to this variable, an actuator command will be sent \c
+to the Scotty module.  Positive values result in forward (bow-ward) vehicle \c
+motion.  Negative values drive the propeller in reverse, resulting in \c
+aft-ward vehicle motion.
+
+
+.TP
+.B MOOS_MANUAL_OVERIDE
+Used to enable/disable and initialize PID controllers that regulate vehicle \c
+heading, speed, depth, and roll.  When MOOS_MANUAL_OVERIDE has the value \c
+"TRUE", the controllers are reset and do not issue any actuator commands to \c
+the Scotty module.  When MOOS_MANUAL_OVERIDE has the value "FALSE", the \c
+controllers are enabled, and produce no actuator commands.  
+.IP
+\fINOTE\fR: Actuator commands are always issued whenever values are \c
+published to DESIRED_YAW, DESIRED_SPEED, DESIRED_DEPTH, or DESIRED_ROLL.  
+
+
+.TP
+.B MAX_ALLOWED_DEPTH
+The maximum depth in meters that will be enforced by the PID depth \c
+controller.  This is used to saturate values received in DESIRED_DEPTH.  The \c
+default maximum depth setting applied when iScotty starts is 20.0 meters.
+
+
+.TP
+.B YAW_PID_Kp
+Proportional gain used in the yaw PID controller
+
+.TP
+.B YAW_PID_Ki
+Integral gain used in the yaw PID controller
+
+.TP
+.B YAW_PID_Kd
+Derivative gain used in the yaw PID controller
+
+.TP
+.B YAW_PID_IntSat
+Integral saturation value for the yaw PID controller
+
+.TP
+.B YAW_PID_OutSat
+Output saturation value for the yaw PID controller
+
+
+
+.TP
+.B SPEED_PID_Kp
+Proportional gain used in the speed PID controller
+
+.TP
+.B SPEED_PID_Ki
+Integral gain used in the speed PID controller
+
+.TP
+.B SPEED_PID_Kd
+Derivative gain used in the speed PID controller
+
+.TP
+.B SPEED_PID_IntSat
+Integral saturation value for the speed PID controller
+
+.TP
+.B SPEED_PID_OutSat
+Output saturation value for the speed PID controller
+
+
+
+.TP
+.B DEPTH_PID_Kp
+Proportional gain used in the depth PID controller
+
+.TP
+.B DEPTH_PID_Ki
+Integral gain used in the depth PID controller
+
+.TP
+.B DEPTH_PID_Kd
+Derivative gain used in the depth PID controller
+
+.TP
+.B DEPTH_PID_IntSat
+Integral saturation value for the depth PID controller
+
+.TP
+.B DEPTH_PID_OutSat
+Output saturation value for the depth PID controller
+
+
+
+.TP
+.B ROLL_PID_Kp
+Proportional gain used in the roll PID controller
+
+.TP
+.B ROLL_PID_Ki
+Integral gain used in the roll PID controller
+
+.TP
+.B ROLL_PID_Kd
+Derivative gain used in the roll PID controller
+
+.TP
+.B ROLL_PID_IntSat
+Integral saturation value for the roll PID controller
+
+.TP
+.B ROLL_PID_OutSat
+Output saturation value for the roll PID controller
+
+
+
+.TP
+.B PITCH_PID_Kp
+Proportional gain applied to the pitch error input of the pitch controller
+
+.TP
+.B PITCH_PID_KpDepth
+Proportional gain applied to depth law input to the pitch controller
+
+.TP
+.B PITCH_PID_Ki
+Integral gain used in the pitch controller
+
+.TP
+.B PITCH_PID_Kd
+Derivative gain used in the pitch controller
+
+.TP
+.B PITCH_PID_IntSat
+Integral saturation value for the pitch controller
+
+.TP
+.B PITCH_PID_OutSat
+Output saturation value for the pitch controller
+
+
+.TP
+.B SCOTTY_SERVO_TRIMS
+A string specifying trim values to be sent to SCOTTY in the form: 
+.P
+.RS
+"EL=<1..255>,ER=<1.255>,R=<1..255>,CC=<0.0 to 1.0>"
+.P
+
+.IP \fIWhere:
+
+.IP 
+\fIEL\fR sets the port elevator servo center value
+.IP 
+\fIER\fR sets the starboard elevator servo center value
+.IP 
+\fIRR\fR sets the rudder servo center value
+.IP 
+\fICC\fR sets the rudder-elevator coupling coefficient
+.RE                     
+                        
+
+.TP
+.B ISCOTTY_CMD
+This variable may be used to issue one of the following command strings for \c
+controlling iScotty behavior:
+
+.RS
+.TP 
+"YawControlIsEnabled=[TRUE/FALSE]"
+Enables/disables the Yaw PID controller
+                    
+.TP 
+"SpeedControlIsEnabled=[TRUE/FALSE]"
+Enables/disables the Speed PID controller
+                
+.TP 
+"DepthControlIsEnabled=[TRUE/FALSE]"
+Enables/disables the Depth PID controller
+                
+.TP 
+"RollControlIsEnabled=[TRUE/FALSE]"
+Enables/disables the Roll PID controller
+                    
+.TP 
+"PitchControlIsEnabled=[TRUE/FALSE]"
+Enables/disables the Pich PID controller
+                            
+.TP
+"ResetPIDs"
+Resets all PID controllers
+
+.TP 
+"PropIsEnabled=[TRUE/FALSE]"
+Enables/disables the AUV propeller.  When disabled, no thrust will be \c
+applied to the propeller.  This is generally only used for dry-land testing \c 
+or diagnostic purposes.
+
+.RE
+
+
+
+.\"==============================
+.\" MISSION FILE PARAMETERS
+.\"==============================
+.SH MISSION FILE PARAMETERS
+
+.\"---------------------------------
+.\" GLOBAL PARAMETERS
+.\"---------------------------------
+.SS \fIGLOBAL\fR
+.br
+
+.TP
+.B VEHICLE_CONFIG_FILE_PATH
+Path of the vehicle-specific configuration file containing trim settings.
+
+
+.\"---------------------------------
+.\" REQUIRED PARAMETERS
+.\"---------------------------------
+.SS \fIREQUIRED\fR
+
+.TP
+.B SCOTTY_HOSTNAME
+Hostname or dotted IP address of the SCOTTY module to connect to
+                                
+.TP
+.B SCOTTY_PORT
+Network port of the SCOTTY module as an integer value (0..65535)
+
+.TP
+.B YAW_PID_Kp
+Yaw controller Proportional gain
+
+.TP
+.B YAW_PID_Ki
+Yaw controller Integral gain
+
+.TP
+.B YAW_PID_Kd
+Yaw controller Derivative gain
+
+.TP
+.B YAW_PID_IntSat
+Yaw controller Integral saturation value
+
+.TP
+.B YAW_PID_OutSat
+Yaw controller output saturation value (rad)
+
+.TP
+.B SPEED_PID_Kp
+Speed controller Proportional gain
+
+.TP
+.B SPEED_PID_Ki
+Speed controller Integral gain
+
+.TP
+.B SPEED_PID_Kd
+Speed controller Derivative gain
+
+.TP
+.B SPEED_PID_IntSat
+Speed controller Integral saturation value
+
+.TP
+.B SPEED_PID_OutSat
+Speed controller output saturation value (rad)
+
+.TP
+.B DEPTH_PID_Kp
+Depth controller Proportional gain
+
+.TP
+.B DEPTH_PID_Ki
+Depth controller Integral gain
+
+.TP
+.B DEPTH_PID_Kd
+Depth controller Derivative gain
+
+.TP
+.B DEPTH_PID_IntSat
+Depth controller Integral saturation value
+
+.TP
+.B DEPTH_PID_OutSat
+Depth controller output saturation value (rad)
+    
+.TP
+.B ROLL_PID_Kp
+Roll controller Proportional gain
+
+.TP
+.B ROLL_PID_Ki
+Roll controller Integral gain
+
+.TP
+.B ROLL_PID_Kd
+Roll controller Derivative gain
+
+.TP
+.B ROLL_PID_IntSat
+Roll controller Integral saturation value
+
+.TP
+.B ROLL_PID_OutSat
+Roll controller output saturation value (rad)   
+
+.TP
+.B PITCH_PID_Kp
+Pitch controller Proportional gain on error
+
+.TP
+.B PITCH_PID_KpDepth
+Pitch controller proprotional gain on depth law
+
+.TP
+.B PITCH_PID_Ki
+Gain on integral of pitch error 
+
+.TP
+.B PITCH_PID_Kd
+Gain on derivative of pitch error
+
+.TP
+.B PITCH_PID_IntSat
+Pitch controller Integral saturation value
+
+.TP
+.B PITCH_PID_OutSat
+Pitch controller output saturation value (rad)
+    
+.TP
+.B VELOCITY_PER_RPM
+Empirical proportionality constant used when estimating vehicle velocity \c
+based on propeller RPM.  Known values from the 1st generation AUV are:
+.RS
+.IP
+0.001138 - AUV with magnetometer
+.IP
+0.001167 - AUV without magnetometer
+.RE
+
+.TP
+.B VELOCITY_PER_RPM_OFFSET
+Empirical offset used when estimating vehicle velocity based on propeller \c
+RPM.  Known values from the 1st generation AUV are:
+.RS
+.IP
+-0.2533 - AUV with magnetometer
+.IP
+-0.1988 - AUV without magnetometer
+.RE     
+
+.\"---------------------------------
+.\" OPTIONAL PARAMETERS
+.\"---------------------------------
+.SS \fIOPTIONAL\fR
+
+.TP
+.B YAW_PID_LOGFILE
+Absolute path of a file to which yaw controller values will be logged.  If \c
+this parameter is omitted, no logging of the controller will be performed.
+    
+.TP
+.B SPEED_PID_LOGFILE
+Absolute path of a file to which speed controller values will be logged.  If \c
+this parameter is omitted, no logging of the controller will be performed.
+                                
+.TP
+.B DEPTH_PID_LOGFILE
+Absolute path of a file to which depth controller values will be logged.  If \c
+this parameter is omitted, no logging of the controller will be performed.
+                                
+.TP
+.B ROLL_PID_LOGFILE
+Absolute path of a file to which roll controller values will be logged.  If \c
+this parameter is omitted, no logging of the controller will be performed.                               
+
+.TP
+.B PITCH_PID_LOGFILE
+Absolute path of a file to which pitch controller values will be logged.  If \c
+this parameter is omitted, no logging of the controller will be performed.   
+                                                                                                    
+.TP
+.B MAX_DEPTH
+A double specifying the maximum depth in meters allowed by the Depth \c
+controller.  If this parameter is omitted, this setting defaults a value of \c
+20 meters.
+
+
+
+
+.\"==============================
+.\" VEHICLE CONFIG FILE PARAMS
+.\"==============================
+.SH "VEHICLE-SPECIFIC CONFIGURATION FILE PARAMETERS"
+
+The following parameters may be given in the vehicle-specific configuration \c
+file specified in the mission file parameter VEHICLE_CONFIG_FILE_PATH
+.br 
+
+.TP
+\fBSERVO_CENTER_RUDDER\fR (1 to 255) 
+Servo value used as the null position of the rudder
+
+.TP
+\fBSERVO_CENTER_ELEV_L\fR (1 to 255)
+Servo value used as the null position of the left elevator
+
+.TP
+\fBSERVO_CENTER_ELEV_R\fR (1 to 255) 
+Servo value used as the null position of the right elevator
+
+.TP
+\fBSERVO_COUPLINGCOEFF\fR (-1.0 to 1.0) 
+Coefficient of coupling between the rudder and elevators.  More-positive \c
+values create greater control coupling between the elevators and the rudder. \c  
+More-negative values produce the inverse effect.
+
+
+.\"==============================
+.\" EXIT STATUS, etc.
+.\"==============================
+.SH "EXIT STATUS"
+Returns an exit status of zero
+
+.SH AUTHOR
+${PROJECT_AUTHOR} (${PROJECT_EMAIL})

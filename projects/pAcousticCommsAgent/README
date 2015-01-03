@@ -1,0 +1,120 @@
+============================================================
+README Documentation for pAcousticCommsAgent
+
+Written by: Dave Billin
+============================================================
+
+
+===============================================================================
+<<<  TABLE OF CONTENTS  >>>
+===============================================================================
+	1.) Description
+	2.) Usage info
+	3.) MOOS variables published by pAcousticCommsAgent
+	4.) MOOS variables subscribed to by pAcousticCommsAgent
+	5.) Mission file parameters
+	6.) Timing cycle (.tdm) file syntax
+	7.) Build Dependencies
+===============================================================================
+
+
+-------------------------------------------------------------
+1.) Description
+
+	This application may be used to direct the timing of activity on the 
+	acoustic communications network and navigation pings.  
+
+
+-------------------------------------------------------------
+2.) Usage Info
+
+USAGE:   pAcousticCommsAgent MISSION_FILE
+
+MISSION_FILE
+        A MOOS mission file containing configuration parameters for the
+        pAcousticCommsAgent application
+
+
+
+-------------------------------------------------------------
+3.) MOOS VARIABLES PUBLISHED BY pAcousticCommsAgent
+
+	Variable:				Description:
+	----------------		----------------------------------------
+	ACTIVE_COMMS_TIMESLICE	A string containing the NAME field of the currently 
+							active time slice in the communications cycle.
+
+
+
+-------------------------------------------------------------
+4.) MOOS VARIABLES SUBSCRIBED TO BY pAcousticCommsAgent
+
+
+
+-------------------------------------------------------------
+5.) MISSION FILE PARAMETERS
+	
+	Parameter:				Description:
+	----------------		----------------------------------------
+	TIMING_CYCLE_FILE		A string containing the full path of a
+							.tdm file from which a timing cycle 
+							configuration will be loaded.
+
+
+
+-------------------------------------------------------------
+6.) TIMING CYCLE (.cyc) FILE SYNTAX
+
+	Timing cycle (.tdm) files shall consist of ASCII text specifying one or 
+	more time slice blocks.  These blocks shall have the following form and
+	fields:
+	
+	{
+		NAME		= <string>
+		ORDER		= <integer>
+		DURATION	= <double>
+		CONDITION	= <logic expression>
+		
+		PUBLISH	= <MOOS variable name> = <string or double value>
+		  ...
+		PUBLISH		= <MOOS variable name> = <string or double value>
+		
+		ALWAYSPUBLISH	= <MOOS variable name> = <string or double value>  
+	}
+ 
+	NAME: A name or short description to associate with the time slice.
+	 
+	ORDER: A positive integer value used to order this slice among other time
+		   slice blocks.  Slices with the lowest ORDER value occur earlier than
+		   slices with higher ORDER values within the timing cycle.
+		    
+	DURATION: The duration of the time slice (i.e. the length of time it will
+			  be active) in seconds.
+			  
+	CONDITION: A string containing one or more logical expressions used to  
+			   enable the time slice's PUBLISH activities.  Logical expressions
+			   are the same as those used in the run conditions of pHelmIvP 
+			   behaviors.  The left-hand side of an expression is assumed to 
+			   be the name of a MOOS variable, while the right-hand side is a
+			   literal value.  If the specified CONDITION expression evaluates
+			   to TRUE, all of the time slice's PUBLISH activities will be 
+			   carried out when the slice becomes active.  If the condition 
+			   evaluates to FALSE, only PUBLISH activities specified with the 
+			   "@ALWAYS" flag will be carried out.  The string "TRUE" may be
+			   substituted for a logical expression, in which case, the slice's 
+			   PUBLISH activities will be carried out anytime the slice is
+			   active.
+		
+	PUBLISH: One or more lines specifying a MOOS variable and value to publish
+			 if the time slice becomes active and its CONDITION is satisfied.
+
+ 	ALWAYSPUBLISH: One or more lines specifying a MOOS variable and value that 
+ 			 	   will be published whenever the time slice becomes active 
+ 			 	   regardless of whether its CONDITION is satisfied.
+			 
+			 
+-------------------------------------------------------------
+7.) BUILD DEPENDENCIES
+
+	Uses only MOOS libraries
+
