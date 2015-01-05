@@ -15,7 +15,7 @@ set( PROJECT_EMAIL "dave.billin@vandals.uidaho.edu" )
 # Set project version info
 set( VERSION_MAJOR 1 )
 set( VERSION_MINOR 0 )
-GetSvnWorkingCopyRevision( ${PROJECT_SOURCE_DIR} VERSION_PATCH )
+GetPatchVersion( ${PROJECT_SOURCE_DIR} VERSION_PATCH )
 set( VERSION_TUPLE "${VERSION_MAJOR}.${VERSION_MINOR}${VERSION_PATCH}" )
 
 
@@ -59,15 +59,15 @@ set( SOURCE_FILES
 
 # Create an executable file
 add_executable( ${PROJECT_NAME} ${SOURCE_FILES} )
-set_target_properties( ${PROJECT_NAME} PROPERTIES 
-                       VERSION ${VERSION_TUPLE} )
+#set_target_properties( ${PROJECT_NAME} PROPERTIES 
+#                       VERSION ${VERSION_TUPLE} )
 
 # Indicate how to link
 target_link_libraries( ${PROJECT_NAME}
                        YellowSubUtils
-					   ${MOOS_LIBRARIES}
+                       ${MOOS_LIBRARIES}
                        ${PLATFORM_LIBRARIES}
-					 )
+                )
 
 set_target_properties( ${PROJECT_NAME} PROPERTIES 
                        VERSION ${VERSION_TUPLE} )
@@ -76,7 +76,7 @@ add_dependencies( ${PROJECT_NAME} YellowSubUtils )
 
 # Install Targets
 install(TARGETS ${PROJECT_NAME}
-	    RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/bin
+       RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/bin
 )
 
 

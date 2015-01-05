@@ -15,7 +15,7 @@ set(PROJECT_EMAIL "pedr5603@vandals.uidaho.edu")
 # Set project version info
 set( VERSION_MAJOR 1 )
 set( VERSION_MINOR 0 )
-GetSvnWorkingCopyRevision( ${PROJECT_SOURCE_DIR} VERSION_PATCH )
+GetPatchVersion( ${PROJECT_SOURCE_DIR} VERSION_PATCH )
 set( VERSION_TUPLE "${VERSION_MAJOR}.${VERSION_MINOR}${VERSION_PATCH}" )
 
 # Set up convenience variables for project subdirectories
@@ -52,7 +52,21 @@ include_directories( ${MOOS_INCLUDE_DIRECTORIES}
 set( SOURCE_FILES
      ${SRC_DIR}/main.cpp
      ${SRC_DIR}/pFakeModemReport.cpp
-)
+   )
+
+#======================================
+# Set up libraries to be linked in
+#======================================
+set( target_LIBS ${MOOS_LIBRARIES}
+                 ${MOOS_DEPEND_LIBRARIES}
+                 ${MOOSGeodesy_LIBRARIES}
+                 ${MOOSGeodesy_DEPEND_LIBRARIES}
+                 ${PLATFORM_LIBRARIES}
+                 YellowSubNav
+   )
+list( REMOVE_DUPLICATES target_LIBS )
+
+
 
 #============================
 # Specify the project target
@@ -61,17 +75,15 @@ set( SOURCE_FILES
 # Create an executable file
 add_executable( ${PROJECT_NAME} ${SOURCE_FILES} )
 set_target_properties( ${PROJECT_NAME} PROPERTIES 
-                       VERSION ${VERSION_TUPLE} )
+                       VERSION "${VERSION_TUPLE}" )
+
+add_dependencies( ${PROJECT_NAME} YellowSubNav )
 
 # Indicate how to link
-target_link_libraries( ${PROJECT_NAME}
-					   ${MOOS_LIBRARIES}
-                       ${MOOSGeodesy_LIBRARIES}
-                       ${PLATFORM_LIBRARIES}
-                       YellowSubNav
-					 )
+target_link_libraries( ${PROJECT_NAME} ${target_LIBS} )
+
 
 # Install Targets
 install(TARGETS ${PROJECT_NAME}
-	RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/bin
+   RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/bin
 )

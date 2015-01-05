@@ -19,6 +19,11 @@ project( moos-ivp-uidaho )
 # Project version
 set( MOOS_IVP_UIDAHO_VERSION_MAJOR 1 )
 set( MOOS_IVP_UIDAHO_VERSION_MINOR 0 )
+set( MOOS_IVP_UIDAHO_VERSION_PATCH 0 )
+
+# Set up a version string
+set( MOOS_IVP_UIDAHO_VERSION_TUPLE "${MOOS_IVP_UIDAHO_VERSION_MAJOR}.${MOOS_IVP_UIDAHO_VERSION_MINOR}.${MOOS_IVP_UIDAHO_VERSION_PATCH}" )
+message( STATUS "moos-ivp-uidaho project version ${MOOS_IVP_UIDAHO_VERSION_TUPLE}"  )
 
 
 # Define local folders
@@ -30,11 +35,6 @@ set( SHARED_LIB_DIR ${PROJECT_SOURCE_DIR}/sharedlib )
 set( STATIC_LIB_DIR ${PROJECT_SOURCE_DIR}/staticlib )
 set( PROJECTS_DIR ${PROJECT_SOURCE_DIR}/projects )
 
-
-
-
-# Tell CMake where to find extra modules
-#set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CONFIG_DIR} )
 
 # Helpful functions for CMake debugging
 include(${CONFIG_DIR}/CMakeUtils.cmake)
@@ -101,7 +101,7 @@ message( STATUS "Building for target CPU: ${CMAKE_SYSTEM_PROCESSOR}" )
 # Find the MOOS libraries
 #============================
 set(MOOS_SOURCE_BASE_DIR "${MOOSIVP_SOURCE_TREE_BASE}/MOOS")
-
+find_package(MOOS 10)
 set( MOOS_MARK_ADVANCED TRUE )
 
 # If the MOOS libraries are found, the following variables will be populated:
@@ -157,6 +157,7 @@ find_package( MOOSIVP REQUIRED
 list( APPEND MOOSIVP_INCLUDE_DIRECTORIES ${MOOSIVP_ROOT_PATH} )
 
 if (MOOS_FOUND)
+    link_directories( ${MOOSIVP_ROOT_PATH}/lib )
     mark_as_advanced( MOOS_INCLUDE_SEARCH_PATHS MOOS_LIBRARY_SEARCH_PATHS )
 endif()
 
@@ -167,19 +168,25 @@ endif()
 
 
 
-#=================================================
-# Set up a CMake widget for build type selection
-#=================================================
-set( DEFAULT_BUILD_TYPE "RelWithDebInfo" )
+#====================================================
+# Set up a CMake macro for determining version info
+#====================================================
+macro( GetPatchVersion TARGET_DIR OUTPUT_VAR )
+   # DESCRIPTION:  
+   #   Returns an integer patch version for a specified directory
+   #
+   # param TARGET_DIR:  Directory whose version should be returned
+   # param OUTPUT_VAR:  CMake variable to populate with a version tuple
+   #
+   # REMARKS:
+   #   In the past, version tuples were created using a subversion 
+   #   revision number.  Since version control is now implemented using
+   #   git, such a distinct revision number is no longer available.
+   #   Therefore, until a more clever alternative is available (or 
+   #   even deemed necessary), the global patch revision is returned.
+   set( ${OUTPUT_VAR} "-${MOOS_IVP_UIDAHO_VERSION_PATCH}" )
+endmacro()
 
-set_property( CACHE  CMAKE_BUILD_TYPE 
-              PROPERTY STRINGS None Debug Release RelWithDebInfo MinSizeRel )
-
-get_property( CURRENT_BUILD_TYPE CACHE CMAKE_BUILD_TYPE PROPERTY VALUE )
-
-if ( NOT CURRENT_BUILD_TYPE )
-     set_property( CACHE  CMAKE_BUILD_TYPE  PROPERTY VALUE ${DEFAULT_BUILD_TYPE} )
-endif()
 
 
 
@@ -205,7 +212,6 @@ endif()
 
 
 
-
 #===================================
 # PLATFORM-SPECIFIC SETTINGS
 #===================================
@@ -224,7 +230,7 @@ elseif(UNIX)
     
     #include_directories("/usr/include")
 
-    set( PLATFORM_LIBRARIES rt m pthread  ${PLATFORM_LIBRARIES} )
+    set( PLATFORM_LIBRARIES rt m pthread ${PLATFORM_LIBRARIES} )
 
     if( "${CMAKE_SYSTEM_NAME}" MATCHES "SunOS" )
         set( PLATFORM_LIBRARIES socket nsl rt ${PLATFORM_LIBRARIES} )
@@ -241,30 +247,6 @@ elseif(UNIX)
     endif()
 endif()
 
-
-
-
-
-#================================
-# SUBVERSION INTEGRATION
-#================================
-find_package(Subversion)
-if( Subversion_FOUND )
-    macro( GetSvnWorkingCopyRevision TARGET_DIR OUTPUT_VAR )
-        Subversion_WC_INFO( ${TARGET_DIR} "SVN" )  # Run svn info
-        if ( ${SVN_WC_REVISION} )
-            set( ${OUTPUT_VAR} ".${SVN_WC_REVISION}" )
-        endif()
-    endmacro()
-else()
-    macro( GetSvnWorkingCopyRevision TARGET_DIR OUTPUT_VAR )
-        set( ${OUTPUT_VAR} )
-    endmacro()
-endif()
-
-GetSvnWorkingCopyRevision( ${PROJECT_SOURCE_DIR} MOOS_IVP_UIDAHO_SVN_REVISION )
-set( MOOS_IVP_UIDAHO_VERSION_TUPLE "${MOOS_IVP_UIDAHO_VERSION_MAJOR}.${MOOS_IVP_UIDAHO_VERSION_MINOR}${MOOS_IVP_UIDAHO_SVN_REVISION}" )
-message( STATUS "moos-ivp-uidaho project version ${MOOS_IVP_UIDAHO_VERSION_TUPLE}"  )
 
 
 

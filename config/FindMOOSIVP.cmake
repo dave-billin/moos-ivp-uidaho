@@ -20,6 +20,7 @@
 #       liblogic.a
 #       liblogutils.a
 #       libmbutil.a
+#       proj4 (library built for MOOSGeodesy implementation)
 #
 #   To use this module in your CMake configuration file, just add the two
 #   lines:

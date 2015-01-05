@@ -15,7 +15,7 @@ set(PROJECT_EMAIL "pedr5603@vandals.uidaho.edu")
 # Set project version info
 set( VERSION_MAJOR 1 )
 set( VERSION_MINOR 0 )
-GetSvnWorkingCopyRevision( ${PROJECT_SOURCE_DIR} VERSION_PATCH )
+GetPatchVersion( ${PROJECT_SOURCE_DIR} VERSION_PATCH )
 set( VERSION_TUPLE "${VERSION_MAJOR}.${VERSION_MINOR}${VERSION_PATCH}" )
 
 

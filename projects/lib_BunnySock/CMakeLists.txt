@@ -15,7 +15,7 @@ set( PROJECT_EMAIL "dave.billin@vandals.uidaho.edu" )
 # Set project version info
 set( VERSION_MAJOR 1 )
 set( VERSION_MINOR 0 )
-GetSvnWorkingCopyRevision( ${PROJECT_SOURCE_DIR} VERSION_PATCH )
+GetPatchVersion( ${PROJECT_SOURCE_DIR} VERSION_PATCH )
 set( VERSION_TUPLE "${VERSION_MAJOR}.${VERSION_MINOR}${VERSION_PATCH}" )
 
 # Set up convenience variables for project subdirectories
@@ -66,7 +66,7 @@ include_directories( ${MOOS_INCLUDE_DIRECTORIES}
 #============================
 
 # Define the static library target this project will build
-add_library( ${PROJECT_NAME} STATIC ${SOURCE_FILES} )
+add_library( ${PROJECT_NAME} SHARED ${SOURCE_FILES} )
 set_target_properties( ${PROJECT_NAME} PROPERTIES 
                        VERSION ${VERSION_TUPLE} )
                        

@@ -108,7 +108,7 @@ configure_file( ${BUILD_DIR}/include.h.in
 include_directories( ${INCLUDE_DIR} )
 
 # Define the static library target this project will build
-add_library( ${PROJECT_NAME} STATIC ${SOURCE_FILES} )
+add_library( ${PROJECT_NAME} SHARED ${SOURCE_FILES} )
 
 # Specify linkage order
 target_link_libraries( ${PROJECT_NAME} )

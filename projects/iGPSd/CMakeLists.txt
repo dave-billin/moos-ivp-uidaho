@@ -15,7 +15,7 @@ set( PROJECT_EMAIL "dave.billin@vandals.uidaho.edu" )
 # Set project version info
 set( VERSION_MAJOR 1 )
 set( VERSION_MINOR 0 )
-GetSvnWorkingCopyRevision( ${PROJECT_SOURCE_DIR} VERSION_PATCH )
+GetPatchVersion( ${PROJECT_SOURCE_DIR} VERSION_PATCH )
 set( VERSION_TUPLE "${VERSION_MAJOR}.${VERSION_MINOR}${VERSION_PATCH}" )
 
 
@@ -37,7 +37,7 @@ if ( NOT GPS_FOUND )
 endif()
 
 # Un-comment this line after the project is placed under svn source control
-GetSvnWorkingCopyRevision( ${PROJECT_SOURCE_DIR} PROJECT_VERSION_PATCH )
+GetPatchVersion( ${PROJECT_SOURCE_DIR} PROJECT_VERSION_PATCH )
 
 
 set(PROJECT_VERSION 
