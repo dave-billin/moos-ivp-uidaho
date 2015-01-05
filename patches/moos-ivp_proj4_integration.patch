@@ -1,0 +1,123 @@
+This patch modifies the build integration of libproj to place libproj binaries in the lib directory of the moos-ivp source tree.  It should be applied to the base directory of the moos-ivp source tree.
+Index: moos-ivp-head/MOOS/proj-4.8.0/CMakeLists.txt
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ moos-ivp-head/MOOS/proj-4.8.0/CMakeLists.txt	2015-01-04 18:07:27.874735148 -0800
+@@ -0,0 +1,35 @@
++#==============================================================================
++# CMake wrapper build script for the proj library
++#
++# Created 03-January-2015 by Dave Billin
++#
++# This CMake configuration simply invokes the autotools build system used by
++# the proj library, installing proj headers in the include directory of the
++# proj source directory and libraries in the current CMake Library output
++# directory
++#==============================================================================
++
++#==========================
++# CMAKE OPTIONS
++#==========================
++cmake_minimum_required( VERSION 2.8.8 )
++
++
++#==========================
++# CMAKE PROJECT SETTINGS
++#==========================
++project( libproj )
++
++set( MAKE "$(MAKE)" )
++
++include(ExternalProject)
++ExternalProject_Add( libproj
++    SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}
++    CONFIGURE_COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/configure
++         --prefix=${CMAKE_CURRENT_SOURCE_DIR}
++         --libdir=${CMAKE_LIBRARY_OUTPUT_DIRECTORY}
++         --includedir=${CMAKE_CURRENT_SOURCE_DIR}/include
++    BUILD_COMMAND ${MAKE}
++    BUILD_IN_SOURCE 1
++    INSTALL_COMMAND make install
++   )
+Index: moos-ivp-head/build-moos.sh
+===================================================================
+--- moos-ivp-head.orig/build-moos.sh	2015-01-04 18:07:27.882735148 -0800
++++ moos-ivp-head/build-moos.sh	2015-01-04 18:07:27.874735148 -0800
+@@ -86,18 +86,20 @@
+ #===================================================================
+ # Part #4:  BUILD PROJ4
+ #===================================================================
+-cd "${INVOC_ABS_DIR}/MOOS/proj-4.8.0"
++libproj_source_dir="${INVOC_ABS_DIR}/MOOS/proj-4.8.0"
++cd "${libproj_source_dir}"
+ 
++echo "Invoking cmake..." `pwd`
++cmake -DCMAKE_BUILD_TYPE=${BUILD_TYPE}                        \
++      -DCMAKE_LIBRARY_OUTPUT_DIRECTORY="${INVOC_ABS_DIR}/lib" \
++      -DCMAKE_CXX_FLAGS="${MOOS_CXX_FLAGS}" ./
++
++echo ""; echo "Invoking make..." `pwd`; echo ""
++make ${CMD_ARGS}
++
++# proj installs pkgconfig info which isn't needed, so delete it
++rm -rf ${INVOC_ABS_DIR}/lib/pkgconfig
+ 
+-if [ ! -e lib/libproj.dylib ]; then
+-    if [ ! -e lib/libproj.a ]; then
+-	echo "Building Proj4. MOOSGeodesy now uses Proj4 with MOOSGeodesy wrapper"
+-	./configure 
+-	make 
+-	make install 
+-	echo "Done Building Proj4."
+-    fi
+-fi
+ 
+ 
+ #===================================================================
+@@ -105,14 +107,10 @@
+ #===================================================================
+ cd "${INVOC_ABS_DIR}/MOOS/MOOSGeodesy"
+ 
+-PROJ4_INCLUDE_DIR="${INVOC_ABS_DIR}/MOOS/proj-4.8.0/include"
+-PROJ4_LIB_DIR="${INVOC_ABS_DIR}/MOOS/proj-4.8.0/lib"
+-
+ echo "Invoking cmake..." `pwd`
+ cmake -DCMAKE_CXX_FLAGS="${MOOS_CXX_FLAGS}"         \
+-      -DPROJ4_INCLUDE_DIRS=${PROJ4_INCLUDE_DIR}     \
+-      -DPROJ4_LIB_PATH=${PROJ4_LIB_DIR} 
+-
++      -DPROJ4_INCLUDE_DIRS="${libproj_source_dir}/include" \
++      -DPROJ4_LIB_PATH="${INVOC_ABS_DIR}/lib"
+     
+ echo ""; echo "Invoking make..." `pwd`; echo ""
+ make -j8 $@
+Index: moos-ivp-head/ivp/src/CMakeLists.txt
+===================================================================
+--- moos-ivp-head.orig/ivp/src/CMakeLists.txt	2015-01-04 18:04:44.610732269 -0800
++++ moos-ivp-head/ivp/src/CMakeLists.txt	2015-01-04 22:18:24.871000631 -0800
+@@ -46,6 +46,25 @@
+ message("MOOSGeodesy_LIBRARY_PATH:" ${MOOSGeodesy_LIBRARY_PATH})
+ message("+++++++++++++++++++++++++++++++++++++++++")
+ 
++
++
++#=================================================
++# Find the proj library built for MOOSGeodesy
++#=================================================
++find_library( PROJ_LIBRARY proj.0
++              PATHS ${IVP_LIB_DIRECTORY}
++              DOC "Path of libproj"
++            )
++
++message( "PROJ_LIBRARY = ${PROJ_LIBRARY}" )
++if ( PROJ_LIBRARY STREQUAL "PROJ_LIBRARY-NOTFOUND" )
++   message( FATAL_ERROR "Failed to find libproj normally built for MOOSGeodesy" )
++else()
++   link_directories(${IVP_LIB_DIRECTORY})
++   message( STATUS "Found libproj: ${PROJ_LIBRARY}" )
++endif()
++
++
+ #===============================================================================
+ # BUILDING IvP...
+ #===============================================================================
