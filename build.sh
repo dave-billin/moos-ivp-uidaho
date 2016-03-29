@@ -1,5 +1,4 @@
 #!/bin/bash
-
 ##=============================================================================
 ## build.sh
 ##
@@ -7,133 +6,77 @@
 ##
 ## History:
 ##  - Dave Billin: Created August 28, 2011
-##  - M. Benjamin: Modified Sep 08, 2011
 ##=============================================================================
 
+set -o errexit   # Exit on first error
+set -o nounset   # Disallow unset variables
+#set -o xtrace   # Trace commands as they are executed
+
+_script_name="$(basename ${0})"
+_script_dir="$(readlink -f $(dirname ${0}))"
+
+_build_dir="${_script_dir}/build"
+
 PWD=`pwd`
-BUILD_DIR="build"
+_build_dir="build"
 HELP="no"
 CLEAN="no"
 
 #-------------------------------------------------------------------
-# Define some terminal colors for convenience
+# Prints script usage then exits
 #-------------------------------------------------------------------
-
-txtrst=$(tput sgr0)     # Reset colors and formatting for subsequent text
-txtred=$(tput setaf 1)  # Start Red text
-txtgrn=$(tput setaf 2)  # Start Green text
-txtyel=$(tput setaf 3)  # Start Yellow text
-txtblu=$(tput setaf 4)  # Start Blue text
-txtvio=$(tput setaf 5)  # Start Purple text
-txtcyn=$(tput setaf 6)  # Start Cyan text
-txtwht=$(tput setaf 7)  # Start White text
-
-txtbold=$(tput bold)  # Start bold text
-txtul=$(tput smul)    # Start underlining text
-txtulend=$(tput rmul) # Stop underlining text
-
-
-#-------------------------------------------------------------------
-# A function that handles a request for help
-#-------------------------------------------------------------------
-function print_help ()
+function print_usage_and_exit ()
 {
-    printf "${txtbold}USAGE:  ${txtblu}build.sh ${txtrst}[SWITCHES]\n"
-    printf "\n"
-    printf "${txtul}SWITCHES:${txtulend}                           \n" 
-    printf "  ${txtcyn}--clean, clean                    \n" 
-    printf "  --help, -h${txtrst}                        \n"
-    printf "\n"
-    printf "${txtul}Notes:${txtulend}                              \n"
-    printf " (1) All other command line args will be passed as args    \n"
-    printf "     to \"make\" when it is eventually invoked.            \n"
-    printf " (2) For example -k will continue making when/if a failure \n"
-    printf "     is encountered in building one of the subdirectories. \n"
-    printf " (3) For example -j2 will utilize a 2nd core in the build  \n"
-    printf "     if your machine has two cores. -j4 etc for quad core. \n"
-    printf "\n"
+echo "
+USAGE: ${_script_name} [OPTIONS...] [make arguments...]
+OPTIONS:
+   -h, --help   Print usage info and exit
+   -p, --purge  Delete all existing build artifacts
 
-    exit 0
-}
-
-
-
-#-------------------------------------------------------------------
-# A function that handles a request to clean the project
-#-------------------------------------------------------------------
-function do_clean ()
-{
-    cd ${BUILD_DIR}
-
-    printf "${txtgrn}CLEANING...${txtrst}"
-
-    # If a makefile exists, run its clean rule    
-    if [ -e "./Makefile" ]; then
-        make clean
-    fi
-
-    # Remove residual CMake files
-    rm -rf CMakeFiles/ CMakeCache.txt Makefile src/ cmake_install.cmake
-    rm -rf CPackConfig.cmake CPackSourceConfig.cmake Doxyfile
-    printf "${txtgrn}done${txtrst}\n"
-    cd ${PWD}
-
-    exit 0;
-}
-
-
-
-#-------------------------------------------------------------------
-# A function that completely blows away the build directory
-#-------------------------------------------------------------------
-function do_nuke ()
-{
-    printf "${txtred}Nuking the contents of ${BUILD_DIR}... (boom)${txtrst}\n"
-    rm -rf ${BUILD_DIR};
+make arguments:
+   Any command line arguments not included in OPTIONS are passed as
+   parameters to make
+"
+   exit 0
 }
 
 
 #-------------------------------------------------------------------
-#  Part 1: Check for and handle command-line arguments
+#  Parse command line arguments
 #-------------------------------------------------------------------
-case ${1} in
-    -h) ;&
-    --help)
-        print_help;;
+purge_requested='no'
+cmd_args="-j12"
 
-    clean) ;&
-    --clean)
-        do_clean;;
+for ARGI
+do
+   case ${ARGI} in
+      --help|-h)
+         print_usage_and_exit;;
 
-    nuke) ;&
-    --nuke)
-        do_nuke;
-        exit 0;;
+      --purge|-p)
+         purge_requested='yes';;
 
-    rebuild) ;&
-    --rebuild)
-        do_nuke;
-        shift 1;;
-
-esac
+      *)  cmd_args+=" ${ARGI}";;
+   esac
+done
 
 
-#-------------------------------------------------------------------
-# By default, configure and build in the ${BUILD_DIR} directory
-#-------------------------------------------------------------------
+# Implement purge
+if [ 'yes' = "${purge_requested}" ]
+then
+   [ -d "${_build_dir}" ] && (cd ${_build_dir} && make clean || true)
+   rm -rf ${_build_dir}
+   exit 0
 
-# If no command line arguments were given, default to building all targets.
-mkdir -p ${BUILD_DIR} && cd ${BUILD_DIR}
-
-printf "${txtgrn}Configuring...${txtrst}\n"
-cmake ..
-
-printf "${txtgrn}Building...${txtrst}\n"
-if [ -z $@ ]; then
-    make 
 else
-    make $@
+
+   # Create the build directory if it doesn't exist
+   mkdir -p ${_build_dir} 
+
+   cd ${_build_dir}
+   echo "Configuring CMake..."
+   cmake ..
+
+   echo -e "\nRunning 'make ${@}'"
+   make ${cmd_args}
 fi
-
-cd ${PWD}
-
