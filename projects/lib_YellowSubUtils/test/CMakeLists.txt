@@ -2,7 +2,7 @@
 # lib_YellowSubUtils Unit Tests
 #==============================================================================
 
-include_directories( ${MOOS_INCLUDE_DIRECTORIES} )
+include_directories( ${MOOS_INCLUDE_DIRS} )
 
 #===============================================
 # Unit test executables and test tasks

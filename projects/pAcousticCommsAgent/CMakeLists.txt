@@ -44,8 +44,9 @@ configure_file( "${PROJECT_SOURCE_DIR}/build/manfile.in"
 #===============================
 
 include_directories( ${MOOSIVP_INCLUDE_DIRECTORIES} 
-                     ${MOOS_INCLUDE_DIRECTORIES} 
-                     ${INCLUDE_DIR} 
+                     ${MOOS_INCLUDE_DIRS}
+                     ${PROJ4_INCLUDE_DIRS} 
+                     ${INCLUDE_DIR}
                    )
 
 
@@ -70,8 +71,8 @@ set_target_properties( ${PROJECT_NAME} PROPERTIES
 # Indicate how to link
 target_link_libraries( ${PROJECT_NAME}
 					   ${MOOS_LIBRARIES} 
-					   ${MOOSIVP_LIBRARIES} 
-                       ${PLATFORM_LIBRARIES}
+					   ${IVP_STATIC_LIBS}
+                  ${PLATFORM_LIBRARIES}
 					 )
 
 # Install Targets

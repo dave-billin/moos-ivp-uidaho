@@ -72,7 +72,7 @@ set( SOURCE_FILES
 )
 
 
-include_directories( ${MOOS_INCLUDE_DIRECTORIES} 
+include_directories( ${MOOS_INCLUDE_DIRS} 
                      ${INCLUDE_DIR} )
 
 set( ${PROJECT_NAME}_LIBS  )

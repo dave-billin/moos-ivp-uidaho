@@ -43,8 +43,9 @@ configure_file( "${BUILD_DIR}/manfile.in"
 # Source Files
 #===============================
 
-include_directories( ${MOOS_INCLUDE_DIRECTORIES}
+include_directories( ${MOOS_INCLUDE_DIRS}
                      ${MOOSGeodesy_INCLUDE_DIRS}
+                     ${PROJ4_INCLUDE_DIRS}
                      ${NEWMAT10_INCLUDE_DIRECTORIES}
                      ${INCLUDE_DIR} )
 
@@ -69,7 +70,8 @@ target_link_libraries( ${PROJECT_NAME}
                        YellowSubNav
                        Newmat10
                        ${MOOSGeodesy_LIBRARIES}
-					   ${MOOS_LIBRARIES}
+                       ${PROJ4_LIBRARIES}
+					        ${MOOS_LIBRARIES}
                        ${PLATFORM_LIBRARIES}
 					 )
 

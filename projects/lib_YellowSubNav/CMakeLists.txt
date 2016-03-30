@@ -32,8 +32,9 @@ set( TEST_DIR ${PROJECT_SOURCE_DIR}/test )
 
 # *** The YellowSubNav library depends on the NewMat matrix library *** 
 include_directories( ${NEWMAT_INCLUDE_DIRECTORIES} 
-                     ${MOOS_INCLUDE_DIRECTORIES}
+                     ${MOOS_INCLUDE_DIRS}
                      ${MOOSGeodesy_INCLUDE_DIRS}
+                     ${PROJ4_INCLUDE_DIRS}
                      ${INCLUDE_DIR}
                    )
 

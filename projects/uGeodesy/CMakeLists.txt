@@ -43,8 +43,9 @@ find_package( MOOSGeodesy REQUIRED )
 # Source Files
 #===============================
 
-include_directories( ${MOOS_INCLUDE_DIRECTORIES} 
+include_directories( ${MOOS_INCLUDE_DIRS} 
                      ${MOOSGeodesy_INCLUDE_DIRS}
+                     ${PROJ4_INCLUDE_DIRS}
                      ${INCLUDE_DIR} )
 
 
@@ -61,6 +62,7 @@ set( target_LIBS ${MOOS_LIBRARIES}
                  ${MOOS_DEPEND_LIBRARIES}
                  ${MOOSGeodesy_LIBRARIES}
                  ${MOOSGeodesy_DEPEND_LIBRARIES}
+                 ${PROJ4_LIBRARIES}
                  ${PLATFORM_LIBRARIES}
    )
 list( REMOVE_DUPLICATES target_LIBS )

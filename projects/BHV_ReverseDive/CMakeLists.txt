@@ -45,7 +45,7 @@ set( ${PROJECT_NAME}_SRCLIST
      BHV_ReverseDive.cpp
 )
 
-include_directories( ${MOOS_INCLUDE_DIRECTORIES} )
+include_directories( ${MOOS_INCLUDE_DIRS} )
 include_directories( ${MOOSIVP_INCLUDE_DIRECTORIES} )
 
 

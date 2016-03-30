@@ -17,11 +17,6 @@ _script_dir="$(readlink -f $(dirname ${0}))"
 
 _build_dir="${_script_dir}/build"
 
-PWD=`pwd`
-_build_dir="build"
-HELP="no"
-CLEAN="no"
-
 #-------------------------------------------------------------------
 # Prints script usage then exits
 #-------------------------------------------------------------------
@@ -31,6 +26,11 @@ echo "
 USAGE: ${_script_name} [OPTIONS...] [make arguments...]
 OPTIONS:
    -h, --help   Print usage info and exit
+
+   --ivp-dir DIR
+      Use DIR as the base directory of the IvP source tree when
+      configuring CMake
+
    -p, --purge  Delete all existing build artifacts
 
 make arguments:
@@ -46,26 +46,46 @@ make arguments:
 #-------------------------------------------------------------------
 purge_requested='no'
 cmd_args="-j12"
+cmake_args=
 
-for ARGI
+while test ${#} -gt 0
 do
-   case ${ARGI} in
+   OPT="${1}"
+   OPTARG=
+   [ ${#} -gt 1 ] && OPTARG="${2}"
+
+   # DEBUG
+   #echo "{ OPT=\"${OPT}\"  OPTARG=\"${OPTARG}\" }"
+
+   case ${OPT} in
       --help|-h)
          print_usage_and_exit;;
+      
+      --ivp-dir)
+         [ -z "${OPTARG}" ] && { echo "--ivp-dir switch is missing required DIR argument" >&2; exit 1; }
+         cmake_args+=" -DMOOSIVP_SOURCE_TREE_DIR=${OPTARG}"
+         shift;;
 
       --purge|-p)
          purge_requested='yes';;
 
-      *)  cmd_args+=" ${ARGI}";;
-   esac
-done
+      --) shift
+          cmd_args+=" ${@}"
+          break;;
 
+      *)  cmd_args+=" ${OPTARG}";;
+
+   esac
+   
+   shift
+done
 
 # Implement purge
 if [ 'yes' = "${purge_requested}" ]
 then
-   [ -d "${_build_dir}" ] && (cd ${_build_dir} && make clean || true)
-   rm -rf ${_build_dir}
+   echo -e "Purging build directory...\n"
+   [ -d "${_build_dir}" ] && (cd ${_build_dir}; make clean || true)
+   rm -rf ${_build_dir} >/dev/null
    exit 0
 
 else
@@ -75,7 +95,7 @@ else
 
    cd ${_build_dir}
    echo "Configuring CMake..."
-   cmake ..
+   cmake ${cmake_args} ..
 
    echo -e "\nRunning 'make ${@}'"
    make ${cmd_args}

@@ -43,7 +43,7 @@ configure_file( ${BUILD_DIR}/manfile.in
 # Source Files
 #===============================
 
-include_directories( ${MOOS_INCLUDE_DIRECTORIES}
+include_directories( ${MOOS_INCLUDE_DIRS}
                      ${INCLUDE_DIR} )
 
 

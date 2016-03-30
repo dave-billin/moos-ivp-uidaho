@@ -128,7 +128,7 @@ configure_file( "${BUILD_DIR}/manfile.in"
 # iGPSd executable Source Files
 #===============================
 
-include_directories( ${MOOS_INCLUDE_DIRECTORIES} 
+include_directories( ${MOOS_INCLUDE_DIRS} 
                      ${GPS_INCLUDE_DIR} 
                      ${INCLUDE_DIR}
                      ${BUILD_DIR}

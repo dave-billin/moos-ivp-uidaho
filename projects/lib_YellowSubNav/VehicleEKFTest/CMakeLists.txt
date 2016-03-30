@@ -19,7 +19,7 @@ file( GLOB ${PROJECT_NAME}_HEADERS *.h *.hpp )
 file( GLOB ${PROJECT_NAME}_SRC *.cpp )
 
 include_directories(${NEWMAT_INCLUDE_DIRECTORIES} )
-include_directories( ${MOOS_INCLUDE_DIRECTORIES} )
+include_directories( ${MOOS_INCLUDE_DIRS} )
 include_directories( ${YELLOWSUBNAV_INCLUDE_DIRECTORIES} )
 
 

@@ -2,7 +2,7 @@
 # U of I YellowSub MOOS Software
 # Top-level CMake configuration
 #
-# Created 7-2011 by Dave Billin
+# Maintained by Dave Billin <david.billin@vandals.uidaho.edu>
 #==============================================================================
 
 #==========================
@@ -23,22 +23,23 @@ set( MOOS_IVP_UIDAHO_VERSION_PATCH 0 )
 
 # Set up a version string
 set( MOOS_IVP_UIDAHO_VERSION_TUPLE "${MOOS_IVP_UIDAHO_VERSION_MAJOR}.${MOOS_IVP_UIDAHO_VERSION_MINOR}.${MOOS_IVP_UIDAHO_VERSION_PATCH}" )
-message( STATUS "moos-ivp-uidaho project version ${MOOS_IVP_UIDAHO_VERSION_TUPLE}"  )
+message( STATUS "Configuring moos-ivp-uidaho version ${MOOS_IVP_UIDAHO_VERSION_TUPLE}"  )
 
 
 # Define local folders
-set( BIN_DIR ${PROJECT_SOURCE_DIR}/bin )
-set( CONFIG_DIR ${PROJECT_SOURCE_DIR}/config )
-set( DATA_DIR ${PROJECT_SOURCE_DIR}/data )
-set( DOCS_DIR ${PROJECT_SOURCE_DIR}/docs )
-set( SHARED_LIB_DIR ${PROJECT_SOURCE_DIR}/sharedlib )
-set( STATIC_LIB_DIR ${PROJECT_SOURCE_DIR}/staticlib )
-set( PROJECTS_DIR ${PROJECT_SOURCE_DIR}/projects )
+set( bin_dir ${PROJECT_SOURCE_DIR}/bin )
+set( cmake_modules_dir ${PROJECT_SOURCE_DIR}/cmake-modules )
+set( data_dir ${PROJECT_SOURCE_DIR}/data )
+set( docs_dir ${PROJECT_SOURCE_DIR}/docs )
+set( lib_dir ${PROJECT_SOURCE_DIR}/lib )
+set( projects_dir ${PROJECT_SOURCE_DIR}/projects )
 
 
 # Helpful functions for CMake debugging
-include(${CONFIG_DIR}/CMakeUtils.cmake)
+#include(${cmake_modules_dir}/CMakeUtils.cmake)
 
+# Tell CMake to look in the cmake-modules directory for find modules
+set( CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${cmake_modules_dir}" )
 
 
 #==============================
@@ -46,22 +47,8 @@ include(${CONFIG_DIR}/CMakeUtils.cmake)
 #==============================
 
 # Allow only Linux builds
-if( ${WIN32} )
-    message("Sorry.  The moos-ivp-uidaho tree only supports Linux targets at this time!")
-    return()
-endif()
-
-
-# Search for the moos-ivp folder
-find_path( MOOSIVP_SOURCE_TREE_BASE
-           NAMES build-ivp.sh build-moos.sh configure-ivp.sh
-           PATHS "../moos-ivp" "../../moos-ivp" "../../moos-ivp/trunk/" "../moos-ivp/trunk/"
-           DOC "Base directory of the MOOS-IvP source tree"
-           NO_DEFAULT_PATH
-         )
-
-if (NOT MOOSIVP_SOURCE_TREE_BASE)
-    message("Please set MOOSIVP_SOURCE_TREE_BASE to the location of the \"moos-ivp\" folder")
+if( NOT ${LINUX} )
+    message("Sorry.  Only Linux targets are supported!")
     return()
 endif()
 
@@ -69,103 +56,114 @@ endif()
 #===============================================
 # SET OUTPUT DIRECTORIES
 #===============================================
-set( LIBRARY_OUTPUT_PATH "${SHARED_LIB_DIR}" CACHE PATH "" )
-set( ARCHIVE_OUTPUT_DIRECTORY "${STATIC_LIB_DIR}" CACHE PATH "" )
-set( LIBRARY_OUTPUT_DIRECTORY "${SHARED_LIB_DIR}" CACHE PATH "" )
+if ( NOT DEFINED CMAKE_RUNTIME_OUTPUT_DIRECTORY )
+    set( CMAKE_RUNTIME_OUTPUT_DIRECTORY "${bin_dir}" 
+         CACHE PATH "Directory where executables built by the project will be written"
+       )
+endif()
+if ( NOT DEFINED CMAKE_ARCHIVE_OUTPUT_DIRECTORY )
+    set( CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${lib_dir}" 
+         CACHE PATH "Directory where static libraries built by the project will be written"
+       )
+endif()
+if ( NOT DEFINED CMAKE_LIBRARY_OUTPUT_DIRECTORY )
+    set( CMAKE_LIBRARY_OUTPUT_DIRECTORY "${lib_dir}" 
+         CACHE PATH "Directory where shared libraries built by the project will be written"
+       )
+endif()
 
-set( CMAKE_LIBRARY_OUTPUT_DIRECTORY 
-     ${SHARED_LIB_DIR} CACHE PATH
-     "Directory where shared libraries are placed when built" )
-
-set( CMAKE_ARCHIVE_OUTPUT_DIRECTORY 
-     ${STATIC_LIB_DIR} CACHE PATH
-     "Directory where static libraries are placed when built" )
-
-SET( CMAKE_RUNTIME_OUTPUT_DIRECTORY 
-     "${BIN_DIR}" CACHE PATH 
-     "Directory where compiled executables are placed when built" )
-
-# Add the static library directory to the linker search path
-link_directories( ${STATIC_LIB_DIR} )
+# Add the static library output directory to the linker search path
+link_directories( ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY} )
 
 # Set the directory where man files should be placed prior to installation
-set(MANFILE_OUTPUT_DIRECTORY ${DOCS_DIR}/man)
+set(MANFILE_OUTPUT_DIRECTORY ${docs_dir}/man)
 
 message( STATUS "Building for target CPU: ${CMAKE_SYSTEM_PROCESSOR}" )
 
 
 
+#==============================
+# Find the IvP libraries
+#==============================
+message( STATUS "MOOSIVP_SOURCE_TREE_DIR = ${MOOSIVP_SOURCE_TREE_DIR}" )
 
+# Search for the moos-ivp folder
+if (NOT DEFINED MOOSIVP_SOURCE_TREE_DIR)
+   find_path( MOOSIVP_SOURCE_TREE_DIR
+              NAMES build-ivp.sh build-moos.sh configure-ivp.sh
+              PATHS "../moos-ivp" "../../moos-ivp" "../../moos-ivp/trunk/" "../moos-ivp/trunk/"
+              DOC "Base directory of the MOOS-IvP source tree"
+              NO_DEFAULT_PATH
+            )
+endif()
+
+if (NOT MOOSIVP_SOURCE_TREE_DIR)
+    message("Please set MOOSIVP_SOURCE_TREE_DIR to the path of the MOOS-IvP source tree")
+    return()
+endif()
 
 #============================
 # Find the MOOS libraries
 #============================
-set(MOOS_SOURCE_BASE_DIR "${MOOSIVP_SOURCE_TREE_BASE}/MOOS")
-find_package(MOOS 10)
-set( MOOS_MARK_ADVANCED TRUE )
-
 # If the MOOS libraries are found, the following variables will be populated:
 #   MOOS_INCLUDE_DIRS           - Path(s) to MOOS library header files
 #   MOOS_LIBRARIES              - A list of MOOS libraries
 #   MOOS_DEPEND_INCLUDE_DIRS    - Include directories for MOOS dependencies
-#   MOOS_DEPEND_LIBRARIES       - Paths of libraries that MOOS depends on
+#   MOOS_DEPEND_LIBRARIES       - Names of libraries that MOOS depends on
 find_package( MOOS 10 REQUIRED )
-
-if ( MOOS_FOUND )
-    message( STATUS "Found MOOS v10" )
-
-    # Assign the contents of MOOS_INCLUDE_DIRS to the legacy 
-    # variable MOOS_INCLUDE_DIRECTORIES, since most of the
-    # moos-ivp-uidaho subprojects' CMake configurations are
-    # written to use it
-    set( MOOS_INCLUDE_DIRECTORIES ${MOOS_INCLUDE_DIRS} )
-    
-    #PrintList( MOOS_INCLUDE_DIRS )
-    #PrintList( MOOS_LIBRARIES )
-endif()
-
+message( STATUS "Found libMOOS" )
 
 #==============================
 # Find MOOS Geodesy library
 #==============================
+# If the MOOSGeodesy library is found, the following variables will be populated:
+#   MOOSGeodesy_INCLUDE_DIRS           - Path(s) to MOOSGeodesy header files
+#   MOOSGeodesy_LIBRARIES              - Path of the MOOSGeodesy library
+#   MOOSGeodesy_DEPEND_INCLUDE_DIRS    - Include directories for MOOSGeodesy dependencies
+#   MOOSGeodesy_DEPEND_LIBRARIES       - Names of libraries that MOOSGeodesy depends on
 find_package( MOOSGeodesy REQUIRED )
-if ( MOOSGeodesy_FOUND )
-    message( STATUS "Found MOOSGeodesy library" )
-    #PrintList( MOOSGeodesy_INCLUDE_DIRS )
-    #PrintList( MOOSGeodesy_LIBRARIES )
-endif() 
-
+message( STATUS "Found libMOOSGeodesy" )
 
 #==============================
-# Find the MOOS-IvP libraries
+# Import IvP artifacts
 #==============================
-set( CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR} )
-set( MOOSIVP_MARK_ADVANCED TRUE )
+include( "${cmake_modules_dir}/import-IvP.cmake" )
 
-if (MOOSIVP_SOURCE_TREE_BASE)
-    set(MOOSIVP_SOURCE_BASE_DIR "${MOOSIVP_SOURCE_TREE_BASE}")
-endif()
+import_ivp_static_libraries( "${MOOSIVP_SOURCE_TREE_DIR}" )
+string( REPLACE ";" ", " comma_list "${IVP_STATIC_LIBS}" )
+message( STATUS "  { ${comma_list} }" )
 
-# If the MOOS libraries are found, the following variables will be populated:
-#   MOOSIVP_INCLUDE_DIRECTORIES     - A list of path(s) to MOOS-IvP library header files
-#   MOOSIVP_LIBRARIES               - A list of MOOS-IvP libraries
-find_package( MOOSIVP REQUIRED
-              HINTS ${CONFIG_DIR} )
+import_ivp_shared_libraries( "${MOOSIVP_SOURCE_TREE_DIR}" )
+string( REPLACE ";" ", " comma_list "${IVP_SHARED_LIBS}" )
+message( STATUS "  { ${comma_list} }" )
 
-# Add the path to the root of the IvP source tree to the IvP include directories
-# so that arbitrary IvP sources can be referenced by moos-ivp-uidaho modules
-list( APPEND MOOSIVP_INCLUDE_DIRECTORIES ${MOOSIVP_ROOT_PATH} )
+set( ivp_all_libnames "${IVP_STATIC_LIBS};${IVP_SHARED_LIBS}" )
+import_ivp_include_dirs( "${MOOSIVP_SOURCE_TREE_DIR}" "${ivp_all_libnames}" )
+include_directories( ${IVP_INCLUDE_DIRS} )
 
-if (MOOS_FOUND)
-    link_directories( ${MOOSIVP_ROOT_PATH}/lib )
-    mark_as_advanced( MOOS_INCLUDE_SEARCH_PATHS MOOS_LIBRARY_SEARCH_PATHS )
-endif()
+foreach( dir IN LISTS IVP_INCLUDE_DIRS )
+   #message( "     ${dir}" )
+endforeach()
 
-if (MOOSIVP_FOUND)
-    mark_as_advanced( MOOSIVP_INCLUDE_SEARCH_PATHS MOOSIVP_LIBRARY_SEARCH_PATHS )
-endif()
+#=================================
+# Find libproj4
+#=================================
+# Set up cache variables specifying paths to search for libproj4
+set( PROJ4_INCLUDE_SEARCH_PATHS "${MOOSIVP_SOURCE_TREE_DIR}/MOOS/proj-4.8.0/src" 
+     CACHE INTERNAL "Path to search for proj4 headers" )
+set( PROJ4_LIBRARY_SEARCH_PATHS "${MOOSIVP_SOURCE_TREE_DIR}/lib" "${MOOSIVP_SOURCE_TREE_DIR}/bin" 
+     CACHE INTERNAL "Path to search for proj4 libraries" )
 
-
+# If the MOOSGeodesy library is found, the following variables will be populated:
+#   PROJ4_FOUND                        - Evaluates logical true if libproj4 components were found
+#   PROJ4_INCLUDE_DIRS           - Path(s) to libproj4 header files
+#   PROJ4_LIBRARIES              - Path of libproj4 
+find_package(Proj4 REQUIRED)
+add_library( proj SHARED IMPORTED )
+set_target_properties( proj
+                       PROPERTIES IMPORTED_LOCATION
+                       "${PROJ4_LIBRARIES}"
+                     )
 
 
 #====================================================
@@ -264,7 +262,7 @@ endif()
 #===================================
 # Recurse into source directories
 #===================================
-ADD_SUBDIRECTORY( ${PROJECTS_DIR} )
+ADD_SUBDIRECTORY( ${projects_dir} )
 
 
 
@@ -344,28 +342,28 @@ set(HTML_DOCS_ENABLED "YES")
 
 
 # Set the directory that generated documentation will be stored in
-set( DOC_OUTPUT_DIRECTORY "${DOCS_DIR}")
+set( DOC_OUTPUT_DIRECTORY "${docs_dir}")
 
 find_package(Doxygen QUIET)
      
 if (DOXYGEN_FOUND)
 
     # Generate a Doxygen configuration file using project info
-    configure_file (${CONFIG_DIR}/Doxyfile.in 
-                    ${CONFIG_DIR}/Doxyfile )
+    configure_file (${cmake_modules_dir}/Doxyfile.in 
+                    ${cmake_modules_dir}/Doxyfile )
 
     # Add doxygen as target
     add_custom_command( OUTPUT documentation 
-                       COMMAND ${DOXYGEN_EXECUTABLE} ${CONFIG_DIR}/Doxyfile
-                       DEPENDS ${CONFIG_DIR}/Doxyfile
-                       WORKING_DIRECTORY ${DOCS_DIR}
+                       COMMAND ${DOXYGEN_EXECUTABLE} ${cmake_modules_dir}/Doxyfile
+                       DEPENDS ${cmake_modules_dir}/Doxyfile
+                       WORKING_DIRECTORY ${docs_dir}
                      )
 
 
     # Clean up docs directory on "make clean"
     set_property( DIRECTORY APPEND 
                   PROPERTY ADDITIONAL_MAKE_CLEAN_FILES 
-                  ${DOCS_DIR}/html
+                  ${docs_dir}/html
                 )
 
     # Add doxygen as dependency to doc-target
