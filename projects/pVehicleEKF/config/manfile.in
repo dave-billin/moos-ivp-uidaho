@@ -1,10 +1,10 @@
 .\"============================================================================
-.\" Linux man file for ${PROJECT_VERSION}
+.\" Linux man file for ${VERSION_TUPLE}
 
 .\"==============================
 .\" Project info
 .\"==============================
-.TH ${PROJECT_NAME} 1  "version ${PROJECT_VERSION}" "MOOS APPLICATION" "version ${PROJECT_VERSION}"
+.TH ${PROJECT_NAME} 1  "version ${VERSION_TUPLE}" "MOOS APPLICATION" "version ${VERSION_TUPLE}"
 
 .SH NAME 
 ${PROJECT_NAME}: A MOOS app to provide an estimated vehicle pose

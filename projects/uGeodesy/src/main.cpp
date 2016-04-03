@@ -24,14 +24,17 @@
  *         david.billin@vandals.uidaho.edu
  */
 //=============================================================================
-#include <iostream>
-#include "MOOS/libMOOS/MOOSLib.h"
+#include "config.h"
+#include <MOOS/libMOOS/MOOSLib.h>
 #include "MOOS/libMOOSGeodesy/MOOSGeodesy.h"
-#include "AppVersion.h"
+#include <iostream>
 
 using std::cout;
 using std::endl;
 using std::string;
+
+static std::string APPLICATION_VERSION(APP_VERSION_TUPLE);
+
 
 /** @defgroup uGeodesy
  * @{
@@ -83,8 +86,7 @@ int main(int argc, char* argv[])
         else if ( MOOSStrCmp(argv[1], "-v") || MOOSStrCmp(argv[1], "--version") )
         {
             // Print application version
-            cout << "uGeodesy v" << APP_VERSION_STRING << "\n" 
-                 << endl;
+            cout << "uGeodesy v" << APPLICATION_VERSION << "\n" << endl;
             return 0;
         }
 		else	// No command line options, must be a mission file path
@@ -114,7 +116,7 @@ int main(int argc, char* argv[])
 void PrintUsageInfo( void )
 {
 	cout <<
-    "\nuGeodesy v" << APP_VERSION_STRING << "\n"
+    "\nuGeodesy v" << APPLICATION_VERSION << "\n"
     "Written by Dave Billin (david.billin@vandals.uidaho.edu)\n"
     "\n"
     "USAGE:   uGeodesy [OPTIONS] MISSION_FILE\n"

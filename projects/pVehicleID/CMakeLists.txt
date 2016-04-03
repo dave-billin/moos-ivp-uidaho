@@ -9,65 +9,69 @@
 #===============================
 project(pVehicleID)
 
-set(PROJECT_AUTHOR "Brandt Pedrow")
-set(PROJECT_EMAIL "pedr5603@vandals.uidaho.edu")
+set( PROJECT_AUTHOR "Brandt Pedrow" )
+set( PROJECT_EMAIL "pedr5603@vandals.uidaho.edu" )
 
 # Set project version info
 set( VERSION_MAJOR 1 )
 set( VERSION_MINOR 0 )
-GetPatchVersion( ${PROJECT_SOURCE_DIR} VERSION_PATCH )
-set( VERSION_TUPLE "${VERSION_MAJOR}.${VERSION_MINOR}${VERSION_PATCH}" )
+set( VERSION_PATCH  0 )
+set( VERSION_TUPLE "${VERSION_MAJOR}.${VERSION_MINOR}-${VERSION_PATCH}" )
 
-
-# Set up convenience variables for project subdirectories
-set( SRC_DIR ${PROJECT_SOURCE_DIR}/src )
-set( INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include )
-set( BUILD_DIR ${PROJECT_SOURCE_DIR}/build )
-set( DOCS_DIR ${PROJECT_SOURCE_DIR}/docs )
-set( TEST_DIR ${PROJECT_SOURCE_DIR}/test )
+# Define project directories
+set( src_dir ${PROJECT_SOURCE_DIR}/src )
+set( include_dir ${PROJECT_SOURCE_DIR}/include )
+set( config_dir "${PROJECT_SOURCE_DIR}/config" )
+set( docs_dir ${PROJECT_SOURCE_DIR}/docs )
+set( test_dir ${PROJECT_SOURCE_DIR}/test )
 if ( NOT DEFINED MANFILE_OUTPUT_DIRECTORY )
-    set( MANFILE_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/docs} )
+    set( MANFILE_OUTPUT_DIRECTORY ${docs_dir} )
 endif()
 
-# Fill in fields of templated files
-configure_file(${BUILD_DIR}/main.cpp.in
-               ${SRC_DIR}/main.cpp)
-configure_file(${BUILD_DIR}/AppVersion.h.in
-               ${INCLUDE_DIR}/AppVersion.h )
-configure_file( "${BUILD_DIR}/manfile.in"
-                "${MANFILE_OUTPUT_DIRECTORY}/${PROJECT_NAME}.1" )
+# Generate files from templates
+set( generated_config_h  "${CMAKE_CURRENT_BINARY_DIR}/config.h" )
+set( generated_manfile_1 "${MANFILE_OUTPUT_DIRECTORY}/${PROJECT_NAME}.1" )
+set( generated_files
+     ${generated_config_h}
+     ${generated_manfile_1} 
+   )
+configure_file(${config_dir}/config.h.in   "${generated_config_h}" )
+configure_file( "${config_dir}/manfile.in" "${generated_manfile_1}" )
 
 
 #===============================
 # Source Files
 #===============================
 
-include_directories( ${MOOS_INCLUDE_DIRS}
-                     ${INCLUDE_DIR} )
+include_directories( ${include_dir}
+                     ${CMAKE_CURRENT_BINARY_DIR}
+                     ${MOOS_INCLUDE_DIRS}
+                   )
 
 set( SOURCE_FILES
-     ${SRC_DIR}/pVehicleID.cpp
-     ${SRC_DIR}/pVehicleIDMain.cpp
+     ${src_dir}/pVehicleID.cpp
+     ${src_dir}/pVehicleIDMain.cpp
 )
-
-
 
 #============================
 # Specify the project target
 #============================
 
 # Create an executable file
-add_executable( ${PROJECT_NAME} ${SOURCE_FILES} )
-set_target_properties( ${PROJECT_NAME} PROPERTIES 
+add_executable( pVehicleID ${SOURCE_FILES} ${generated_files} )
+set_target_properties( pVehicleID PROPERTIES 
                        VERSION ${VERSION_TUPLE} )
-                       
-# Indicate how to link
-target_link_libraries( ${PROJECT_NAME}
-					   ${MOOS_LIBRARIES}
-                       ${PLATFORM_LIBRARIES}
-					 )
 
+# Indicate how to link
+target_link_libraries( pVehicleID
+                       ${MOOS_LIBRARIES}
+                       ${PLATFORM_LIBRARIES}
+                     )
+
+#============================
+# Add an install rule
+#============================
 # Install Targets
-install(TARGETS ${PROJECT_NAME}
-	RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/bin
-)
+install( TARGETS pVehicleID
+         RUNTIME DESTINATION "${CMAKE_INSTALL_PREFIX}/bin"
+       )

@@ -9,43 +9,47 @@
 #===============================
 project(MOOSAPPFACTORY_NAME)
 
-set( VERSION_MAJOR  1 )
-set( VERSION_MINOR  0 )
+set( PROJECT_AUTHOR "MOOSAPPFACTORY_AUTHOR" )
+set( PROJECT_EMAIL "MOOSAPPFACTORY_EMAIL" )
 
-set( VERSION_TUPLE 
-    "${VERSION_MAJOR}.${VERSION_MINOR}"
-)
+# Set project version info
+set( VERSION_MAJOR 1 )
+set( VERSION_MINOR 0 )
+set( VERSION_PATCH  0 )
+set( VERSION_TUPLE "${VERSION_MAJOR}.${VERSION_MINOR}-${VERSION_PATCH}" )
 
-set(PROJECT_AUTHOR "MOOSAPPFACTORY_AUTHOR")
-set(PROJECT_EMAIL "MOOSAPPFACTORY_EMAIL")
-
-
-
-# Set up variables for project directories
-set( SRC_DIR ${PROJECT_SOURCE_DIR}/src )
-set( INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include )
-set( CONFIG_DIR ${PROJECT_SOURCE_DIR}/config )
-set( DOCS_DIR ${PROJECT_SOURCE_DIR}/docs )
+# Define project directories
+set( src_dir ${PROJECT_SOURCE_DIR}/src )
+set( include_dir ${PROJECT_SOURCE_DIR}/include )
+set( config_dir "${PROJECT_SOURCE_DIR}/config" )
+set( docs_dir ${PROJECT_SOURCE_DIR}/docs )
+set( test_dir ${PROJECT_SOURCE_DIR}/test )
 if ( NOT DEFINED MANFILE_OUTPUT_DIRECTORY )
-    set( MANFILE_OUTPUT_DIRECTORY ${DOCS_DIR}/docs} )
+    set( MANFILE_OUTPUT_DIRECTORY ${docs_dir} )
 endif()
 
-
-
-# Process templates to generate common files
-configure_file(${CONFIG_DIR}/AppVersion.h.in
-               ${INCLUDE_DIR}/AppVersion.h )
-configure_file( "${CONFIG_DIR}/manfile.in"
-                "${MANFILE_OUTPUT_DIRECTORY}/${PROJECT_NAME}.1" )
+# Generate files from templates
+set( generated_config_h  "${CMAKE_CURRENT_BINARY_DIR}/config.h" )
+set( generated_manfile_1 "${MANFILE_OUTPUT_DIRECTORY}/${PROJECT_NAME}.1" )
+set( generated_files
+     ${generated_config_h}
+     ${generated_manfile_1} 
+   )
+configure_file(${config_dir}/config.h.in   "${generated_config_h}" )
+configure_file( "${config_dir}/manfile.in" "${generated_manfile_1}" )
 
 
 #===============================
 # Source Files
 #===============================
 
-include_directories( ${INCLUDE_DIR}
-                     ${MOOS_INCLUDE_DIRS} )
+include_directories( ${include_dir}
+                     ${CMAKE_CURRENT_BINARY_DIR}
+                     ${MOOS_INCLUDE_DIRS} 
+                   )
 
+# List source files to compile
+# NOTE: header files need not be included in this list
 set( PROJECT_SOURCE_FILES
      ${SRC_DIR}/MOOSAPPFACTORY_NAME.cpp
      ${SRC_DIR}/main.cpp
@@ -57,17 +61,19 @@ set( PROJECT_SOURCE_FILES
 #============================
 
 # Create an executable file
-add_executable( ${PROJECT_NAME} ${PROJECT_SOURCE_FILES} )
+add_executable( MOOSAPPFACTORY_NAME ${PROJECT_SOURCE_FILES} ${generated_files )
 
 # Indicate how to link
-target_link_libraries( ${PROJECT_NAME}
-					   ${MOOS_LIBRARIES}
+target_link_libraries( MOOSAPPFACTORY_NAME
+                       ${MOOS_LIBRARIES}
                        ${MOOS_DEPEND_LIBRARIES}
                        ${PLATFORM_LIBRARIES}
-					 )
+                     )
 
+#============================
+# Add an install rule
+#============================
 # Install Targets
-install(TARGETS ${PROJECT_NAME}
-	RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/bin
-)
-
+install( TARGETS MOOSAPPFACTORY_NAME
+         RUNTIME DESTINATION "${CMAKE_INSTALL_PREFIX}/bin"
+       )

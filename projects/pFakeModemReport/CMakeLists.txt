@@ -9,8 +9,8 @@
 #===============================
 project(pFakeModemReport)
 
-set( PROJECT_AUTHOR "Dave Billin" )
-set( PROJECT_EMAIL "david.billin@vandals.uidaho.edu" )
+set( PROJECT_AUTHOR "Brandt Pedrow" )
+set( PROJECT_EMAIL "pedr5603@vandals.uidaho.edu" )
 
 # Set project version info
 set( VERSION_MAJOR 1 )
@@ -44,6 +44,7 @@ configure_file( "${config_dir}/manfile.in" "${generated_manfile_1}" )
 #===============================
 
 include_directories( ${include_dir}
+                     ${CMAKE_CURRENT_BINARY_DIR}
                      ${LIBYELLOWSUBNAV_INCLUDE_DIRS}
                      ${MOOS_INCLUDE_DIRS}
                      ${MOOSGeodesy_INCLUDE_DIRS}

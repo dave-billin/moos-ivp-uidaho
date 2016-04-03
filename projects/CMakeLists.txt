@@ -157,7 +157,6 @@ if (BUILD_APP_PACOUSTICOMSSAGENT)
     add_subdirectory(pAcousticCommsAgent)
 endif()
 
-
 #===========================
 # pFakeModemReport
 #===========================
@@ -165,7 +164,6 @@ option( BUILD_APP_PFAKEMODEMREPORT "Build the pFakeModemReport MOOS app" ON )
 if (BUILD_APP_PFAKEMODEMREPORT)
     add_subdirectory(pFakeModemReport)
 endif()
-
 
 #===========================
 # pMissionMonitor
@@ -175,36 +173,29 @@ if (BUILD_APP_PMISSIONMONITOR)
     add_subdirectory(pMissionMonitor)
 endif()
 
+#===========================
+# pVehicleEKF
+#===========================
+option( BUILD_APP_PVEHICLEEKF "Build the pVehicleEKF MOOS app" ON )
+if (BUILD_APP_PVEHICLEEKF)
+    add_subdirectory(pVehicleEKF)
+endif()
 
-##===========================
-## pVehicleEKF
-##===========================
-#option( BUILD_APP_PVEHICLEEKF "Build the pVehicleEKF MOOS app" ON )
-#if (BUILD_APP_PVEHICLEEKF)
-#    add_subdirectory(pVehicleEKF)
-#endif()
-#
-#
-##===========================
-## pVehicleID
-##===========================
-#option( BUILD_APP_PVEHICLEID "Build the pVehicleID MOOS app" ON )
-#if (BUILD_APP_PVEHICLEID)
-#    add_subdirectory(pVehicleID)
-#endif()
-#
-#
-#
-#
-##===========================
-## uGeodesy
-##===========================
-#option( BUILD_UTIL_UGEODESY "Build the uGeodesy Utility" ON )
-#if (BUILD_UTIL_UGEODESY)
-#    add_subdirectory(uGeodesy)
-#endif()
-#
-#
-#
-#
+#===========================
+# pVehicleID
+#===========================
+option( BUILD_APP_PVEHICLEID "Build the pVehicleID MOOS app" ON )
+if (BUILD_APP_PVEHICLEID)
+    add_subdirectory(pVehicleID)
+endif()
 
+
+
+
+#===========================
+# uGeodesy
+#===========================
+option( BUILD_UTIL_UGEODESY "Build the uGeodesy Utility" ON )
+if (BUILD_UTIL_UGEODESY)
+    add_subdirectory(uGeodesy)
+endif()

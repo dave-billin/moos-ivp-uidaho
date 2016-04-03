@@ -8,9 +8,10 @@
  *
  */
 //=============================================================================
-#include <iostream>
-#include <MOOSLib.h>
 #include "pVehicleID.h"
+#include "config.h"
+#include <MOOS/libMOOS/MOOSLib.h>
+#include <iostream>
 
 using std::cout;
 using std::endl;
@@ -20,6 +21,7 @@ using std::endl;
  * @{
  */
 
+static std::string APPLICATION_VERSION(APP_VERSION_TUPLE);
 
 //================================
 // Function Prototypes
@@ -62,7 +64,7 @@ int main(int argc, char* argv[])
         }
         else if ( MOOSStrCmp(argv[1], "-v") || MOOSStrCmp(argv[1], "--version") )
         {
-            cout << "\npVehicleID version \n\n" << endl;
+            cout << "\npVehicleID v" << APPLICATION_VERSION << "\n" << endl;
             return 0;
         }
         else    // No command line options, must be a mission file path
@@ -92,7 +94,7 @@ int main(int argc, char* argv[])
 void PrintUsageInfo( void )
 {
     cout <<
-    "\npVehicleID version \n"
+    "\npVehicleID v" << APPLICATION_VERSION << "\n"
     "Written by Brandt Pedrow (pedr5603@vandals.uidaho.edu)\n"
     "\n"
     "USAGE:   pVehicleID [OPTIONS] MISSION_FILE [APPNAME]\n"

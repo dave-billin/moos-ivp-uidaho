@@ -134,6 +134,7 @@ SRC_DIR=${APP_PATH}/src
 INCLUDE_DIR=${APP_PATH}/include
 CONFIG_DIR=${APP_PATH}/config
 DOCS_DIR=${APP_PATH}/docs
+TEST_DIR=${APP_PATH}/test
 
 #-----------------------------------------------
 # CREATE A DIRECTORY STRUCTURE FOR THE NEW APP
@@ -160,6 +161,7 @@ mkdir -p ${SRC_DIR}
 mkdir -p ${INCLUDE_DIR}
 mkdir -p ${CONFIG_DIR}
 mkdir -p ${DOCS_DIR}
+mkdir -p ${TEST_DIR}
 cp ${APPFACTORYPATH}/config/* ${CONFIG_DIR}
 #cp ${APPFACTORYPATH}/docs/* ${DOCS_DIR}
 
