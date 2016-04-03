@@ -1,5 +1,5 @@
 .\"============================================================================
-.\" Linux man file for ${PROJECT_NAME} ${PROJECT_VERSION}
+.\" Linux man file for ${PROJECT_NAME} ${VERSION_TUPLE}
 
 .\"==============================================================
 .\" **** MAN FILE (nroff) MARKUP REFERENCE ****
@@ -35,7 +35,7 @@
 .\"==============================
 .\" Project info
 .\"==============================
-.TH ${PROJECT_NAME} 1  "version ${PROJECT_VERSION}" "MOOS APPLICATION" "version ${PROJECT_VERSION}"
+.TH ${PROJECT_NAME} 1  "version ${VERSION_TUPLE}" "MOOS APPLICATION" "version ${VERSION_TUPLE}"
 .SH NAME 
 ${PROJECT_NAME}: A MOOS application
 

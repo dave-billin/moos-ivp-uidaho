@@ -129,15 +129,15 @@ if (BUILD_APP_IWHOIMICROMODEM)
 endif()
 
 
-##===========================
-## iXStreamRadioModem
-##===========================
-#option(BUILD_APP_IXSTREAMRADIOMODEM "Build the iXStreamRadioModem MOOS instrument" ON )
-#if (BUILD_APP_IXSTREAMRADIOMODEM)
-#    add_subdirectory(iXStreamRadioModem)
-#endif()
-#
-#
+#===========================
+# iXStreamRadioModem
+#===========================
+option(BUILD_APP_IXSTREAMRADIOMODEM "Build the iXStreamRadioModem MOOS instrument" ON )
+if (BUILD_APP_IXSTREAMRADIOMODEM)
+    add_subdirectory(iXStreamRadioModem)
+endif()
+
+
 ##===========================
 ## iYellowSubDAQ
 ##===========================

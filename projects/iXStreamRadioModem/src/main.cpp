@@ -8,13 +8,15 @@
  *
  */
 //=============================================================================
-#include <iostream>
-#include "MOOS/libMOOS/MOOSLib.h" 
 #include "iXStreamRadioModem.h"
+#include "config.h"
+#include <MOOS/libMOOS/MOOSLib.h>
+#include <iostream>
 
 using std::cout;
 using std::endl;
 
+static std::string APPLICATION_VERSION(APP_VERSION_TUPLE);
 
 /** @defgroup iXStreamRadioModem
  * @{
@@ -62,7 +64,7 @@ int main(int argc, char* argv[])
         }
         else if ( MOOSStrCmp(argv[1], "-v") || MOOSStrCmp(argv[1], "--version") )
         {
-            cout << "\niXStreamRadioModem version \n" << endl;
+            cout << "\niXStreamRadioModem v" << APPLICATION_VERSION << "\n" << endl;
             return 0;
         }
         else    // No command line options, must be a mission file path
@@ -92,7 +94,7 @@ int main(int argc, char* argv[])
 void PrintUsageInfo( void )
 {
     cout <<
-    "\niXStreamRadioModem version \n"
+    "\niXStreamRadioModem v" << APPLICATION_VERSION << "\n"
     "Written by Dave Billin (dave.billin@vandals.uidaho.edu)\n"
     "\n"
     "USAGE:   iXStreamRadioModem [OPTIONS] MISSION_FILE [APPNAME]\n"
@@ -157,11 +159,11 @@ void PrintExampleConfig(void)
     "   //BATTERY_VOLTAGE_PUBLISHTO  = <alternate variable to publish to>\n"
     "\n"
     "\n"
-    "   // Set this variable to \"TRUE\" if sensors should only be published\n" 
+    "   // Set this variable to \"TRUE\" if sensors should only be published\n"
     "   // when they change; otherwise, sensors are published at a rate\n"
     "   // equal to the value of AppTick\n"
     "   PUBLISH_ONLY_CHANGES = FALSE\n"
-    "   \n"                                    
+    "   \n"
     "   VERBOSITY = 0   // (optional) verbosity of debugging messages\n"
     "}\n"
     "\n"
