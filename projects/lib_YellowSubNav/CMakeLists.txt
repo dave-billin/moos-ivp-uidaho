@@ -97,7 +97,7 @@ install( TARGETS YellowSubNav
 #===============================
 # Unit Tests
 #===============================
-if( UNITTEST_ENABLED )
+if( BUILD_UNIT_TESTS )
     # Offer a GUI option to build unit tests
     set( BUILD_VEHICLE_EKF_TEST ON CACHE BOOL 
          "Build the libYellowSubNav Vehicle EKF test application" )

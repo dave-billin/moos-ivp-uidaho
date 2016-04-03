@@ -228,9 +228,11 @@ endif()
 #================================
 # UNIT TESTING
 #================================
-set( UNITTEST_ENABLED OFF CACHE BOOL "Enable building unit tests" )
+if ( NOT DEFINED BUILD_UNIT_TESTS )
+   set( BUILD_UNIT_TESTS OFF CACHE BOOL "Enable building unit tests" )
+endif()
      
-if( UNITTEST_ENABLED )
+if( BUILD_UNIT_TESTS )
 	message( STATUS "Unit tests will be built.  Run ctest to execute." )
 	ENABLE_TESTING()
 endif()

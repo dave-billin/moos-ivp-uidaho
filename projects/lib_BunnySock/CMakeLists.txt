@@ -106,7 +106,7 @@ INSTALL( TARGETS BunnySock
 #====================
 # Unit Tests
 #====================
-if( UNITTEST_ENABLED )
+if( BUILD_UNIT_TESTS )
    # Offer a cache option to build unit tests
    set( BUILD_BUNNYSOCK_TESTS ON CACHE BOOL "Build the libBunnySock test application" )
    

@@ -146,33 +146,36 @@ if (BUILD_APP_IYELLOWSUBDAQ)
 endif()
 
 
-##===========================
-## pAcousticCommsAgent
-##===========================
-#option( BUILD_APP_PACOUSTICOMSSAGENT "Build the pAcousticCommsAgent MOOS app" ON )
-#if (BUILD_APP_PACOUSTICOMSSAGENT)
-#    add_subdirectory(pAcousticCommsAgent)
-#endif()
-#
-#
-##===========================
-## pFakeModemReport
-##===========================
-#option( BUILD_APP_PFAKEMODEMREPORT "Build the pFakeModemReport MOOS app" ON )
-#if (BUILD_APP_PFAKEMODEMREPORT)
-#    add_subdirectory(pFakeModemReport)
-#endif()
-#
-#
-##===========================
-## pMissionMonitor
-##===========================
-#option( BUILD_APP_PMISSIONMONITOR "Build the pMissionMonitor MOOS app" ON )
-#if (BUILD_APP_PMISSIONMONITOR)
-#    add_subdirectory(pMissionMonitor)
-#endif()
-#
-#
+
+
+
+#===========================
+# pAcousticCommsAgent
+#===========================
+option( BUILD_APP_PACOUSTICOMSSAGENT "Build the pAcousticCommsAgent MOOS app" ON )
+if (BUILD_APP_PACOUSTICOMSSAGENT)
+    add_subdirectory(pAcousticCommsAgent)
+endif()
+
+
+#===========================
+# pFakeModemReport
+#===========================
+option( BUILD_APP_PFAKEMODEMREPORT "Build the pFakeModemReport MOOS app" ON )
+if (BUILD_APP_PFAKEMODEMREPORT)
+    add_subdirectory(pFakeModemReport)
+endif()
+
+
+#===========================
+# pMissionMonitor
+#===========================
+option( BUILD_APP_PMISSIONMONITOR "Build the pMissionMonitor MOOS app" ON )
+if (BUILD_APP_PMISSIONMONITOR)
+    add_subdirectory(pMissionMonitor)
+endif()
+
+
 ##===========================
 ## pVehicleEKF
 ##===========================

@@ -102,7 +102,7 @@ INSTALL( TARGETS parapet
 # Unit Tests
 #====================
 
-if( UNITTEST_ENABLED )
+if( BUILD_UNIT_TESTS )
 
     # Offer a GUI option to build unit tests for this module 
     set( BUILD_LIBPARAPET_UNIT_TESTS ON CACHE BOOL "Build libparapet automated unit tests" )

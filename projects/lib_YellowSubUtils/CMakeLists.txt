@@ -111,7 +111,7 @@ install( TARGETS YellowSubUtils
 #===============================
 # Unit Tests
 #===============================
-if( UNITTEST_ENABLED )
+if( BUILD_UNIT_TESTS )
     add_subdirectory(test)
 endif()
 

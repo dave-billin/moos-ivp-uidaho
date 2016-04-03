@@ -8,12 +8,15 @@
  *
  */
 //=============================================================================
-#include <iostream>
-#include "MOOS/libMOOS/MOOSLib.h"
 #include "pAcousticCommsAgent.h"
+#include "config.h"
+#include <MOOS/libMOOS/MOOSLib.h>
+#include <iostream>
 
 using std::cout;
 using std::endl;
+
+static std::string APPLICATION_VERSION(APP_VERSION_TUPLE);
 
 
 /** @defgroup pAcousticCommsAgent
@@ -62,7 +65,7 @@ int main(int argc, char* argv[])
         }
         else if ( MOOSStrCmp(argv[1], "-v") || MOOSStrCmp(argv[1], "--version") )
         {
-            cout << "\npAcousticCommsAgent version \n\n" << endl;
+            cout << "\npAcousticCommsAgent v" << APPLICATION_VERSION << "\n" << endl;
             return 0;
         }
         else    // No command line options, must be a mission file path
@@ -92,7 +95,7 @@ int main(int argc, char* argv[])
 void PrintUsageInfo( void )
 {
     cout <<
-    "\npAcousticCommsAgent version \n"
+    "\npAcousticCommsAgent v" << APPLICATION_VERSION << "\n"
     "Written by Dave Billin (dave.billin@vandals.uidaho.edu)\n"
     "\n"
     "USAGE:   pAcousticCommsAgent [OPTIONS] MISSION_FILE [APPNAME]\n"

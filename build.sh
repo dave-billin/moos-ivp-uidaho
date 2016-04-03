@@ -27,6 +27,9 @@ USAGE: ${_script_name} [OPTIONS...] [make arguments...]
 OPTIONS:
    -h, --help   Print usage info and exit
 
+   --build-tests
+      Build unit tests
+
    --ivp-dir DIR
       Use DIR as the base directory of the IvP source tree when
       configuring CMake
@@ -60,7 +63,10 @@ do
    case ${OPT} in
       --help|-h)
          print_usage_and_exit;;
-      
+     
+      --build-tests)
+         cmake_args+=" -DBUILD_UNIT_TESTS=yes";;
+
       --ivp-dir)
          [ -z "${OPTARG}" ] && { echo "--ivp-dir switch is missing required DIR argument" >&2; exit 1; }
          cmake_args+=" -DMOOSIVP_SOURCE_TREE_DIR=${OPTARG}"
