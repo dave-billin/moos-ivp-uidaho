@@ -10,20 +10,28 @@
 project(iGPSd)
 
 set( PROJECT_AUTHOR "Dave Billin" )
-set( PROJECT_EMAIL "dave.billin@vandals.uidaho.edu" )
+set( PROJECT_EMAIL "david.billin@vandals.uidaho.edu" )
 
 # Set project version info
 set( VERSION_MAJOR 1 )
 set( VERSION_MINOR 0 )
-GetPatchVersion( ${PROJECT_SOURCE_DIR} VERSION_PATCH )
-set( VERSION_TUPLE "${VERSION_MAJOR}.${VERSION_MINOR}${VERSION_PATCH}" )
+set( VERSION_PATCH  0 )
+set( VERSION_TUPLE "${VERSION_MAJOR}.${VERSION_MINOR}-${VERSION_PATCH}" )
 
-
+# Define project directories
+set( src_dir ${PROJECT_SOURCE_DIR}/src )
+set( include_dir ${PROJECT_SOURCE_DIR}/include )
+set( config_dir "${PROJECT_SOURCE_DIR}/config" )
+set( docs_dir ${PROJECT_SOURCE_DIR}/docs )
+set( test_dir ${PROJECT_SOURCE_DIR}/test )
+if ( NOT DEFINED MANFILE_OUTPUT_DIRECTORY )
+    set( MANFILE_OUTPUT_DIRECTORY ${docs_dir} )
+endif()
 
 #---------------------------------------
 # Verify that libgps is installed
 #---------------------------------------
-set( CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/build )
+set( CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${config_dir} )
 
 # If libgps is found, the following variables are populated:
 #  GPS_FOUND - system has gps
@@ -32,40 +40,35 @@ set( CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/build )
 find_package( gps MODULE )
 
 if ( NOT GPS_FOUND )
-    message( WARNING "libgps could not be found in the system, so iGPSd will not be built" )
+    set( gps_not_found_msg_list
+         "libgps could not be found in this system, so iGPSd will not be built.  "
+         "Debian- and Ubuntu-based systems provide the necessary files in the 'libgps-dev' package"
+       )
+    message( WARNING ${gps_not_found_msg_list} )
+
     return()
 endif()
 
-# Un-comment this line after the project is placed under svn source control
-GetPatchVersion( ${PROJECT_SOURCE_DIR} PROJECT_VERSION_PATCH )
 
-
-set(PROJECT_VERSION 
-    "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}"
-)
-
-set(PROJECT_AUTHOR "Dave Billin")
-set(PROJECT_EMAIL "david.billin@vandals.uidaho.edu")
-
-
-# Set up convenience variables for project subdirectories
-set( SRC_DIR ${PROJECT_SOURCE_DIR}/src )
-set( INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include )
-set( BUILD_DIR ${PROJECT_SOURCE_DIR}/build )
-set( DOCS_DIR ${PROJECT_SOURCE_DIR}/docs )
-if ( NOT DEFINED MANFILE_OUTPUT_DIRECTORY )
-    set( MANFILE_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/docs} )
-endif()
-
-
-
-#=========================================================
-# If the Google protocol buffers library is available in 
-# the system:
-#   - Enable protobuf features in iGPSd
-#   - Build & install a shared library containing
-#     routines for accessing iGPSd serialized data 
-#=========================================================
+#===========================================================================
+# If Google protocol buffers are available in the system, build a shared
+# library, libiGPSdProtobuf, that can be used to serialize and de-serialize
+# data from gpsd for sending it through the MOOS database as binary data.
+#
+# Other applications can tie into this library in their CMake configuration
+# using the following variables:
+#   IGPSD_PROTOBUF_INCLUDE_DIRS
+#     A lists of directories containing libiGPSdProtobuf header files.  Set
+#     to "IGPSD_PROTOBUF-NOTFOUND" if protocol buffers are not available
+#
+#   IGPSD_PROTOBUF_LIBRARIES
+#     The libiGPSdProtobuf target for calls to target_link_libraries(). Set
+#     to "IGPSD_PROTOBUF-NOTFOUND" if protocol buffers are not available
+#
+# The availability of the libiGPSdProtobuf will cause iGPSd to be built with
+# support for the functionality it supplies.  Otherwise, iGPSd will only
+# publish gpsd data to 'regular' MOOS variables.
+#===========================================================================
 find_package( Protobuf QUIET MODULE )
 
 # If the protobuffer library is found, the following variables are populated:
@@ -73,77 +76,93 @@ find_package( Protobuf QUIET MODULE )
 #  PROTOBUF_INCLUDE_DIR - Include directories for Google Protocol Buffers
 #  PROTOBUF_LIBRARIES - Link this to use protobuf libraries
 if ( PROTOBUF_FOUND )
-    message(STATUS "iGPS will be built with Google protobuf support" )
-    
-    add_definitions( -DUSE_GOOGLE_PROTOCOL_BUFFERS )
+   message( STATUS "Found Google Protocol Buffers!" )
+   message( STATUS "iGPSd will be built with protocol buffer support" )
+   
+   set( generated_iGPSd_FixData_pb_h "${CMAKE_CURRENT_BINARY_DIR}/iGPSd_FixData.pb.h" )
+   set( generated_iGPSd_FixData_pb_cc "${CMAKE_CURRENT_BINARY_DIR}/iGPSd_FixData.pb.cc" )
+   set( protobuf_generated_files "${generated_iGPSd_FixData_pb_h}" "${generated_iGPSd_FixData_pb_cc}" )
+   ADD_CUSTOM_COMMAND(
+           OUTPUT  ${generated_iGPSd_FixData_pb_h} ${generated_iGPSd_FixData_pb_cc}
+           COMMAND ${PROTOBUF_PROTOC_EXECUTABLE}
+           ARGS --cpp_out=${CMAKE_CURRENT_BINARY_DIR} iGPSd_FixData.proto
+           DEPENDS ${config_dir}/iGPSd_FixData.proto
+           WORKING_DIRECTORY ${config_dir}
+           COMMENT "Invoking Protobuf compiler on 'iGPSd_FixData.proto'"
+            )
+   
+   # Create a rule to build the shared library containing routines 
+   # for working with serialized iGPSD protobuffer data structures 
+   add_library( iGPSdProtobuf SHARED
+                ${generated_iGPSd_FixData_pb_h}
+                ${generated_iGPSd_FixData_pb_cc} 
+              )
+              
+   set_target_properties( iGPSdProtobuf PROPERTIES
+                          VERSION 1.0.0
+                          SOVERSION 1 
+                        )
 
+   # Export the location of generated header files into parent scope to make 
+   # them available to other moos-ivp-uidaho subprojects
+   set( IGPSD_PROTOBUF_INCLUDE_DIRS ${CMAKE_CURRENT_BINARY_DIR} PARENT_SCOPE )
+   set( IGPSD_PROTOBUF_LIBRARIES iGPSdProtobuf PARENT_SCOPE )
+   
+   # Create installation targets for the shared library and header files
+   install( TARGETS iGPSdProtobuf
+            RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
+            LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
+            ARCHIVE DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
+          )
 
-    ADD_CUSTOM_COMMAND(
-            OUTPUT ${BUILD_DIR}/iGPSd_FixData.pb.cc ${BUILD_DIR}/iGPSd_FixData.pb.h
-            COMMAND ${PROTOBUF_PROTOC_EXECUTABLE}
-            ARGS --cpp_out=${BUILD_DIR} iGPSd_FixData.proto
-            DEPENDS ${BUILD_DIR}/iGPSd_FixData.proto
-            WORKING_DIRECTORY ${BUILD_DIR}
-            COMMENT "Invoking Protobuf compiler: ${BUILD_DIR}/iGPSd_FixData.proto"
-             )
-
-
-    # Create a rule to build the shared library containing routines 
-    # for working with serialized iGPSD protobuffer data structures 
-    add_library( iGPSdProtobuf SHARED ${BUILD_DIR}/iGPSd_FixData.pb.cc )
-    set_target_properties( iGPSdProtobuf PROPERTIES
-                           VERSION 1.0.0
-                           SOVERSION 1 
-                         )
-
-
-    # Create installation targets for the shared library and header files
-    install( TARGETS iGPSdProtobuf
-             RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
-             LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
-             ARCHIVE DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
-           )
-
-    install( FILES ${PROTOBUF_HEADERS}
-             DESTINATION ${CMAKE_INSTALL_PREFIX}/include )
-          
+   install( FILES ${generated_iGPSd_FixData_pb_h}
+            DESTINATION ${CMAKE_INSTALL_PREFIX}/include )
+         
 else()
-    message( "Google Protocol Buffers libraries not found.  iGPSd will be built without Google protobuf support." )
-    message( "Protocol Buffers can be installed in Debian distributions using the libprotobuf-dev package." )
-    set( PROTOBUF_LIBRARIES "" )
-    set( PROTOBUF_INCLUDE_DIR "" )
+    message( "Google Protocol Buffers could not be found in this system.  iGPSd will be built without protobuf features." )
+    message( "Debian and Ubuntu-based distributions provide the necessary files in the 'libprotobuf-dev' and 'protobuf-compiler' packages." )
+    set( IGPSD_PROTOBUF_INCLUDE_DIRS "IGPSD_PROTOBUF-NOTFOUND" )
+    set( IGPSD_PROTOBUF_LIBRARIES    "IGPSD_PROTOBUF-NOTFOUND" )
 endif()
 
 
 
-# Process templates to generate common files
-configure_file(${BUILD_DIR}/AppVersion.h.in
-               ${INCLUDE_DIR}/AppVersion.h )
-configure_file( "${BUILD_DIR}/manfile.in"
-                "${MANFILE_OUTPUT_DIRECTORY}/${PROJECT_NAME}.1" )
-
+# Generate files from templates
+set( generated_config_h  "${CMAKE_CURRENT_BINARY_DIR}/config.h" )
+set( generated_manfile_1 "${MANFILE_OUTPUT_DIRECTORY}/${PROJECT_NAME}.1" )
+set( generated_files
+     ${generated_config_h}
+     ${generated_manfile_1} 
+   )
+configure_file(${config_dir}/config.h.in   "${generated_config_h}" )
+configure_file( "${config_dir}/manfile.in" "${generated_manfile_1}" )
 
 
 #===============================
 # iGPSd executable Source Files
 #===============================
 
-include_directories( ${MOOS_INCLUDE_DIRS} 
+include_directories( ${include_dir}
+                     ${CMAKE_CURRENT_BINARY_DIR}
+                     ${MOOS_INCLUDE_DIRS} 
                      ${GPS_INCLUDE_DIR} 
-                     ${INCLUDE_DIR}
-                     ${BUILD_DIR}
                      ${PROJECT_SOURCE_DIR} )
 
-if ( PROTOBUF_FOUND )
-    include_directories( ${PROTOBUF_INCLUDE_DIRS} )
-endif()
-
-
 set( SOURCE_FILES 
-     ${SRC_DIR}/iGPSd.cpp
-     ${SRC_DIR}/main.cpp
+     ${src_dir}/iGPSd.cpp
+     ${src_dir}/main.cpp
 )
 
+set( IGPSD_LIBRARIES ${MOOS_LIBRARIES}
+                     ${GPS_LIBRARY}
+                     ${PLATFORM_LIBRARIES}
+   )
+
+if ( IGPSD_PROTOBUF_LIBRARIES )
+   add_definitions( -DUSE_GOOGLE_PROTOCOL_BUFFERS )
+   include_directories( ${IGPSD_PROTOBUF_INCLUDE_DIRS} )
+   list( APPEND IGPSD_LIBRARIES ${IGPSD_PROTOBUF_LIBRARIES} )
+endif()
 
 
 #============================
@@ -151,36 +170,20 @@ set( SOURCE_FILES
 #============================
 
 # Create an executable file
-add_executable( ${PROJECT_NAME} ${SOURCE_FILES} )
-set_target_properties( ${PROJECT_NAME} PROPERTIES 
-                       VERSION ${VERSION_TUPLE} )
-                       
-set( IGPSD_LIBRARIES ${MOOS_LIBRARIES}
-                     ${PLATFORM_LIBRARIES}
-                     ${GPS_LIBRARY}
-   )
-  
-if ( PROTOBUF_FOUND )
-    set( IGPSD_LIBRARIES ${IGPSD_LIBRARIES} ${PROTOBUF_LIBRARIES} )
-endif()
-  
-  
-   
-if( PROTOBUF_FOUND )
-    set( IGPSD_LIBRARIES ${IGPSD_LIBRARIES} iGPSdProtobuf )
-endif()
-
+add_executable( iGPSd ${SOURCE_FILES} ${generated_files} )
 
 # Indicate how to link the iGPSd executable
-target_link_libraries( ${PROJECT_NAME}
+target_link_libraries( iGPSd
                        ${IGPSD_LIBRARIES}
-					 )
+                     )
 
-# iGPSd install rule 
-install( TARGETS ${PROJECT_NAME}
-	     RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/bin
+set_target_properties( iGPSd PROPERTIES 
+                       VERSION ${VERSION_TUPLE} 
+                     )
+
+#============================
+# Add an install rule
+#============================
+install( TARGETS iGPSd
+	      RUNTIME DESTINATION "${CMAKE_INSTALL_PREFIX}/bin"
        )
-
-
-
-

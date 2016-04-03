@@ -24,14 +24,15 @@
  *         david.billin@vandals.uidaho.edu
  */
 //=============================================================================
-#include "MOOS/libMOOS/Utils/MOOSException.h"
-#include "MOOS/libMOOS/Utils/MOOSAssert.h"
-
 #include "iGPSd.h"
-#include "AppVersion.h"
+#include "config.h"
+#include <MOOS/libMOOS/Utils/MOOSException.h>
+#include <MOOS/libMOOS/Utils/MOOSAssert.h>
+
 
 using std::string;
 using std::cout;
+
 
 #ifdef USE_GOOGLE_PROTOCOL_BUFFERS
 #include "iGPSd_FixData.pb.h"
@@ -77,12 +78,12 @@ const char iGPSd::ExampleMissionFileConfiguration[]=
 
 
 //=============================================================================
-/* 
+/*
     This function is called when the application object is created in main().
     This is a good place to initialize application variables to default
-    values, and set up dynamic memory resources.  
+    values, and set up dynamic memory resources.
 
-    NOTE: This function executes as the application object is being created, 
+    NOTE: This function executes as the application object is being created,
           so it's best to save activities that might require error handling
           (e.g. opening files or I/O devices) for the OnStartup() method.
 */
@@ -99,7 +100,7 @@ iGPSd::iGPSd( void )
 
 
 //=============================================================================
-/* 
+/*
     This function is called when the application object is exiting.  Make sure
     you release any resources your program allocated!
 
@@ -115,7 +116,7 @@ iGPSd::~iGPSd()
 
 
 //=============================================================================
-/* 
+/*
     This is where your application will probably do most of its work.  Some
     handy methods you might want to use include:
 
@@ -188,7 +189,7 @@ bool iGPSd::Iterate( void )
 
 //=============================================================================
 /*
-    Here is where the application should handle mail received from the MOOS 
+    Here is where the application should handle mail received from the MOOS
     database.  This mail takes the form of CMOOSMsg objects - each of which
     contains the name and contents of a MOOS variable the application has
     subscribed to.
@@ -198,13 +199,13 @@ bool iGPSd::Iterate( void )
 bool iGPSd::OnNewMail(MOOSMSG_LIST & NewMail)
 {
     //-------------------------------------------
-    // Update dynamic variables with values 
+    // Update dynamic variables with values
     // received from the MOOS database
     //-------------------------------------------
     UpdateMOOSVariables(NewMail);
 
 
-    // If your application isn't using dynamic variables, or if 
+    // If your application isn't using dynamic variables, or if
     // you would prefer to handle messages individually, un-comment
     // the following code to iterate through the received mail
     /*
@@ -215,7 +216,7 @@ bool iGPSd::OnNewMail(MOOSMSG_LIST & NewMail)
 	    CMOOSMsg& Msg = *iter;
 
         // STATUS: Msg contains a mail message from the MOOS database.
-        // Note that this message may be skewed (i.e. it may have been 
+        // Note that this message may be skewed (i.e. it may have been
         // published to the database more than a few seconds ago)
 
 	    // Here we process only messages that are not skewed
@@ -244,16 +245,16 @@ bool iGPSd::OnNewMail(MOOSMSG_LIST & NewMail)
 
 //=============================================================================
 /*
-    This function is called once when the application starts running.  The 
+    This function is called once when the application starts running.  The
     first thing it does is call to LoadMissionParameters() to read parameters
     from the (.moos) mission file.
 
-    This function is a good spot to open files, connect to I/O devices, or 
+    This function is a good spot to open files, connect to I/O devices, or
     perform other actions that might result in an error condition that must be
     handled gracefully.
 
-    This is also a good place to create Dynamic Variables (which can simplify 
-    the process of publishing and subscribing to the MOOS database) using 
+    This is also a good place to create Dynamic Variables (which can simplify
+    the process of publishing and subscribing to the MOOS database) using
     AddMOOSVariable().
 
     NOTE: returning false will cause the application to exit.
@@ -267,8 +268,8 @@ bool iGPSd::OnStartUp( void )
 	string sAppName = GetAppName();
 	string sBar = string(40, '=') + "\n";
 	MOOSTrace(sBar +
-			  MOOSFormat("iGPSd version %s\n", 
-                         APP_VERSION_STRING) +
+			  MOOSFormat("iGPSd version %s\n",
+                         APP_VERSION_TUPLE) +
 			  "Written by Dave Billin\n" + sBar + "\n\n");
 
 
@@ -318,10 +319,10 @@ bool iGPSd::OnStartUp( void )
                    sDisabled + "\n\n" );
     }
 
-    // Register Dynamic Variables to receive 
+    // Register Dynamic Variables to receive
     // updates from the MOOS database
     m_OnStartupIsDone = true;
-    
+
     return true;
 }
 
@@ -334,17 +335,17 @@ bool iGPSd::OnStartUp( void )
 //=============================================================================
 /*
     This function gets called from OnStartup() to load parameters from the
-    (.moos) mission file.  Call: 
+    (.moos) mission file.  Call:
 
     m_MissionReader.GetConfigurationParam()
-        to read the value of a mission file parameter occurring in the 
+        to read the value of a mission file parameter occurring in the
         application's "ProcessConfig = iGPSd" block
 
     m_MissionReader.GetValue()
         to load a global scope parameter (i.e. one occuring outside a
         ProcessConfig block)
 
-    NOTE: There is no need to load the AppTick and CommsTick parameters;  
+    NOTE: There is no need to load the AppTick and CommsTick parameters;
           they are automatically loaded.
 
     Returning false from this function causes the application to exit.
@@ -352,7 +353,7 @@ bool iGPSd::OnStartUp( void )
 bool iGPSd::LoadMissionFileParameters( void )
 {
     string s;
-    
+
     //------------------------------------------
     // LOAD REQUIRED MISSION FILE PARAMETERS
     //------------------------------------------
@@ -405,8 +406,8 @@ bool iGPSd::LoadMissionFileParameters( void )
 
 //=============================================================================
 /*
-    This function gets called when the application connects to the MOOS 
-    database.  BE CAREFUL! this function gets called on a different thread 
+    This function gets called when the application connects to the MOOS
+    database.  BE CAREFUL! this function gets called on a different thread
     than your Iterate() and OnNewMail() handlers!
 */
 bool iGPSd::OnConnectToServer( void )
@@ -427,8 +428,8 @@ bool iGPSd::OnConnectToServer( void )
 
 //=============================================================================
 /*
-    This function gets called when the application disconnects from the MOOS 
-    database.  BE CAREFUL! this function gets called on a different thread 
+    This function gets called when the application disconnects from the MOOS
+    database.  BE CAREFUL! this function gets called on a different thread
     than your Iterate() and OnNewMail() handlers!
 */
 bool iGPSd::OnDisconnectFromServer( void )

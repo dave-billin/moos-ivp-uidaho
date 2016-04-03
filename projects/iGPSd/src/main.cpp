@@ -25,11 +25,10 @@
  *         david.billin@vandals.uidaho.edu
  */
 //=============================================================================
-#include <iostream>
-
-#include "MOOS/libMOOS/MOOSLib.h"
 #include "iGPSd.h"
-#include "AppVersion.h"
+#include "config.h"
+#include <MOOS/libMOOS/MOOSLib.h>
+#include <iostream>
 
 #ifdef USE_GOOGLE_PROTOCOL_BUFFERS
 #include "iGPSd_FixData.pb.h"
@@ -37,6 +36,9 @@
 
 using std::cout;
 using std::endl;
+
+
+static std::string APPLICATION_VERSION(APP_VERSION_TUPLE);
 
 /** @defgroup iGPSd
  * @{
@@ -87,7 +89,7 @@ int main(int argc, char* argv[])
         else if ( MOOSStrCmp(argv[1], "-v") || MOOSStrCmp(argv[1], "--version") )
         {
             // Print application version
-            cout << "iGPSd v" << APP_VERSION_STRING << "\n" 
+            cout << "iGPSd v" << APPLICATION_VERSION << "\n"
                  << endl;
             return 0;
         }
@@ -131,7 +133,7 @@ int main(int argc, char* argv[])
 void PrintUsageInfo( void )
 {
 	cout <<
-    "\niGPSd v" << APP_VERSION_STRING << "\n"
+    "\niGPSd v" << APPLICATION_VERSION << "\n"
     "Written by Dave Billin (david.billin@vandals.uidaho.edu)\n"
     "\n"
     "USAGE:   iGPSd [OPTIONS] MISSION_FILE [ALTNAME]\n"
@@ -148,7 +150,7 @@ void PrintUsageInfo( void )
     "   Optional name to use when registering with the MOOS database\n"
     "\n"
     "For additional help, type \"man iGPSd\"\n"
-    "\n" 
+    "\n"
     << endl;
 }
 
@@ -159,8 +161,8 @@ void PrintUsageInfo( void )
 void PrintExampleConfig(void)
 {
     // Print an example mission file configuration
-    cout << "\n\nExample Mission File Configuration Block:\n" 
-         << iGPSd::ExampleMissionFileConfiguration 
+    cout << "\n\nExample Mission File Configuration Block:\n"
+         << iGPSd::ExampleMissionFileConfiguration
          << "\n" << endl;
 }
 

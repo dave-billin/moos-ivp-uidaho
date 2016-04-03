@@ -86,6 +86,14 @@ add_subdirectory(iBSDuC)
 endif()
 
 #===========================
+# iGPSd
+#===========================
+option( BUILD_APP_IGPSD "Build the iGPSd Utility" ON )
+if (BUILD_APP_IGPSD)
+add_subdirectory(iGPSd)
+endif()
+
+#===========================
 # iScotty
 #===========================
 option(BUILD_APP_ISCOTTY "Build the iScotty MOOS instrument (DEPRECATED)" ON )
@@ -195,18 +203,4 @@ endif()
 #if (BUILD_APP_IREVOLUTIONCOMPASS)
 #add_subdirectory(iRevolutionCompass)
 #endif()
-#
-#
-#
-##===========================
-## iGPSd
-##===========================
-#option( BUILD_APP_IGPSD "Build the iGPSd Utility" ON )
-#if (BUILD_APP_IGPSD)
-#add_subdirectory(iGPSd)
-#endif()
-#
-#
-#
-#
 
