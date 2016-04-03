@@ -78,6 +78,14 @@ endif()
 
 
 #===========================
+# iBSDuC
+#===========================
+option( BUILD_APP_IBSDUC "Build the iBSDuC Utility" ON )
+if (BUILD_APP_IBSDUC)
+add_subdirectory(iBSDuC)
+endif()
+
+#===========================
 # iScotty
 #===========================
 option(BUILD_APP_ISCOTTY "Build the iScotty MOOS instrument (DEPRECATED)" ON )
@@ -201,10 +209,4 @@ endif()
 #
 #
 #
-##===========================
-## iBSDuC
-##===========================
-#option( BUILD_APP_IBSDUC "Build the iBSDuC Utility" ON )
-#if (BUILD_APP_IBSDUC)
-#add_subdirectory(iBSDuC)
-#endif()
+

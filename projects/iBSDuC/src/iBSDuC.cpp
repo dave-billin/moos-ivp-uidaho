@@ -24,18 +24,15 @@
  *         david.billin@vandals.uidaho.edu
  */
 //=============================================================================
-
-#include <stdint.h>
-
-#include "MOOS/libMOOS/Utils/MOOSException.h"
-#include "MOOS/libMOOS/Utils/MOOSAssert.h"
-
 #include "iBSDuC.h"
-#include "AppVersion.h"
+#include "config.h"
+
+#include <MOOS/libMOOS/Utils/MOOSException.h>
+#include <MOOS/libMOOS/Utils/MOOSAssert.h>
+#include <stdint.h>
 
 using namespace std;
 using namespace YellowSubUtils;
-
 
 
 // Character string containing an example mission file configuration
@@ -56,12 +53,12 @@ const char iBSDuC::ExampleMissionFileConfiguration[]=
 
 
 //=============================================================================
-/* 
+/*
     This function is called when the application object is created in main().
     This is a good place to initialize application variables to default
-    values, and set up dynamic memory resources.  
+    values, and set up dynamic memory resources.
 
-    NOTE: This function executes as the application object is being created, 
+    NOTE: This function executes as the application object is being created,
           so it's best to save activities that might require error handling
           (e.g. opening files or I/O devices) for the OnStartup() method.
 */
@@ -270,7 +267,7 @@ bool iBSDuC::Iterate( void )
 
 //=============================================================================
 /*
-    Here is where the application should handle mail received from the MOOS 
+    Here is where the application should handle mail received from the MOOS
     database.  This mail takes the form of CMOOSMsg objects - each of which
     contains the name and contents of a MOOS variable the application has
     subscribed to.
@@ -349,8 +346,8 @@ bool iBSDuC::OnStartUp( void )
 	string sAppName = GetAppName();
 	string sBar = string(40, '=') + "\n";
 	MOOSTrace(sBar +
-			  MOOSFormat("iBSDuC version %s\n", 
-                         APP_VERSION_STRING) +
+			  MOOSFormat("iBSDuC version %s\n",
+                         APP_VERSION_TUPLE) +
 			  "Written by Dave Billin\n" + sBar + "\n\n");
 
     //---------------------------------
@@ -382,7 +379,7 @@ bool iBSDuC::OnStartUp( void )
 bool iBSDuC::LoadMissionFileParameters( void )
 {
     bool rc = true;
-    
+
     //------------------------------------------
     // LOAD REQUIRED MISSION FILE PARAMETERS
     //------------------------------------------
@@ -418,8 +415,8 @@ bool iBSDuC::LoadMissionFileParameters( void )
 
 //=============================================================================
 /*
-    This function gets called when the application connects to the MOOS 
-    database.  BE CAREFUL! this function gets called on a different thread 
+    This function gets called when the application connects to the MOOS
+    database.  BE CAREFUL! this function gets called on a different thread
     than your Iterate() and OnNewMail() handlers!
 */
 bool iBSDuC::OnConnectToServer( void )
@@ -438,8 +435,8 @@ bool iBSDuC::OnConnectToServer( void )
 
 //=============================================================================
 /*
-    This function gets called when the application disconnects from the MOOS 
-    database.  BE CAREFUL! this function gets called on a different thread 
+    This function gets called when the application disconnects from the MOOS
+    database.  BE CAREFUL! this function gets called on a different thread
     than your Iterate() and OnNewMail() handlers!
 */
 bool iBSDuC::OnDisconnectFromServer( void )
