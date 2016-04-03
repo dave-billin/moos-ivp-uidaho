@@ -8,13 +8,15 @@
  *
  */
 //=============================================================================
-#include <iostream>
-#include "MOOS/libMOOS/MOOSLib.h"
 #include "iSpock.h"
+#include "config.h"
+#include <MOOS/libMOOS/MOOSLib.h>
+#include <iostream>
 
 using std::cout;
 using std::endl;
 
+static std::string const APPLICATION_VERSION(APP_VERSION_TUPLE);
 
 /** @defgroup iSpock
  * @{
@@ -62,7 +64,7 @@ int main(int argc, char* argv[])
         }
         else if ( MOOSStrCmp(argv[1], "-v") || MOOSStrCmp(argv[1], "--version") )
         {
-            cout << "\niSpock version \n\n" << endl;
+            cout << "\niSpock v" << APPLICATION_VERSION << "\n" << endl;
             return 0;
         }
         else    // No command line options, must be a mission file path
@@ -92,7 +94,7 @@ int main(int argc, char* argv[])
 void PrintUsageInfo( void )
 {
     cout <<
-    "\niSpock version \n"
+    "\niSpock v" << APPLICATION_VERSION << "\n"
     "Written by Dave Billin (dave.billin@vandals.uidaho.edu)\n"
     "\n"
     "USAGE:   iSpock [OPTIONS] MISSION_FILE [APPNAME]\n"

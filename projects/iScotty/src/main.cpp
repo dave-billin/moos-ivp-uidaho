@@ -9,7 +9,7 @@
  */
 //=============================================================================
 #include "iScotty.h"
-#include "AppVersion.h"
+#include "config.h"
 
 #include <MOOS/libMOOS/MOOSLib.h>
 #include <iostream>
@@ -18,7 +18,7 @@ using std::cout;
 using std::endl;
 
 
-static std::string APPLICATION_VERSION(APP_VERSION_STRING);
+static std::string const APPLICATION_VERSION(APP_VERSION_TUPLE);
 
 /** @defgroup iScotty
  * @{
@@ -66,7 +66,7 @@ int main(int argc, char* argv[])
         }
         else if ( MOOSStrCmp(argv[1], "-v") || MOOSStrCmp(argv[1], "--version") )
         {
-            cout << "\niScotty version \n" << endl;
+            cout << "\niScotty version \n" << APPLICATION_VERSION << endl;
             return 0;
         }
         else    // No command line options, must be a mission file path
@@ -96,7 +96,7 @@ int main(int argc, char* argv[])
 void PrintUsageInfo( void )
 {
     cout <<
-    "\niScotty version " << APPLICATION_VERSION << "\n"
+    "\niScotty v" << APPLICATION_VERSION << "\n"
     "Written by Dave Billin (dave.billin@vandals.uidaho.edu)\n"
     "\n"
     "USAGE:   iScotty [OPTIONS] MISSION_FILE [APPNAME]\n"

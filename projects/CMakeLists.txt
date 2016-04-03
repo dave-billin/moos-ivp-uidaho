@@ -98,12 +98,12 @@ endif()
 ##===========================
 ## iWhoiMicroModem
 ##===========================
-#option(BUILD_APP_IWHOIMICROMODEM "Build the iWhoiMicroModem MOOS instrument" ON )
-#if (BUILD_APP_IWHOIMICROMODEM)
-#    add_subdirectory(iWhoiMicroModem)
-#endif()
-#
-#
+option(BUILD_APP_IWHOIMICROMODEM "Build the iWhoiMicroModem MOOS instrument" ON )
+if (BUILD_APP_IWHOIMICROMODEM)
+    add_subdirectory(iWhoiMicroModem)
+endif()
+
+
 ##===========================
 ## iXStreamRadioModem
 ##===========================

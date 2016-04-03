@@ -17,7 +17,7 @@
 using std::cout;
 using std::endl;
 
-static std::string APPLICATION_VERSION(APP_VERSION_STRING);
+static std::string APPLICATION_VERSION(APP_VERSION_TUPLE);
 
 
 /** @defgroup iArchangelIMU

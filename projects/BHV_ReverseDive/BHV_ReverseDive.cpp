@@ -27,10 +27,9 @@
 
 //#include <cstdlib>
 #include "BHV_ReverseDive.h"
-
+#include "config.h"
 #include <sstream>
 
-#include "AppVersion.h"
 #include <MOOS/libMOOS/Utils/MOOSUtilityFunctions.h>
 #include <MBUtils.h>
 #include <AngleUtils.h>
@@ -53,7 +52,7 @@
 //===================================
 // STATIC MEMBERS
 //===================================
-const string BHV_ReverseDive::sm_sBhvName = "BHV_ReverseDive";
+const std::string BHV_ReverseDive::sm_sBhvName = "BHV_ReverseDive";
 
 const double BHV_ReverseDive::DefaultPitchDownPitch_deg = 20.0;
 const double BHV_ReverseDive::DefaultPitchDownTimeout_sec = 10.0;

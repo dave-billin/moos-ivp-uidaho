@@ -24,12 +24,12 @@
 
 */
 //=============================================================================
-
-#include <cmath>
-#include "MOOS/libMOOS/Utils/MOOSFileReader.h"
-#include "MOOS/libMOOS/Utils/MOOSAssert.h"
-#include "AppVersion.h"
 #include "iScotty.h"
+#include "config.h"
+#include <MOOS/libMOOS/Utils/MOOSFileReader.h>
+#include <MOOS/libMOOS/Utils/MOOSAssert.h>
+#include <cmath>
+
 
 using namespace std;
 
@@ -511,7 +511,7 @@ bool iScotty::OnStartUp( void )
 	// Print a banner
 	//---------------------------------
 	MOOSTrace(sBar +
-			  MOOSFormat("iScotty version %s\n", APP_VERSION_STRING) +
+			  MOOSFormat("iScotty version %s\n", APP_VERSION_TUPLE) +
 			  "Written by Dave Billin\n" +
 			  sBar + "\n");
 

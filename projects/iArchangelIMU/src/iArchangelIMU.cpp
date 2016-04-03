@@ -26,7 +26,7 @@
 //=============================================================================
 
 #include "iArchangelIMU.h"
-#include "AppVersion.h"
+#include "config.h"
 
 #include <YellowSubUtils.h>
 #include <MOOS/libMOOS/Utils/MOOSFileReader.h>
@@ -308,7 +308,7 @@ bool iArchangelIMU::OnStartUp( void )
 	// Print a cute banner
 	sBar50 = string(50, '=') + "\n";
 	MOOSTrace(s +
-			  MOOSFormat("iArchangelIMU version %s\n", APP_VERSION_STRING) +
+			  MOOSFormat("iArchangelIMU version %s\n", APP_VERSION_TUPLE) +
 			  "Written by Dave Billin\n" +
 			  sBar50 + "\n\n");
 
