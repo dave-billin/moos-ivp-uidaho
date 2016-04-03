@@ -4,7 +4,7 @@
 .\"==============================
 .\" Project info
 .\"==============================
-.TH ${PROJECT_NAME} 1  "version ${PROJECT_VERSION}" "MOOS APPLICATION" "version ${PROJECT_VERSION}"
+.TH ${PROJECT_NAME} 1  "version ${VERSION_TUPLE}" "MOOS APPLICATION" "version ${VERSION_TUPLE}"
 .SH NAME 
 ${PROJECT_NAME}: An IvP behavior used to implement diving in reverse.
 
@@ -204,4 +204,4 @@ The current vehicle depth in meters
 Returns an exit status of zero
 
 .SH AUTHOR
-${PROJECT_AUTHOR} (${PROJECT_EMAIL})
+Dave Billin (david.billin@vandals.uidaho.edu)

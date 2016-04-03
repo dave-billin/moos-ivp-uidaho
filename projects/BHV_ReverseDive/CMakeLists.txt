@@ -13,22 +13,26 @@
 project(BHV_ReverseDive)
 
 
-set(PROJECT_VERSION_MAJOR  1)
-set(PROJECT_VERSION_MINOR  0)
-GetPatchVersion( ${PROJECT_SOURCE_DIR} PROJECT_VERSION_PATCH )
+set(VERSION_MAJOR  1)
+set(VERSION_MINOR  0)
+set(VERSION_PATCH  0)
 
-set(PROJECT_VERSION 
-    "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}"
+set(VERSION_TUPLE 
+    "${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}"
 )
 
 set(PROJECT_AUTHOR "Dave Billin")
 set(PROJECT_EMAIL "dave.billin@vandals.uidaho.edu")
 
+set( config_dir "${PROJECT_SOURCE_DIR}/config" )
+
 
 # Fill in fields of templated files
-configure_file(${PROJECT_SOURCE_DIR}/build/AppVersion.h.in
-               ${PROJECT_SOURCE_DIR}/AppVersion.h )
-configure_file( "${PROJECT_SOURCE_DIR}/build/manfile.in"
+# NOTE: AppVersion.h is generated and written to the location given by
+#       CMAKE_CURRENT_BINARY_DIR
+configure_file(${config_dir}/AppVersion.h.in
+               ${CMAKE_CURRENT_BINARY_DIR}/AppVersion.h )
+configure_file( "${config_dir}/manfile.in"
                 "${MANFILE_OUTPUT_DIRECTORY}/${PROJECT_NAME}.1" )
 
 
@@ -36,17 +40,25 @@ configure_file( "${PROJECT_SOURCE_DIR}/build/manfile.in"
 # Source Files
 #===============================
 
-set( ${PROJECT_NAME}_HEADERLIST
+set( BHV_ReverseDive_HEADER_FILES
      BHV_ReverseDive.h
 )
 
 # Create a list of source files
-set( ${PROJECT_NAME}_SRCLIST
+set( BHV_ReverseDive_SOURCES
      BHV_ReverseDive.cpp
-)
+   )
 
-include_directories( ${MOOS_INCLUDE_DIRS} )
-include_directories( ${MOOSIVP_INCLUDE_DIRECTORIES} )
+
+foreach( dir IN LISTS IVP_INCLUDE_DIRS )
+   #message( "     ${dir}" )
+endforeach()
+
+include_directories( ${CMAKE_CURRENT_SOURCE_DIR}
+                     ${CMAKE_CURRENT_BINARY_DIR}
+                     ${MOOS_INCLUDE_DIRS}
+                     ${IVP_INCLUDE_DIRS} 
+                   )
 
 
 
@@ -55,13 +67,16 @@ include_directories( ${MOOSIVP_INCLUDE_DIRECTORIES} )
 #============================
 
 # Define the static library target this project will build
-add_library( ${PROJECT_NAME} SHARED ${${PROJECT_NAME}_SRCLIST} )
+add_library( ${PROJECT_NAME} SHARED
+             ${BHV_ReverseDive_SOURCES}
+             ${CMAKE_CURRENT_BINARY_DIR}/AppVersion.h
+           )
 
 
 # Specify linkage order
 target_link_libraries( ${PROJECT_NAME} 
                        ${MOOS_LIBRARIES}
-                       ${MOOSIVP_LIBRARIES} 
+                       ivpbuild
                        ${PLATFORM_LIBRARIES} 
 )
 

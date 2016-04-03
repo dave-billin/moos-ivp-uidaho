@@ -24,8 +24,8 @@
  */
 //=============================================================================
 
-#include "MOOS/libMOOS/Utils/MOOSException.h" 
-#include "MOOS/libMOOS/Utils/MOOSUtilityFunctions.h" 
+#include "MOOS/libMOOS/Utils/MOOSException.h"
+#include "MOOS/libMOOS/Utils/MOOSUtilityFunctions.h"
 #include "FileSelector.h"
 #include "LibBunnySock.h"
 #include "BunnySockTcpNode.h"
@@ -37,24 +37,6 @@ using namespace YellowSubUtils;
 
 namespace BunnySock
 {
-
-
-// Values used to initialize a BunnySock keep-alive packet for sending
-//#define BUNNYSOCK_KEEPALIVE_PACKET_INIT 						\
-//	{															\
-//		PACKETTYPE_BUNNYSOCK_KEEPALIVE,	/* Packet Type */		\
-//		0,	/* Source ID */										\
-//		100,/* Destination ID */ 								\
-//		0,	/* Reserved */ 										\
-//		0,	/* Time stamp */ 									\
-//		LIBBUNNYSOCK_VERSION,	/* protocol version */ 			\
-//		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 			\
-//		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 			\
-//		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 			\
-//		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 			\
-//		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 			\
-//	}
-
 
 const string BunnySockTcpNode::sBunnySockTcpNode("<BunnySockTcpNode>");
 
@@ -370,7 +352,7 @@ bool BunnySockTcpNode::OpenServerConnection( void )
 
 	// Bind the socket to the specified remote host and port
 	// and start listening for incoming connections
-	// DB Note: the MOOS XPCSocket is *really* dumb, and can fail to 
+	// DB Note: the MOOS XPCSocket is *really* dumb, and can fail to
 	// generate a TCP socket under Windows when getprotobyname()
 	// fails under certain (weird) circumstances.
 	try
@@ -438,7 +420,7 @@ bool BunnySockTcpNode::OpenServerConnection( void )
 	// Close and release the parent socket
 	if (pBreederSocket != NULL)
 	{
-		pBreederSocket->vCloseSocket();	
+		pBreederSocket->vCloseSocket();
 		delete pBreederSocket;
 	}
 	return Connected;

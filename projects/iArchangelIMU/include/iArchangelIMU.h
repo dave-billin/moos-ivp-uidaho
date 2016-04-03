@@ -36,13 +36,14 @@
 #ifndef _IARCHANGELIMU_H_
 #define _IARCHANGELIMU_H_
 
+#include "IMU3Module.h"
+
+#include <MOOS/libMOOS/MOOSLib.h>
+#include <MOOS/libMOOS/Utils/MOOSUtilityFunctions.h>
+#include <LinuxSerialPortEx.h>
+
 #include <string>
 #include <stdint.h>
-
-#include "MOOS/libMOOS/MOOSLib.h"		// MOOS core library
-#include "MOOS/libMOOS/Utils/MOOSUtilityFunctions.h"
-#include "LinuxSerialPortEx.h"
-#include "IMU3Module.h"
 
 // Software version
 #define SOFTWARE_REVISION 1.0

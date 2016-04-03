@@ -36,9 +36,9 @@ using namespace BunnySock;
 #define SPOCK_DEVICEID		3	// BunnySock ID of the SPOCK module
 
 // Macros to implement verbosity-dependent conditional statements
-#define SPOCKVERBOSE1(_expr_)	if (m_Verbosity >= 1) { _expr_; }
-#define SPOCKVERBOSE2(_expr_)	if (m_Verbosity >= 2) { _expr_; }
-#define SPOCKVERBOSE3(_expr_)	if (m_Verbosity >= 3) { _expr_; }
+#define SPOCKVERBOSE1(_expr_)	if (m_Verbosity >= 1) { (_expr_); }
+#define SPOCKVERBOSE2(_expr_)	if (m_Verbosity >= 2) { (_expr_); }
+#define SPOCKVERBOSE3(_expr_)	if (m_Verbosity >= 3) { (_expr_); }
 
 
 
@@ -369,7 +369,10 @@ void SpockModule::HandleMultiSensorPacket( SensorPacket_t* pPacket )
 //=============================================================================
 void SpockModule::HandleDepthPacket( DepthPacket_t* pPacket )
 {
-	SPOCKVERBOSE1("Received a high-rate depth packet from SPOCK");
+   if (m_Verbosity >= 1)
+   {
+      std::cout << "Received a high-rate depth packet from SPOCK" << std::endl;
+   }
 }
 
 

@@ -1,22 +1,22 @@
 //=============================================================================
-/** @file ${PROJECT_NAME}/src/main.cpp
+/** @file iSpock/src/main.cpp
  *
  * @brief
- *  Execution entry point for the ${PROJECT_NAME} application
+ *  Execution entry point for the iSpock application
  *
- * @author ${PROJECT_AUTHOR}
+ * @author Dave Billin
  *
  */
 //=============================================================================
 #include <iostream>
 #include "MOOS/libMOOS/MOOSLib.h"
-#include "${PROJECT_NAME}.h"
+#include "iSpock.h"
 
 using std::cout;
 using std::endl;
 
 
-/** @defgroup ${PROJECT_NAME}
+/** @defgroup iSpock
  * @{
  */
 
@@ -33,14 +33,14 @@ void PrintExampleConfig(void);
 int main(int argc, char* argv[])
 {
     const char* szMissionFile = NULL;
-    const char* szMOOSName = "${PROJECT_NAME}";
+    const char* szMOOSName = "iSpock";
 
     // Print usage info and exit if no command line arguments were supplied
     if (argc == 1)
     {
-		cout << "\nUSAGE:   ${PROJECT_NAME} [OPTIONS] MISSION_FILE [APPNAME]\n"
-             << "For more info, type '${PROJECT_NAME} --help' or 'man "
-                "${PROJECT_NAME}'\n"
+		cout << "\nUSAGE:   iSpock [OPTIONS] MISSION_FILE [APPNAME]\n"
+             << "For more info, type 'iSpock --help' or 'man "
+                "iSpock'\n"
              << endl;
 
         return 0;
@@ -62,7 +62,7 @@ int main(int argc, char* argv[])
         }
         else if ( MOOSStrCmp(argv[1], "-v") || MOOSStrCmp(argv[1], "--version") )
         {
-            cout << "\n${PROJECT_NAME} version ${PROJECT_VERSION}\n\n" << endl;
+            cout << "\niSpock version \n\n" << endl;
             return 0;
         }
         else    // No command line options, must be a mission file path
@@ -78,7 +78,7 @@ int main(int argc, char* argv[])
     }
 
     // Create and launch the application
-    ${PROJECT_NAME} AppObject;
+    iSpock AppObject;
     AppObject.Run((char*)szMOOSName, (char*)szMissionFile);
 
     return 0;
@@ -92,10 +92,10 @@ int main(int argc, char* argv[])
 void PrintUsageInfo( void )
 {
     cout <<
-    "\n${PROJECT_NAME} version ${PROJECT_VERSION}\n"
-    "Written by ${PROJECT_AUTHOR} (${PROJECT_EMAIL})\n"
+    "\niSpock version \n"
+    "Written by Dave Billin (dave.billin@vandals.uidaho.edu)\n"
     "\n"
-    "USAGE:   ${PROJECT_NAME} [OPTIONS] MISSION_FILE [APPNAME]\n"
+    "USAGE:   iSpock [OPTIONS] MISSION_FILE [APPNAME]\n"
     "\n"
     "OPTIONS\n"
     "   -e,--example  Prints an example mission file configuration block\n"
@@ -108,7 +108,7 @@ void PrintUsageInfo( void )
     "APPNAME\n"
     "   Optional name to use when registering with the MOOS database\n"
     "\n"
-    "For additional help, type \"man ${PROJECT_NAME}\"\n"
+    "For additional help, type \"man iSpock\"\n"
     "\n"
     << endl;
 }
@@ -168,4 +168,4 @@ void PrintExampleConfig(void)
     << endl;
 }
 
-/** @} */   // END @defgroup ${PROJECT_NAME}
+/** @} */   // END @defgroup iSpock

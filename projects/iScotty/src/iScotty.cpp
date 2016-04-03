@@ -134,21 +134,21 @@ iScotty::iScotty( void )
 :	m_AppIsInitialized(false),
 	m_pScotty(NULL),
  	m_ScottyPort(0),
+   m_PropIsEnabled(true),
+   m_HelmIsActive(false),
  	m_YawControlIsEnabled(true),
  	m_SpeedControlIsEnabled(true),
  	m_DepthControlIsEnabled(true),
  	m_RollControlIsEnabled(true),
  	m_PitchControlIsEnabled(true),
- 	m_PropIsEnabled(true),
-	m_HelmIsActive(false),
 	m_DesiredActuatorValuesChanged(false),
 	m_ServoCenterRudder(128),
 	m_ServoCenterElevL(128),
 	m_ServoCenterElevR(128),
 	m_CouplingCoeff(0.5),
-	m_Verbosity(0),
 	m_VelocityPerRPM(0.0),
-	m_VelocityPerRPMOffset(0.0)
+	m_VelocityPerRPMOffset(0.0),
+   m_Verbosity(0)
 {
 	// Initialize subscribed variable values
 	for (int i = 0; i < NUM_SUBSCRIBED_VARIABLES; i++)
@@ -298,25 +298,25 @@ bool iScotty::OnCommandMsg(CMOOSMsg Msg)
 		else if ( MOOSValFromString(b, sVal, "SpeedControlIsEnabled") )
 		{
 			m_SpeedControlIsEnabled = b;
-			s = MOOSFormat("Speed controller is %s\n", 
+			s = MOOSFormat("Speed controller is %s\n",
 							((b) ? szBool[0] : szBool[1]) );
 		}
 		else if ( MOOSValFromString(b, sVal, "DepthControlIsEnabled") )
 		{
 			m_DepthControlIsEnabled = b;
-			s = MOOSFormat("Depth controller is %s\n", 
+			s = MOOSFormat("Depth controller is %s\n",
 							((b) ? szBool[0] : szBool[1]) );
 		}
 		else if ( MOOSValFromString(b, sVal, "RollControlIsEnabled") )
 		{
 			m_RollControlIsEnabled = b;
-			s = MOOSFormat("Roll controller is %s\n", 
+			s = MOOSFormat("Roll controller is %s\n",
 							((b) ? szBool[0] : szBool[1]) );
 		}
 		else if ( MOOSValFromString(b, sVal, "PitchControlIsEnabled") )
 		{
 			m_PitchControlIsEnabled = b;
-			s = MOOSFormat("Pitch controller is %s\n", 
+			s = MOOSFormat("Pitch controller is %s\n",
 							((b) ? szBool[0] : szBool[1]) );
 		}
 		else if ( MOOSStrCmp(sVal, "ResetPIDs") )
@@ -451,7 +451,7 @@ bool iScotty::Iterate( void )
 		if (m_PropIsEnabled)
 		{
 			Thrust = (m_SubscribedVarChanged[Idx_DesiredThrust]) ?
-					m_SubscribedVarValueTable[Idx_DesiredThrust] : 
+					m_SubscribedVarValueTable[Idx_DesiredThrust] :
 					m_pScotty->Thrust();
 		}
 		else
@@ -460,15 +460,15 @@ bool iScotty::Iterate( void )
 		}
 
 		Rudder = (m_SubscribedVarChanged[Idx_DesiredRudder]) ?
-						   	m_SubscribedVarValueTable[Idx_DesiredRudder] : 
+						   	m_SubscribedVarValueTable[Idx_DesiredRudder] :
 							m_pScotty->RudderAngle();
 
 		Elevator = (m_SubscribedVarChanged[Idx_DesiredElevator]) ?
-					   	m_SubscribedVarValueTable[Idx_DesiredElevator] : 
+					   	m_SubscribedVarValueTable[Idx_DesiredElevator] :
 						m_pScotty->ElevatorAngle();
 
 		Aileron = (m_SubscribedVarChanged[Idx_DesiredAileron]) ?
-					   	m_SubscribedVarValueTable[Idx_DesiredAileron] : 
+					   	m_SubscribedVarValueTable[Idx_DesiredAileron] :
 						m_pScotty->AileronAngle();
 
 		// Reset changes
@@ -846,7 +846,6 @@ void iScotty::PublishControllerParameters( void )
 								&m_SubscribedVarValueTable[Idx_DepthPid_Kp],
 								&m_SubscribedVarValueTable[Idx_RollPid_Kp],
 								&m_SubscribedVarValueTable[Idx_PitchPid_Kp]};
-	double t = MOOSTime();
 
 	for (int i = 0; i < 5; i++)
 	{
@@ -873,8 +872,6 @@ void iScotty::PublishControllerParameters( void )
 //=============================================================================
 bool iScotty::LoadVehicleConfigParameters( string& sConfigFilePath )
 {
-	bool Rc = true;
-
 	if (!sConfigFilePath.empty())
 	{
 		CMOOSFileReader Fr;
@@ -1094,7 +1091,6 @@ void iScotty::ResetControllers( void )
 //=============================================================================
 void iScotty::SetTrimsFromMOOSMail( string& sTrimSettings )
 {
-	int ServoValue;
 	string sVal;
 	uint8_t Rudder = 0;
 	uint8_t ElevL = 0;

@@ -37,7 +37,7 @@ endif()
 
 # Process templates to generate common files
 configure_file(${CONFIG_DIR}/AppVersion.h.in
-               ${INCLUDE_DIR}/AppVersion.h )
+               ${CMAKE_CURRENT_BINARY_DIR}/AppVersion.h )
 configure_file( "${CONFIG_DIR}/manfile.in"
                 "${MANFILE_OUTPUT_DIRECTORY}/${PROJECT_NAME}.1" )
 

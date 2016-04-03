@@ -15,26 +15,25 @@ set( PROJECT_EMAIL "dave.billin@vandals.uidaho.edu" )
 # Set project version info
 set( VERSION_MAJOR 1 )
 set( VERSION_MINOR 0 )
-GetPatchVersion( ${PROJECT_SOURCE_DIR} VERSION_PATCH )
-set( VERSION_TUPLE "${VERSION_MAJOR}.${VERSION_MINOR}${VERSION_PATCH}" )
+set( VERSION_PATCH  0 )
+
+set( VERSION_TUPLE "${VERSION_MAJOR}.${VERSION_MINOR}-${VERSION_PATCH}" )
 
 
 # Set up convenience variables for project subdirectories
-set( SRC_DIR ${PROJECT_SOURCE_DIR}/src )
-set( INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include )
-set( BUILD_DIR ${PROJECT_SOURCE_DIR}/build )
-set( DOCS_DIR ${PROJECT_SOURCE_DIR}/docs )
-set( TEST_DIR ${PROJECT_SOURCE_DIR}/test )
+set( src_dir ${PROJECT_SOURCE_DIR}/src )
+set( include_dir ${PROJECT_SOURCE_DIR}/include )
+set( config_dir "${PROJECT_SOURCE_DIR}/config" )
+set( docs_dir ${PROJECT_SOURCE_DIR}/docs )
+set( test_dir ${PROJECT_SOURCE_DIR}/test )
 if ( NOT DEFINED MANFILE_OUTPUT_DIRECTORY )
     set( MANFILE_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/docs} )
 endif()
 
 # Fill in fields of templated files
-configure_file(${BUILD_DIR}/main.cpp.in
-               ${SRC_DIR}/main.cpp)
-configure_file(${BUILD_DIR}/AppVersion.h.in
-               ${INCLUDE_DIR}/AppVersion.h )
-configure_file( "${BUILD_DIR}/manfile.in"
+configure_file(${config_dir}/config.h.in
+               ${CMAKE_CURRENT_BINARY_DIR}/config.h )
+configure_file( "${config_dir}/manfile.in"
                 "${MANFILE_OUTPUT_DIRECTORY}/${PROJECT_NAME}.1" )
 
 
@@ -42,14 +41,16 @@ configure_file( "${BUILD_DIR}/manfile.in"
 # Source Files
 #===============================
 
-include_directories( ${MOOS_INCLUDE_DIRS}
-                     ${INCLUDE_DIR} )
+include_directories( ${include_dir}
+                     ${CMAKE_CURRENT_BINARY_DIR}
+                     ${MOOS_INCLUDE_DIRS}
+                   )
 
 
 set( SOURCE_FILES
-        ${SRC_DIR}/iArchangelIMU.cpp
-        ${SRC_DIR}/IMU3Module.cpp
-        ${SRC_DIR}/main.cpp
+        ${src_dir}/iArchangelIMU.cpp
+        ${src_dir}/IMU3Module.cpp
+        ${src_dir}/main.cpp
 )
 
 

@@ -1,10 +1,10 @@
 .\"============================================================================
-.\" Linux man file for ${PROJECT_VERSION}
+.\" Linux man file for ${VERSION_TUPLE}
 
 .\"==============================
 .\" Project info
 .\"==============================
-.TH ${PROJECT_NAME} 1  "version ${PROJECT_VERSION}" "MOOS APPLICATION" "version ${PROJECT_VERSION}"
+.TH ${PROJECT_NAME} 1  "version ${VERSION_TUPLE}" "MOOS APPLICATION" "version ${VERSION_TUPLE}"
 .SH NAME 
 ${PROJECT_NAME}: A MOOS app to interface with the Archangel Systems IMU3 \c
 inertial measurement unit.
@@ -199,4 +199,4 @@ Specifies an alternate variable to publish inertial yaw rate to
 Returns an exit status of zero
 
 .SH AUTHOR
-${PROJECT_AUTHOR} (${PROJECT_EMAIL})
+Dave Billin (david.billin@vandals.uidaho.edu)

@@ -25,6 +25,10 @@
 
 #include "ScottyModule.h"
 
+using namespace BunnySock;
+using namespace std;
+
+
 
 #define LOCAL_DEVICEID		2		// Send packets as KIRK
 #define SCOTTY_DEVICEID		4		// BunnySock ID of the SCOTTY module
@@ -39,12 +43,12 @@
 
 
 //=============================================================================
-ScottyModule::ScottyModule(string& sHostName, uint16_t Port, int Verbosity)
+ScottyModule::ScottyModule( std::string& sHostName, uint16_t Port, int Verbosity)
 : m_pNode(NULL),
   m_Verbosity(Verbosity),
   m_RudderAngle_rad(0.0f),
-  m_ElevatorAngle_rad(0.0f),
   m_AileronAngle_rad(0.0f),
+  m_ElevatorAngle_rad(0.0f),
   m_DesiredPropRPM(0),
   m_MeasuredPropRPM(0),
   m_DesiredServoCentersSet(false),

@@ -26,15 +26,17 @@
 
 
 //#include <cstdlib>
-#include <sstream>
-#include "MOOS/libMOOS/Utils/MOOSUtilityFunctions.h"
-#include "MBUtils.h"
-#include "AngleUtils.h"
-#include "BuildUtils.h"
-#include "ZAIC_HEQ.h"
-#include "OF_Coupler.h"
-#include "AppVersion.h"
 #include "BHV_ReverseDive.h"
+
+#include <sstream>
+
+#include "AppVersion.h"
+#include <MOOS/libMOOS/Utils/MOOSUtilityFunctions.h>
+#include <MBUtils.h>
+#include <AngleUtils.h>
+#include <BuildUtils.h>
+#include <ZAIC_HEQ.h>
+#include <OF_Coupler.h>
 
 
 //===================================

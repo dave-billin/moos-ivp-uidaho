@@ -24,11 +24,13 @@
  */
 //=============================================================================
 
+#include "IMU3Module.h"
+
+#include <MOOS/libMOOS/Utils/MOOSUtilityFunctions.h>
+
 #include <cstring>
 #include <cmath>
 
-#include "MOOS/libMOOS/Utils/MOOSUtilityFunctions.h"
-#include "IMU3Module.h"
 
 
 using namespace::std;

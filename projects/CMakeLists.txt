@@ -80,7 +80,7 @@ endif()
 #===========================
 # iScotty
 #===========================
-option(BUILD_APP_ISCOTTY "Build the iScotty MOOS instrument (DEPRECATED)" OFF )
+option(BUILD_APP_ISCOTTY "Build the iScotty MOOS instrument (DEPRECATED)" ON )
 if (BUILD_APP_ISCOTTY)
     add_subdirectory(iScotty)
 endif()
@@ -95,116 +95,116 @@ if (BUILD_APP_ISPOCK)
 endif()
 
 
-#===========================
-# iWhoiMicroModem
-#===========================
-option(BUILD_APP_IWHOIMICROMODEM "Build the iWhoiMicroModem MOOS instrument" ON )
-if (BUILD_APP_IWHOIMICROMODEM)
-    add_subdirectory(iWhoiMicroModem)
-endif()
-
-
-#===========================
-# iXStreamRadioModem
-#===========================
-option(BUILD_APP_IXSTREAMRADIOMODEM "Build the iXStreamRadioModem MOOS instrument" ON )
-if (BUILD_APP_IXSTREAMRADIOMODEM)
-    add_subdirectory(iXStreamRadioModem)
-endif()
-
-
-#===========================
-# iYellowSubDAQ
-#===========================
-option(BUILD_APP_IYELLOWSUBDAQ "Build the iYellowSubDAQ MOOS instrument" ON )
-if (BUILD_APP_IYELLOWSUBDAQ)
-    add_subdirectory(iYellowSubDAQ)
-endif()
-
-
-#===========================
-# pAcousticCommsAgent
-#===========================
-option( BUILD_APP_PACOUSTICOMSSAGENT "Build the pAcousticCommsAgent MOOS app" ON )
-if (BUILD_APP_PACOUSTICOMSSAGENT)
-    add_subdirectory(pAcousticCommsAgent)
-endif()
-
-
-#===========================
-# pFakeModemReport
-#===========================
-option( BUILD_APP_PFAKEMODEMREPORT "Build the pFakeModemReport MOOS app" ON )
-if (BUILD_APP_PFAKEMODEMREPORT)
-    add_subdirectory(pFakeModemReport)
-endif()
-
-
-#===========================
-# pMissionMonitor
-#===========================
-option( BUILD_APP_PMISSIONMONITOR "Build the pMissionMonitor MOOS app" ON )
-if (BUILD_APP_PMISSIONMONITOR)
-    add_subdirectory(pMissionMonitor)
-endif()
-
-
-#===========================
-# pVehicleEKF
-#===========================
-option( BUILD_APP_PVEHICLEEKF "Build the pVehicleEKF MOOS app" ON )
-if (BUILD_APP_PVEHICLEEKF)
-    add_subdirectory(pVehicleEKF)
-endif()
-
-
-#===========================
-# pVehicleID
-#===========================
-option( BUILD_APP_PVEHICLEID "Build the pVehicleID MOOS app" ON )
-if (BUILD_APP_PVEHICLEID)
-    add_subdirectory(pVehicleID)
-endif()
-
-
-
-
-#===========================
-# uGeodesy
-#===========================
-option( BUILD_UTIL_UGEODESY "Build the uGeodesy Utility" ON )
-if (BUILD_UTIL_UGEODESY)
-    add_subdirectory(uGeodesy)
-endif()
-
-
-
-
-#===========================
-# iRevolutionCompass
-#===========================
-option( BUILD_APP_IREVOLUTIONCOMPASS "Build the iRevolutionCompass Utility" ON )
-if (BUILD_APP_IREVOLUTIONCOMPASS)
-add_subdirectory(iRevolutionCompass)
-endif()
-
-
-
-#===========================
-# iGPSd
-#===========================
-option( BUILD_APP_IGPSD "Build the iGPSd Utility" ON )
-if (BUILD_APP_IGPSD)
-add_subdirectory(iGPSd)
-endif()
-
-
-
-
-#===========================
-# iBSDuC
-#===========================
-option( BUILD_APP_IBSDUC "Build the iBSDuC Utility" ON )
-if (BUILD_APP_IBSDUC)
-add_subdirectory(iBSDuC)
-endif()
+##===========================
+## iWhoiMicroModem
+##===========================
+#option(BUILD_APP_IWHOIMICROMODEM "Build the iWhoiMicroModem MOOS instrument" ON )
+#if (BUILD_APP_IWHOIMICROMODEM)
+#    add_subdirectory(iWhoiMicroModem)
+#endif()
+#
+#
+##===========================
+## iXStreamRadioModem
+##===========================
+#option(BUILD_APP_IXSTREAMRADIOMODEM "Build the iXStreamRadioModem MOOS instrument" ON )
+#if (BUILD_APP_IXSTREAMRADIOMODEM)
+#    add_subdirectory(iXStreamRadioModem)
+#endif()
+#
+#
+##===========================
+## iYellowSubDAQ
+##===========================
+#option(BUILD_APP_IYELLOWSUBDAQ "Build the iYellowSubDAQ MOOS instrument" ON )
+#if (BUILD_APP_IYELLOWSUBDAQ)
+#    add_subdirectory(iYellowSubDAQ)
+#endif()
+#
+#
+##===========================
+## pAcousticCommsAgent
+##===========================
+#option( BUILD_APP_PACOUSTICOMSSAGENT "Build the pAcousticCommsAgent MOOS app" ON )
+#if (BUILD_APP_PACOUSTICOMSSAGENT)
+#    add_subdirectory(pAcousticCommsAgent)
+#endif()
+#
+#
+##===========================
+## pFakeModemReport
+##===========================
+#option( BUILD_APP_PFAKEMODEMREPORT "Build the pFakeModemReport MOOS app" ON )
+#if (BUILD_APP_PFAKEMODEMREPORT)
+#    add_subdirectory(pFakeModemReport)
+#endif()
+#
+#
+##===========================
+## pMissionMonitor
+##===========================
+#option( BUILD_APP_PMISSIONMONITOR "Build the pMissionMonitor MOOS app" ON )
+#if (BUILD_APP_PMISSIONMONITOR)
+#    add_subdirectory(pMissionMonitor)
+#endif()
+#
+#
+##===========================
+## pVehicleEKF
+##===========================
+#option( BUILD_APP_PVEHICLEEKF "Build the pVehicleEKF MOOS app" ON )
+#if (BUILD_APP_PVEHICLEEKF)
+#    add_subdirectory(pVehicleEKF)
+#endif()
+#
+#
+##===========================
+## pVehicleID
+##===========================
+#option( BUILD_APP_PVEHICLEID "Build the pVehicleID MOOS app" ON )
+#if (BUILD_APP_PVEHICLEID)
+#    add_subdirectory(pVehicleID)
+#endif()
+#
+#
+#
+#
+##===========================
+## uGeodesy
+##===========================
+#option( BUILD_UTIL_UGEODESY "Build the uGeodesy Utility" ON )
+#if (BUILD_UTIL_UGEODESY)
+#    add_subdirectory(uGeodesy)
+#endif()
+#
+#
+#
+#
+##===========================
+## iRevolutionCompass
+##===========================
+#option( BUILD_APP_IREVOLUTIONCOMPASS "Build the iRevolutionCompass Utility" ON )
+#if (BUILD_APP_IREVOLUTIONCOMPASS)
+#add_subdirectory(iRevolutionCompass)
+#endif()
+#
+#
+#
+##===========================
+## iGPSd
+##===========================
+#option( BUILD_APP_IGPSD "Build the iGPSd Utility" ON )
+#if (BUILD_APP_IGPSD)
+#add_subdirectory(iGPSd)
+#endif()
+#
+#
+#
+#
+##===========================
+## iBSDuC
+##===========================
+#option( BUILD_APP_IBSDUC "Build the iBSDuC Utility" ON )
+#if (BUILD_APP_IBSDUC)
+#add_subdirectory(iBSDuC)
+#endif()

@@ -28,14 +28,14 @@
 #ifndef ACTUATORPID_H_
 #define ACTUATORPID_H_
 
-#include <ScalarPID.h>	// Scalar PID class from
+#include "ScalarPID.h"	// Scalar PID class taken from MOOS-IvP
 
 /** An extention of the MOOS CScalarPID class that adds the ability to return
  * the current integral value from the PID controller.
  *
  * @ingroup iScotty
  */
-class CActuatorPID : public CScalarPID
+class CActuatorPID : public ScalarPID
 {
 public:
 	//=========================================================================

@@ -8,12 +8,17 @@
  *
  */
 //=============================================================================
-#include <iostream>
-#include "MOOS/libMOOS/MOOSLib.h"
+
 #include "iArchangelIMU.h"
+#include "config.h"
+#include <MOOS/libMOOS/MOOSLib.h>
+#include <iostream>
 
 using std::cout;
 using std::endl;
+
+static std::string APPLICATION_VERSION(APP_VERSION_STRING);
+
 
 /** @defgroup iArchangelIMU
  * @{
@@ -90,7 +95,7 @@ int main(int argc, char* argv[])
 void PrintUsageInfo( void )
 {
 	cout <<
-    "\niArchangelIMU version \n"
+    "\niArchangelIMU v" << APPLICATION_VERSION << "\n"
     "Written by Dave Billin (dave.billin@vandals.uidaho.edu)\n"
     "\n"
     "USAGE:   iArchangelIMU [OPTIONS] MISSION_FILE [APPNAME]\n"

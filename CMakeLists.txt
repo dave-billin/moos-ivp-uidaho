@@ -141,9 +141,7 @@ set( ivp_all_libnames "${IVP_STATIC_LIBS};${IVP_SHARED_LIBS}" )
 import_ivp_include_dirs( "${MOOSIVP_SOURCE_TREE_DIR}" "${ivp_all_libnames}" )
 include_directories( ${IVP_INCLUDE_DIRS} )
 
-foreach( dir IN LISTS IVP_INCLUDE_DIRS )
-   #message( "     ${dir}" )
-endforeach()
+
 
 #=================================
 # Find libproj4
@@ -164,28 +162,6 @@ set_target_properties( proj
                        PROPERTIES IMPORTED_LOCATION
                        "${PROJ4_LIBRARIES}"
                      )
-
-
-#====================================================
-# Set up a CMake macro for determining version info
-#====================================================
-macro( GetPatchVersion TARGET_DIR OUTPUT_VAR )
-   # DESCRIPTION:  
-   #   Returns an integer patch version for a specified directory
-   #
-   # param TARGET_DIR:  Directory whose version should be returned
-   # param OUTPUT_VAR:  CMake variable to populate with a version tuple
-   #
-   # REMARKS:
-   #   In the past, version tuples were created using a subversion 
-   #   revision number.  Since version control is now implemented using
-   #   git, such a distinct revision number is no longer available.
-   #   Therefore, until a more clever alternative is available (or 
-   #   even deemed necessary), the global patch revision is returned.
-   set( ${OUTPUT_VAR} "-${MOOS_IVP_UIDAHO_VERSION_PATCH}" )
-endmacro()
-
-
 
 
 
@@ -259,57 +235,13 @@ if( UNITTEST_ENABLED )
 	ENABLE_TESTING()
 endif()
 
+
+
+
 #===================================
 # Recurse into source directories
 #===================================
 ADD_SUBDIRECTORY( ${projects_dir} )
-
-
-
-#================================
-# INSTALLER (PACKAGE) GENERATION
-#================================
-# This section will set up a configuration file that may be used with the 
-# utility CPack to generate installer packages.  To create these packages,
-# simply navigate to the folder where this CMakeLists.txt file is located and
-# execute the command "cpack".
-#
-# TODO: Only a small subset of CPack's capabilities are exercised here. Future
-#       revisions of this CMake code could add useful things like:
-#           - Creation of a Windows installer (NSIS)
-#           - Creation of a MacOS drag-and-drop style (DMG) installer
-if ( ${CMAKE_SYSTEM_NAME} MATCHES "Linux" )
-    set( CPACK_GENERATOR "DEB" )
-
-    set( CPACK_DEBIAN_PACKAGE_NAME "moos-ivp-uidaho" )
-    set( CPACK_DEBIAN_PACKAGE_VERSION ${MOOS_IVP_UIDAHO_VERSION_TUPLE} )
-    set( CPACK_DEBIAN_PACKAGE_DESCRIPTION "University of Idaho MOOS-IvP apps and libraries" )
-    set( CPACK_DEBIAN_PACKAGE_SECTION "devel" )
-    set( CPACK_DEBIAN_PACKAGE_PRIORITY "optional" )
-    set( CPACK_DEBIAN_PACKAGE_MAINTAINER "david.billin@vandals.uidaho.edu" )
-
-    # Identify debian package dependencies
-    set( CPACK_DEBIAN_PACKAGE_DEPENDS "libc6 (>= 2.3.6), libgcc1 (>= 1:4.1)" )
-    if ( UNITTEST_ENABLED )
-        set( CPACK_DEBIAN_PACKAGE_DEPENDS "${CPACK_DEBIAN_PACKAGE_DEPENDS},libgtest-devi,cmake" )
-    endif()
-
-
-    #determine the target architecture
-    find_program( DPKG_PROGRAM dpkg DOC "dpkg program of Debian-based systems" )
-    if( DPKG_PROGRAM )
-        execute_process( COMMAND ${DPKG_PROGRAM} --print-architecture
-                         OUTPUT_VARIABLE CPACK_DEBIAN_PACKAGE_ARCHITECTURE
-                         OUTPUT_STRIP_TRAILING_WHITESPACE
-                       )
-    endif()
-
-    include(CPack)
-
-    message( "Run 'make package' to generate the moos-ivp-uidaho debian package" )
-endif()
-
-
 
 
 
