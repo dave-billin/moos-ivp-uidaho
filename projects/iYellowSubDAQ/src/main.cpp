@@ -8,13 +8,15 @@
  *
  */
 //=============================================================================
-#include <iostream>
-#include "MOOS/libMOOS/MOOSLib.h"
 #include "iYellowSubDAQ.h"
+#include "config.h"
+#include <MOOS/libMOOS/MOOSLib.h>
+#include <iostream>
 
 using std::cout;
 using std::endl;
 
+static std::string APPLICATION_VERSION(APP_VERSION_TUPLE);
 
 /** @defgroup iYellowSubDAQ
  * @{
@@ -62,7 +64,7 @@ int main(int argc, char* argv[])
         }
         else if ( MOOSStrCmp(argv[1], "-v") || MOOSStrCmp(argv[1], "--version") )
         {
-            cout << "\niYellowSubDAQ version \n" << endl;
+            cout << "\niYellowSubDAQ v" << APPLICATION_VERSION << "\n" << endl;
             return 0;
         }
         else    // No command line options, must be a mission file path
@@ -92,7 +94,7 @@ int main(int argc, char* argv[])
 void PrintUsageInfo( void )
 {
     cout <<
-    "\niYellowSubDAQ version \n"
+    "\niYellowSubDAQ v" << APPLICATION_VERSION << "\n"
     "Written by Dave Billin (dave.billin@vandals.uidaho.edu)\n"
     "\n"
     "USAGE:   iYellowSubDAQ [OPTIONS] MISSION_FILE [APPNAME]\n"
@@ -131,7 +133,7 @@ void PrintExampleConfig(void)
     "\n"
     "    // Network port to connect to on the SCOTTY module\n"
     "    DAQ_PORT = 20024\n"
-    "\n"                                    
+    "\n"
     "    VERBOSITY = 0   // (optional) verbosity of debugging messages\n"
     "}\n"
     "\n"

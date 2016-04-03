@@ -138,15 +138,15 @@ if (BUILD_APP_IXSTREAMRADIOMODEM)
 endif()
 
 
-##===========================
-## iYellowSubDAQ
-##===========================
-#option(BUILD_APP_IYELLOWSUBDAQ "Build the iYellowSubDAQ MOOS instrument" ON )
-#if (BUILD_APP_IYELLOWSUBDAQ)
-#    add_subdirectory(iYellowSubDAQ)
-#endif()
-#
-#
+#===========================
+# iYellowSubDAQ
+#===========================
+option(BUILD_APP_IYELLOWSUBDAQ "Build the iYellowSubDAQ MOOS instrument" ON )
+if (BUILD_APP_IYELLOWSUBDAQ)
+    add_subdirectory(iYellowSubDAQ)
+endif()
+
+
 ##===========================
 ## pAcousticCommsAgent
 ##===========================

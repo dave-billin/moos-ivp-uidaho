@@ -19,15 +19,15 @@
  *
  * @brief
  *  Implementation of the iYellowSubDAQ MOOS application object
- *  
+ *
  * @author Dave Billin
  */
 //=============================================================================
-
-#include "MOOS/libMOOS/Utils/MOOSFileReader.h"
-#include "MOOS/libMOOS/Utils/MOOSAssert.h"
-#include "AppVersion.h"
 #include "iYellowSubDAQ.h"
+#include "config.h"
+#include <MOOS/libMOOS/Utils/MOOSFileReader.h>
+#include <MOOS/libMOOS/Utils/MOOSAssert.h>
+
 
 using namespace std;
 
@@ -227,7 +227,7 @@ bool iYellowSubDAQ::OnStartUp( void )
 	// Print a banner
 	s = string(40, '=') + "\n";
 	MOOSTrace(sBar40 +
-			  MOOSFormat("iYellowSubDAQ v%s\n", APP_VERSION_STRING) +
+			  MOOSFormat("iYellowSubDAQ v%s\n", APP_VERSION_TUPLE) +
 			  "Written by Dave Billin\n\n"
 			  "  Live long... and prosper.\n" +
 			  sBar40 + "\n\n");
