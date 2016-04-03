@@ -16,13 +16,12 @@ set( PROJECT_EMAIL "dave.billin@vandals.uidaho.edu" )
 set( VERSION_MAJOR 1 )
 set( VERSION_MINOR 0 )
 set( VERSION_PATCH 0 )
-set( VERSION_TUPLE "${VERSION_MAJOR}.${VERSION_MINOR}${VERSION_PATCH}" )
+set( VERSION_TUPLE "${VERSION_MAJOR}.${VERSION_MINOR}-${VERSION_PATCH}" )
 
 # Set up convenience variables for project subdirectories
-set( SRC_DIR ${PROJECT_SOURCE_DIR}/src )
-set( INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include )
-set( BUILD_DIR ${PROJECT_SOURCE_DIR}/build )
-set( TEST_DIR ${PROJECT_SOURCE_DIR}/test )
+set( src_dir ${PROJECT_SOURCE_DIR}/src )
+set( include_dir ${PROJECT_SOURCE_DIR}/include )
+set( test_dir ${PROJECT_SOURCE_DIR}/test )
 
 
 #===============================
@@ -31,31 +30,33 @@ set( TEST_DIR ${PROJECT_SOURCE_DIR}/test )
 
 # Create a list of header files to be installed with the library
 set( HEADER_FILES
-     ${INCLUDE_DIR}/parapet_config.h
-     ${INCLUDE_DIR}/parapet_descriptor.h
-     ${INCLUDE_DIR}/parapet_header.h
-     ${INCLUDE_DIR}/parapet_node.h
-     ${INCLUDE_DIR}/parapet_packet_fifo.h
-     ${INCLUDE_DIR}/parapet.h
-     ${INCLUDE_DIR}/ParapetDeviceNode.h
-     ${INCLUDE_DIR}/ParapetEventBroadcaster.h
-     ${INCLUDE_DIR}/ParapetListener.h
+     ${include_dir}/parapet_config.h
+     ${include_dir}/parapet_descriptor.h
+     ${include_dir}/parapet_header.h
+     ${include_dir}/parapet_node.h
+     ${include_dir}/parapet_packet_fifo.h
+     ${include_dir}/parapet.h
+     ${include_dir}/ParapetDeviceNode.h
+     ${include_dir}/ParapetEventBroadcaster.h
+     ${include_dir}/ParapetListener.h
    )
 
 
 # Create a list of source files
 set( SOURCE_FILES
-     ${SRC_DIR}/parapet_header.c
-     ${SRC_DIR}/parapet_node.c
-     ${SRC_DIR}/parapet.c
-     ${SRC_DIR}/ParapetDeviceNode.cpp
-     ${SRC_DIR}/ParapetEventBroadcaster.cpp
-     ${SRC_DIR}/ParapetPacketFIFO.cpp
+     ${src_dir}/parapet_header.c
+     ${src_dir}/parapet_node.c
+     ${src_dir}/parapet.c
+     ${src_dir}/ParapetDeviceNode.cpp
+     ${src_dir}/ParapetEventBroadcaster.cpp
+     ${src_dir}/ParapetPacketFIFO.cpp
    )
 
 
-include_directories( ${MOOS_INCLUDE_DIRS}
-                     ${INCLUDE_DIR} )
+include_directories( ${include_dir}
+                     ${LIBYELLOWSUBUTILS_INCLUDE_DIRS}
+                     ${MOOS_INCLUDE_DIRS}
+                   )
 
 
 #============================
@@ -63,12 +64,13 @@ include_directories( ${MOOS_INCLUDE_DIRS}
 #============================
 
 # Define the static library target this project will build
-add_library( ${PROJECT_NAME} STATIC ${SOURCE_FILES} )
-set_target_properties( ${PROJECT_NAME} PROPERTIES 
-                       VERSION ${VERSION_TUPLE} )
+add_library( parapet STATIC ${SOURCE_FILES} )
+set_target_properties( parapet PROPERTIES 
+                       VERSION ${VERSION_TUPLE} 
+                     )
                        
 # Specify linkage order
-target_link_libraries( ${PROJECT_NAME}
+target_link_libraries( parapet
                        YellowSubUtils
                        ${MOOS_LIBRARIES} 
                        ${PLATFORM_LIBRARIES} 
@@ -76,23 +78,19 @@ target_link_libraries( ${PROJECT_NAME}
 
 
 # Pass the target's header file directories one level up in the CMake tree
-string( TOUPPER ${PROJECT_NAME} PROJECT_NAME_UCASE )
-set( ${PROJECT_NAME_UCASE}_INCLUDE_DIRECTORIES 
-     ${INCLUDE_DIR} 
-     PARENT_SCOPE 
-)
-
+set( PARAPET_INCLUDE_DIRS ${include_dir} PARENT_SCOPE )
+set( PARAPET_LIBRARIES parapet PARENT_SCOPE )
 
 
 #============================
 # Add an install rule
 #============================
 # Install headers
-INSTALL( FILES ${${PROJECT_NAME}_HEADERLIST} 
-         DESTINATION ${CMAKE_INSTALL_PREFIX}/include/${PROJECT_NAME} )
+INSTALL( FILES ${HEADER_FILES} 
+         DESTINATION ${CMAKE_INSTALL_PREFIX}/include/libparapet )
 
 # Install target
-INSTALL( TARGETS ${PROJECT_NAME}
+INSTALL( TARGETS parapet
 	RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
 	LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
 	ARCHIVE DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
@@ -107,12 +105,9 @@ INSTALL( TARGETS ${PROJECT_NAME}
 if( UNITTEST_ENABLED )
 
     # Offer a GUI option to build unit tests for this module 
-    set( UNITTEST_${PROJECT_NAME}_ENABLED ON CACHE BOOL 
-         "Build unit tests for the ${PROJECT_NAME} library" )
+    set( BUILD_LIBPARAPET_UNIT_TESTS ON CACHE BOOL "Build libparapet automated unit tests" )
     
-    if ( UNITTEST_${PROJECT_NAME}_ENABLED )
-        include_directories( ${CMAKE_CURRENT_SOURCE_DIR} )
-    
+    if ( BUILD_LIBPARAPET_UNIT_TESTS )
         # Add subdirectories containing unit test projects here
         add_subdirectory(test)
     endif()

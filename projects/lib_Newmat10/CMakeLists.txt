@@ -9,17 +9,11 @@
 #===============================
 project( Newmat10 )
 
-set( ${PROJECT_NAME}_MAJOR_VERSION 0 )
-set( ${PROJECT_NAME}_MINOR_VERSION 1 )
-set( ${PROJECT_NAME}_VERSION
-        ${${PROJECT_NAME}_MAJOR_VERSION}.${${PROJECT_NAME}_MINOR_VERSION} )
-
-
 # Set up convenience variables for project subdirectories
-set( SRC_DIR ${PROJECT_SOURCE_DIR}/src )
-set( INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include )
-set( BUILD_DIR ${PROJECT_SOURCE_DIR}/build )
-set( TEST_DIR ${PROJECT_SOURCE_DIR}/test )
+set( src_dir ${PROJECT_SOURCE_DIR}/src )
+set( include_dir ${PROJECT_SOURCE_DIR}/include )
+set( config_dir ${PROJECT_SOURCE_DIR}/config )
+set( test_dir ${PROJECT_SOURCE_DIR}/test )
 
 
 #===============================
@@ -28,47 +22,47 @@ set( TEST_DIR ${PROJECT_SOURCE_DIR}/test )
 
 # Create a list of header files
 set( HEADER_FILES
-    ${INCLUDE_DIR}/boolean.h            
-    ${INCLUDE_DIR}/controlw.h            
-    ${INCLUDE_DIR}/include.h
-    ${INCLUDE_DIR}/myexcept.h
-    ${INCLUDE_DIR}/newmat.h
-    ${INCLUDE_DIR}/newmatap.h
-    ${INCLUDE_DIR}/newmatio.h
-    ${INCLUDE_DIR}/newmatnl.h
-    ${INCLUDE_DIR}/newmatrc.h
-    ${INCLUDE_DIR}/newmatrm.h
-    ${INCLUDE_DIR}/precisio.h
-    ${INCLUDE_DIR}/solution.h
+    ${include_dir}/boolean.h
+    ${include_dir}/controlw.h
+    ${include_dir}/include.h
+    ${include_dir}/myexcept.h
+    ${include_dir}/newmat.h
+    ${include_dir}/newmatap.h
+    ${include_dir}/newmatio.h
+    ${include_dir}/newmatnl.h
+    ${include_dir}/newmatrc.h
+    ${include_dir}/newmatrm.h
+    ${include_dir}/precisio.h
+    ${include_dir}/solution.h
 )
 
 # Create a list of source files
 set( SOURCE_FILES
-    ${SRC_DIR}/bandmat.cpp       
-    ${SRC_DIR}/cholesky.cpp  
-    ${SRC_DIR}/evalue.cpp    
-    ${SRC_DIR}/example.cpp     
-    ${SRC_DIR}/fft.cpp           
-    ${SRC_DIR}/hholder.cpp     
-    ${SRC_DIR}/jacobi.cpp
-    ${SRC_DIR}/myexcept.cpp
-    ${SRC_DIR}/newfft.cpp
-    ${SRC_DIR}/newmat1.cpp
-    ${SRC_DIR}/newmat2.cpp
-    ${SRC_DIR}/newmat3.cpp
-    ${SRC_DIR}/newmat4.cpp
-    ${SRC_DIR}/newmat5.cpp
-    ${SRC_DIR}/newmat6.cpp
-    ${SRC_DIR}/newmat7.cpp
-    ${SRC_DIR}/newmat8.cpp
-    ${SRC_DIR}/newmat9.cpp
-    ${SRC_DIR}/newmatex.cpp
-    ${SRC_DIR}/newmatnl.cpp
-    ${SRC_DIR}/newmatrm.cpp
-    ${SRC_DIR}/solution.cpp
-    ${SRC_DIR}/sort.cpp
-    ${SRC_DIR}/submat.cpp
-    ${SRC_DIR}/svd.cpp
+    ${src_dir}/bandmat.cpp
+    ${src_dir}/cholesky.cpp
+    ${src_dir}/evalue.cpp
+    ${src_dir}/example.cpp
+    ${src_dir}/fft.cpp
+    ${src_dir}/hholder.cpp
+    ${src_dir}/jacobi.cpp
+    ${src_dir}/myexcept.cpp
+    ${src_dir}/newfft.cpp
+    ${src_dir}/newmat1.cpp
+    ${src_dir}/newmat2.cpp
+    ${src_dir}/newmat3.cpp
+    ${src_dir}/newmat4.cpp
+    ${src_dir}/newmat5.cpp
+    ${src_dir}/newmat6.cpp
+    ${src_dir}/newmat7.cpp
+    ${src_dir}/newmat8.cpp
+    ${src_dir}/newmat9.cpp
+    ${src_dir}/newmatex.cpp
+    ${src_dir}/newmatnl.cpp
+    ${src_dir}/newmatrm.cpp
+    ${src_dir}/solution.cpp
+    ${src_dir}/sort.cpp
+    ${src_dir}/submat.cpp
+    ${src_dir}/svd.cpp
 )
 
 
@@ -88,8 +82,6 @@ option( NEWMAT_USE_SINGLE_PRECISION
 )
 
 
-
-
 if ( (${CMAKE_SYSTEM_PROCESSOR} STREQUAL "omap3") OR NEWMAT_USE_SINGLE_PRECISION)
     set(MATRIX_TYPEDEF "USING_FLOAT")
     message(STATUS "NEWMAT: Using single-precision for matrix elements")
@@ -97,29 +89,27 @@ else()
     set(MATRIX_TYPEDEF "USING_DOUBLE")
     message(STATUS "NEWMAT: Using double-precision for matrix elements")
 endif()
-configure_file( ${BUILD_DIR}/include.h.in 
-                ${INCLUDE_DIR}/include.h )
+
+set( generated_include_h ${include_dir}/include.h )
+configure_file( ${config_dir}/include.h.in 
+                ${generated_include_h} )
 
 
 #============================
 # Specify the project target
 #============================
 
-include_directories( ${INCLUDE_DIR} )
+include_directories( ${include_dir} )
 
 # Define the static library target this project will build
-add_library( ${PROJECT_NAME} SHARED ${SOURCE_FILES} )
+add_library( Newmat10 SHARED ${SOURCE_FILES} ${generated_include_h} )
 
 # Specify linkage order
-target_link_libraries( ${PROJECT_NAME} )
+target_link_libraries( Newmat10 )
 
 # Pass the target's header file directories one level up in the CMake tree
-string( TOUPPER ${PROJECT_NAME} PROJECT_NAME_UCASE )
-set( ${PROJECT_NAME_UCASE}_INCLUDE_DIRECTORIES 
-     ${INCLUDE_DIR} 
-     PARENT_SCOPE 
-)
-
+set( LIBNEWMAT_INCLUDE_DIRS ${include_dir} PARENT_SCOPE )
+set( LIBNEWMAT_LIBRARIES Newmat10 PARENT_SCOPE )
 
 
 #============================
@@ -127,10 +117,10 @@ set( ${PROJECT_NAME_UCASE}_INCLUDE_DIRECTORIES
 #============================
 # Install headers
 INSTALL( FILES ${HEADER_FILES}  
-         DESTINATION ${CMAKE_INSTALL_PREFIX}/include/${PROJECT_NAME} )
+         DESTINATION ${CMAKE_INSTALL_PREFIX}/include/Newmat10 )
 
 # Install target
-install( TARGETS ${PROJECT_NAME}
+install( TARGETS Newmat10
 	RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
 	LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
 	ARCHIVE DESTINATION ${CMAKE_INSTALL_PREFIX}/lib

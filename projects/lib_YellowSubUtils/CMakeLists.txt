@@ -16,17 +16,12 @@ set( PROJECT_EMAIL "dave.billin@vandals.uidaho.edu" )
 set( VERSION_MAJOR 1 )
 set( VERSION_MINOR 0 )
 set( VERSION_PATCH 0 )
-set( VERSION_TUPLE "${VERSION_MAJOR}.${VERSION_MINOR}${VERSION_PATCH}" )
+set( VERSION_TUPLE "${VERSION_MAJOR}.${VERSION_MINOR}-${VERSION_PATCH}" )
 
 # Set up convenience variables for project subdirectories
-set( SRC_DIR ${PROJECT_SOURCE_DIR}/src )
-set( INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include )
-set( BUILD_DIR ${PROJECT_SOURCE_DIR}/build )
-set( DOCS_DIR ${PROJECT_SOURCE_DIR}/docs )
-set( TEST_DIR ${PROJECT_SOURCE_DIR}/test )
-if ( NOT DEFINED MANFILE_OUTPUT_DIRECTORY )
-    set( MANFILE_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/docs} )
-endif()
+set( src_dir ${PROJECT_SOURCE_DIR}/src )
+set( include_dir ${PROJECT_SOURCE_DIR}/include )
+set( test_dir ${PROJECT_SOURCE_DIR}/test )
 
 
 #===============================
@@ -35,94 +30,83 @@ endif()
 
 # Create a list of header files
 set( HEADER_FILES
-     ${INCLUDE_DIR}/WindowedAverage.h
-     ${INCLUDE_DIR}/YellowSubUtils.h
-     ${INCLUDE_DIR}/DebugFileSerialPort.h
-     ${INCLUDE_DIR}/DSPFilter.h
-     ${INCLUDE_DIR}/DSPFilterParameters.h
-     ${INCLUDE_DIR}/FIRFilter.h
-     ${INCLUDE_DIR}/LinuxSerialPortEx.h
-     ${INCLUDE_DIR}/MockSerialPort.h
-     ${INCLUDE_DIR}/MOOSDBVariableProxy.h
-     ${INCLUDE_DIR}/MOOSDBDoubleProxy.h
-     ${INCLUDE_DIR}/MOOSDBStringProxy.h
-     ${INCLUDE_DIR}/MOOSDBProxyCollection.h
-     ${INCLUDE_DIR}/PolyphaseFIRDecimator.h
-     ${INCLUDE_DIR}/PrecisionTime.h
-     ${INCLUDE_DIR}/Semaphore.h
-     ${INCLUDE_DIR}/ScalarPIDController.h
-     ${INCLUDE_DIR}/StringUtilities.h
-     ${INCLUDE_DIR}/TimedLock.h
+     ${include_dir}/WindowedAverage.h
+     ${include_dir}/YellowSubUtils.h
+     ${include_dir}/DebugFileSerialPort.h
+     ${include_dir}/DSPFilter.h
+     ${include_dir}/DSPFilterParameters.h
+     ${include_dir}/FIRFilter.h
+     ${include_dir}/LinuxSerialPortEx.h
+     ${include_dir}/MockSerialPort.h
+     ${include_dir}/MOOSDBVariableProxy.h
+     ${include_dir}/MOOSDBDoubleProxy.h
+     ${include_dir}/MOOSDBStringProxy.h
+     ${include_dir}/MOOSDBProxyCollection.h
+     ${include_dir}/PolyphaseFIRDecimator.h
+     ${include_dir}/PrecisionTime.h
+     ${include_dir}/Semaphore.h
+     ${include_dir}/ScalarPIDController.h
+     ${include_dir}/StringUtilities.h
+     ${include_dir}/TimedLock.h
 )
 
 # Create a list of source files
 set( SOURCE_FILES
-     ${SRC_DIR}/DebugFileSerialPort.cpp
-     ${SRC_DIR}/LinuxSerialPortEx.cpp
-     ${SRC_DIR}/MockSerialPort.cpp
-     ${SRC_DIR}/MOOSDBVariableProxy.cpp
-     ${SRC_DIR}/MOOSDBDoubleProxy.cpp
-     ${SRC_DIR}/MOOSDBStringProxy.cpp
-     ${SRC_DIR}/MOOSDBProxyCollection.cpp
-     ${SRC_DIR}/PrecisionTime.cpp
-     ${SRC_DIR}/Semaphore.cpp
-     ${SRC_DIR}/ScalarPIDController.cpp
-     ${SRC_DIR}/StringUtilities.cpp
-     ${SRC_DIR}/TimedLock.cpp
+     ${src_dir}/DebugFileSerialPort.cpp
+     ${src_dir}/LinuxSerialPortEx.cpp
+     ${src_dir}/MockSerialPort.cpp
+     ${src_dir}/MOOSDBVariableProxy.cpp
+     ${src_dir}/MOOSDBDoubleProxy.cpp
+     ${src_dir}/MOOSDBStringProxy.cpp
+     ${src_dir}/MOOSDBProxyCollection.cpp
+     ${src_dir}/PrecisionTime.cpp
+     ${src_dir}/Semaphore.cpp
+     ${src_dir}/ScalarPIDController.cpp
+     ${src_dir}/StringUtilities.cpp
+     ${src_dir}/TimedLock.cpp
 )
 
 
 include_directories( ${MOOS_INCLUDE_DIRS} 
-                     ${INCLUDE_DIR} )
+                     ${include_dir} )
 
-set( ${PROJECT_NAME}_LIBS  )
 
 #============================
 # Specify the project target
 #============================
 
 # Define the static library target this project will build
-add_library( ${PROJECT_NAME} SHARED ${SOURCE_FILES} )
-set_target_properties( ${PROJECT_NAME} PROPERTIES 
-                       VERSION ${VERSION_TUPLE} )
+add_library( YellowSubUtils SHARED ${SOURCE_FILES} )
+set_target_properties( YellowSubUtils PROPERTIES 
+                       VERSION ${VERSION_TUPLE}
+                       SOVERSION ${VERSION_MAJOR}
+                     )
 
 
 # Specify linkage order
-target_link_libraries( ${PROJECT_NAME}
+target_link_libraries( YellowSubUtils
                        ${MOOS_LIBRARIES} 
                        ${MOOS_DEPEND_LIBRARIES}
                        ${PLATFORM_LIBRARIES}
                      )
 
 # Pass the target's header file directories one level up in the CMake tree
-string( TOUPPER ${PROJECT_NAME} PROJECT_NAME_UCASE )
-set( ${PROJECT_NAME_UCASE}_INCLUDE_DIRECTORIES 
-     ${INCLUDE_DIR} 
-     PARENT_SCOPE 
-)
-
-
-#set(CMAKE_REQUIRED_LIBRARIES ${PROJECT_NAME} ${CMAKE_REQUIRED_LIBRARIES} )
-
-
-
+set( LIBYELLOWSUBUTILS_INCLUDE_DIRS ${include_dir} PARENT_SCOPE )
+set( LIBYELLOWSUBUTILS_LIBRARIES YellowSubUtils PARENT_SCOPE )
 
 #===================================
 # Add a rule to install the target
 #===================================
 # Install headers
 INSTALL( FILES ${HEADER_FILES} 
-         DESTINATION ${CMAKE_INSTALL_PREFIX}/include/${PROJECT_NAME} )
+         DESTINATION ${CMAKE_INSTALL_PREFIX}/include/libYellowSubUtils )
 
 # Install target
-install( TARGETS ${PROJECT_NAME}
+install( TARGETS YellowSubUtils
 	RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
 	LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
 	ARCHIVE DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
 )
-
-
-
 
 #===============================
 # Unit Tests

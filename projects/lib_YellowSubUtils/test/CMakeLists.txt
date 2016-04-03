@@ -37,33 +37,33 @@ endif()
 
 
 
-#================================
-# MockSerialPort class
-#================================
-include_directories( ${CMAKE_CURRENT_SOURCE_DIR} )
-
-# Offer a GUI option to build unit tests
-set( UNITTEST_MockSerialPort_ENABLED ON CACHE BOOL 
-     "Build MockSerialPort unit test" )
-
-if ( UNITTEST_MockSerialPort_ENABLED )
-
-    find_package( GTest REQUIRED )
-    include_directories( ${GTEST_INCLUDE_DIRS} )
-    
-    add_executable( gtest_MockSerialPort UT_MockSerialPort.cpp )
-    target_link_libraries( gtest_MockSerialPort
-                           YellowSubUtils
-                           ${GTEST_BOTH_LIBRARIES}
-                           ${MOOS_LIBRARIES}
-                           ${PLATFORM_LIBRARIES}
-                         )
-
-    # Add a CTest task
-    ADD_TEST( NAME CTEST_MockSerialPort 
-              COMMAND gtest_MockSerialPort 
-            )
-endif()
+##================================
+## MockSerialPort class
+##================================
+#include_directories( ${CMAKE_CURRENT_SOURCE_DIR} )
+#
+## Offer a GUI option to build unit tests
+#set( UNITTEST_MockSerialPort_ENABLED ON CACHE BOOL 
+#     "Build MockSerialPort unit test" )
+#
+#if ( UNITTEST_MockSerialPort_ENABLED )
+#
+#    find_package( GTest REQUIRED )
+#    include_directories( ${GTEST_INCLUDE_DIRS} )
+#    
+#    add_executable( gtest_MockSerialPort UT_MockSerialPort.cpp )
+#    target_link_libraries( gtest_MockSerialPort
+#                           YellowSubUtils
+#                           ${GTEST_BOTH_LIBRARIES}
+#                           ${MOOS_LIBRARIES}
+#                           ${PLATFORM_LIBRARIES}
+#                         )
+#
+#    # Add a CTest task
+#    ADD_TEST( NAME CTEST_MockSerialPort 
+#              COMMAND gtest_MockSerialPort 
+#            )
+#endif()
 
 
 

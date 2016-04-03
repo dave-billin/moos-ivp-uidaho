@@ -17,7 +17,9 @@ set( UNIT_TEST_SOURCE_FILES
    )
 
 
-include_directories( ${INCLUDE_DIR} )
+include_directories( ${INCLUDE_DIR} 
+                     ${PARAPET_INCLUDE_DIRS} 
+                   )
 
 
 enable_testing()

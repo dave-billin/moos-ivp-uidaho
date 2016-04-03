@@ -20,18 +20,18 @@
  * @brief
  *  Implementation of the iRevolutionCompass application class
  *
- * @author Dave Billin 
+ * @author Dave Billin
  *         david.billin@vandals.uidaho.edu
  */
 //=============================================================================
-
-#include "MOOS/libMOOS/Utils/MOOSException.h"
-#include "MOOS/libMOOS/Utils/MOOSAssert.h"
-
 #include "iRevolutionCompass.h"
-#include "AppVersion.h"
+#include "config.h"
+#include <MOOS/libMOOS/Utils/MOOSException.h>
+#include <MOOS/libMOOS/Utils/MOOSAssert.h>
 
 using namespace std;
+
+
 
 // Character string containing an example mission file configuration
 // block for the application
@@ -55,12 +55,12 @@ const char iRevolutionCompass::ExampleMissionFileConfiguration[]=
 
 
 //=============================================================================
-/* 
+/*
     This function is called when the application object is created in main().
     This is a good place to initialize application variables to default
-    values, and set up dynamic memory resources.  
+    values, and set up dynamic memory resources.
 
-    NOTE: This function executes as the application object is being created, 
+    NOTE: This function executes as the application object is being created,
           so it's best to save activities that might require error handling
           (e.g. opening files or I/O devices) for the OnStartup() method.
 */
@@ -75,7 +75,7 @@ iRevolutionCompass::iRevolutionCompass( void )
 
 
 //=============================================================================
-/* 
+/*
     This function is called when the application object is exiting.  Make sure
     you release any resources your program allocated!
 
@@ -90,7 +90,7 @@ iRevolutionCompass::~iRevolutionCompass()
 
 
 //=============================================================================
-/* 
+/*
     This is where your application will probably do most of its work.  Some
     handy methods you might want to use include:
 
@@ -231,7 +231,7 @@ bool iRevolutionCompass::Iterate( void )
 
 //=============================================================================
 /*
-    Here is where the application should handle mail received from the MOOS 
+    Here is where the application should handle mail received from the MOOS
     database.  This mail takes the form of CMOOSMsg objects - each of which
     contains the name and contents of a MOOS variable the application has
     subscribed to.
@@ -254,16 +254,16 @@ bool iRevolutionCompass::OnNewMail(MOOSMSG_LIST & NewMail)
 
 //=============================================================================
 /*
-    This function is called once when the application starts running.  The 
+    This function is called once when the application starts running.  The
     first thing it does is call to LoadMissionParameters() to read parameters
     from the (.moos) mission file.
 
-    This function is a good spot to open files, connect to I/O devices, or 
+    This function is a good spot to open files, connect to I/O devices, or
     perform other actions that might result in an error condition that must be
     handled gracefully.
 
-    This is also a good place to create Dynamic Variables (which can simplify 
-    the process of publishing and subscribing to the MOOS database) using 
+    This is also a good place to create Dynamic Variables (which can simplify
+    the process of publishing and subscribing to the MOOS database) using
     AddMOOSVariable().
 
     NOTE: returning false will cause the application to exit.
@@ -277,8 +277,8 @@ bool iRevolutionCompass::OnStartUp( void )
 	string sAppName = GetAppName();
 	string sBar = string(40, '=') + "\n";
 	MOOSTrace(sBar +
-			  MOOSFormat("iRevolutionCompass version %s\n", 
-                         APP_VERSION_STRING) +
+			  MOOSFormat("iRevolutionCompass version %s\n",
+                         APP_VERSION_TUPLE) +
 			  "Written by Dave Billin\n" + sBar + "\n\n");
 
 
@@ -296,11 +296,11 @@ bool iRevolutionCompass::OnStartUp( void )
     //------------------------------------------------------------
 
 
-    // Register Dynamic Variables to receive 
+    // Register Dynamic Variables to receive
     // updates from the MOOS database
     m_OnStartupIsDone = true;
     RegisterMOOSVariables();
-    
+
     return true;
 }
 
@@ -313,24 +313,24 @@ bool iRevolutionCompass::OnStartUp( void )
 //=============================================================================
 /*
     This function gets called from OnStartup() to load parameters from the
-    (.moos) mission file.  Call: 
+    (.moos) mission file.  Call:
 
     m_MissionReader.GetConfigurationParam()
-        to read the value of a mission file parameter occurring in the 
+        to read the value of a mission file parameter occurring in the
         application's "ProcessConfig = iRevolutionCompass" block
 
     m_MissionReader.GetValue()
         to load a global scope parameter (i.e. one occuring outside a
         ProcessConfig block)
 
-    NOTE: There is no need to load the AppTick and CommsTick parameters;  
+    NOTE: There is no need to load the AppTick and CommsTick parameters;
           they are automatically loaded.
 
     Returning false from this function causes the application to exit.
 */
 bool iRevolutionCompass::LoadMissionFileParameters( void )
 {
-    
+
     //------------------------------------------
     // LOAD REQUIRED MISSION FILE PARAMETERS
     //------------------------------------------
@@ -590,8 +590,8 @@ bool iRevolutionCompass::LoadMissionFileParameters( void )
 
 //=============================================================================
 /*
-    This function gets called when the application connects to the MOOS 
-    database.  BE CAREFUL! this function gets called on a different thread 
+    This function gets called when the application connects to the MOOS
+    database.  BE CAREFUL! this function gets called on a different thread
     than your Iterate() and OnNewMail() handlers!
 */
 bool iRevolutionCompass::OnConnectToServer( void )
@@ -612,8 +612,8 @@ bool iRevolutionCompass::OnConnectToServer( void )
 
 //=============================================================================
 /*
-    This function gets called when the application disconnects from the MOOS 
-    database.  BE CAREFUL! this function gets called on a different thread 
+    This function gets called when the application disconnects from the MOOS
+    database.  BE CAREFUL! this function gets called on a different thread
     than your Iterate() and OnNewMail() handlers!
 */
 bool iRevolutionCompass::OnDisconnectFromServer( void )

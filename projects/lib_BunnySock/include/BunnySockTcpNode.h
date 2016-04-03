@@ -30,8 +30,8 @@
 
 #include <string>
 
-#include "MOOS/libMOOS/Utils/MOOSUtilityFunctions.h" 
-#include "MOOS/libMOOS/Utils/MOOSThread.h" 
+#include "MOOS/libMOOS/Utils/MOOSUtilityFunctions.h"
+#include "MOOS/libMOOS/Utils/MOOSThread.h"
 
 #include "XPTcpSocketEx.h"			// Extension of MOOS TCP socket class
 #include "YellowSubUtils.h"

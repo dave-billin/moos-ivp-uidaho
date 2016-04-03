@@ -46,6 +46,8 @@ configure_file( "${config_dir}/manfile.in" "${generated_manfile_1}" )
 
 include_directories( ${include_dir}
                      ${CMAKE_CURRENT_BINARY_DIR}
+                     ${LIBBUNNYSOCK_INCLUDE_DIRS}
+                     ${LIBYELLOWSUBUTILS_INCLUDE_DIRS}
                      ${MOOS_INCLUDE_DIRS}
                    )
 

@@ -15,8 +15,8 @@ set( PROJECT_EMAIL "dave.billin@vandals.uidaho.edu" )
 # Set project version info
 set( VERSION_MAJOR 1 )
 set( VERSION_MINOR 0 )
-GetPatchVersion( ${PROJECT_SOURCE_DIR} VERSION_PATCH )
-set( VERSION_TUPLE "${VERSION_MAJOR}.${VERSION_MINOR}${VERSION_PATCH}" )
+set( VERSION_PATCH 0 )
+set( VERSION_TUPLE "${VERSION_MAJOR}.${VERSION_MINOR}-${VERSION_PATCH}" )
 
 
 #===============================
@@ -30,7 +30,7 @@ set( SOURCE_FILES
    )
 
 
-include_directories( ${BUNNYSOCK_INCLUDE_DIRECTORIES}
+include_directories( ${LIBBUNNYSOCK_INCLUDE_DIRS}
                      ${MOOS_INCLUDE_DIRS}
                      ${INCLUDE_DIR} )
 

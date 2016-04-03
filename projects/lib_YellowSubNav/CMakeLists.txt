@@ -16,14 +16,11 @@ set( PROJECT_EMAIL "dave.billin@vandals.uidaho.edu" )
 set( VERSION_MAJOR 1 )
 set( VERSION_MINOR 0 )
 set( VERSION_PATCH 0 )
-set( VERSION_TUPLE "${VERSION_MAJOR}.${VERSION_MINOR}${VERSION_PATCH}" )
+set( VERSION_TUPLE "${VERSION_MAJOR}.${VERSION_MINOR}-${VERSION_PATCH}" )
 
 # Set up convenience variables for project subdirectories
-set( SRC_DIR ${PROJECT_SOURCE_DIR}/src )
-set( INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include )
-set( BUILD_DIR ${PROJECT_SOURCE_DIR}/build )
-set( DOCS_DIR ${PROJECT_SOURCE_DIR}/docs )
-set( TEST_DIR ${PROJECT_SOURCE_DIR}/test )
+set( src_dir ${PROJECT_SOURCE_DIR}/src )
+set( include_dir ${PROJECT_SOURCE_DIR}/include )
 
 
 #===============================
@@ -31,29 +28,29 @@ set( TEST_DIR ${PROJECT_SOURCE_DIR}/test )
 #===============================
 
 # *** The YellowSubNav library depends on the NewMat matrix library *** 
-include_directories( ${NEWMAT_INCLUDE_DIRECTORIES} 
+include_directories( ${include_dir}
+                     ${LIBNEWMAT_INCLUDE_DIRS}
                      ${MOOS_INCLUDE_DIRS}
                      ${MOOSGeodesy_INCLUDE_DIRS}
                      ${PROJ4_INCLUDE_DIRS}
-                     ${INCLUDE_DIR}
                    )
 
 # Create a list of header files
 set( HEADER_FILES
-     ${INCLUDE_DIR}/EKF.h
-     ${INCLUDE_DIR}/LblBeacon.h
-     ${INCLUDE_DIR}/LblPositionEstimator.h
-     ${INCLUDE_DIR}/VehicleEKF.h
-     ${INCLUDE_DIR}/LibYellowSubNav.h
+     ${include_dir}/EKF.h
+     ${include_dir}/LblBeacon.h
+     ${include_dir}/LblPositionEstimator.h
+     ${include_dir}/VehicleEKF.h
+     ${include_dir}/LibYellowSubNav.h
    )
 
 
 # Create a list of source files
 set( SOURCE_FILES
-     ${SRC_DIR}/EKF.cpp
-     ${SRC_DIR}/LblBeacon.cpp
-     ${SRC_DIR}/LblPositionEstimator.cpp
-     ${SRC_DIR}/VehicleEKF.cpp
+     ${src_dir}/EKF.cpp
+     ${src_dir}/LblBeacon.cpp
+     ${src_dir}/LblPositionEstimator.cpp
+     ${src_dir}/VehicleEKF.cpp
    )
 
 
@@ -63,28 +60,22 @@ set( SOURCE_FILES
 #============================
 
 # Define the static library target this project will build
-add_library( ${PROJECT_NAME} SHARED ${SOURCE_FILES} )
-set_target_properties( ${PROJECT_NAME} PROPERTIES 
-                       VERSION ${VERSION_TUPLE} )
+add_library( YellowSubNav SHARED ${SOURCE_FILES} )
+set_target_properties( YellowSubNav PROPERTIES 
+                       VERSION ${VERSION_TUPLE}
+                       SOVERSION ${VERSION_MAJOR}
+                     )
                        
 # Specify libraries to link to
-target_link_libraries( ${PROJECT_NAME} 
+target_link_libraries( YellowSubNav 
                        ${MOOS_LIBRARIES} 
                        ${PLATFORM_LIBRARIES}
-                       Newmat10
+                       ${LIBNEWMAT_LIBRARIES}
                      )
 
-# Identify targets that must be built prior to this project
-#add_dependencies( ${PROJECT_NAME} Newmat )
-
-
-
 # Pass the target's header file directories one level up in the CMake tree
-string( TOUPPER ${PROJECT_NAME} PROJECT_NAME_UCASE )
-set( ${PROJECT_NAME_UCASE}_INCLUDE_DIRECTORIES 
-     ${INCLUDE_DIR} 
-     PARENT_SCOPE 
-)
+set( LIBYELLOWSUBNAV_INCLUDE_DIRS ${include_dir} PARENT_SCOPE ) 
+set( LIBYELLOWSUBNAV_LIBRARIES YellowSubNav PARENT_SCOPE )
 
 
 
@@ -96,13 +87,11 @@ INSTALL( FILES ${HEADER_FILES}
          DESTINATION ${CMAKE_INSTALL_PREFIX}/include )
 
 # Install target
-install( TARGETS ${PROJECT_NAME}
+install( TARGETS YellowSubNav
 	RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
 	LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
 	ARCHIVE DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
 )
-
-
 
 
 #===============================
@@ -110,17 +99,13 @@ install( TARGETS ${PROJECT_NAME}
 #===============================
 if( UNITTEST_ENABLED )
     # Offer a GUI option to build unit tests
-    set( UNITTEST_VehicleEKFTest_ENABLED ON CACHE BOOL 
-         "Build unit tests for the ${PROJECT_NAME} library" )
+    set( BUILD_VEHICLE_EKF_TEST ON CACHE BOOL 
+         "Build the libYellowSubNav Vehicle EKF test application" )
     
-    IF ( UNITTEST_VehicleEKFTest_ENABLED )
-        # Add the project's header directories to the search path for unit tests
-        set( ${PROJECT_NAME_UCASE}_INCLUDE_DIRECTORIES 
-             ${PROJECT_SOURCE_DIR} )
-    
+    if ( BUILD_VEHICLE_EKF_TEST )
         # Add subdirectories containing unit test projects here
         add_subdirectory(VehicleEKFTest)
-    ENDIF()
+    endif()
 endif()
 
 

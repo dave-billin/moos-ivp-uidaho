@@ -32,7 +32,6 @@ endif()
 option( BUILD_LIB_BUNNYSOCK "Build BunnySock communications static library" ON )
 if (BUILD_LIB_BUNNYSOCK)
     add_subdirectory(lib_BunnySock)
-    include_directories( ${BUNNYSOCK_INCLUDE_DIRECTORIES} )
 endif()
 
 
@@ -42,7 +41,7 @@ endif()
 option( BUILD_LIB_PARAPET "Build parapet communications static library" ON )
 if (BUILD_LIB_PARAPET)
     add_subdirectory(lib_parapet)
-    include_directories( ${PARAPET_INCLUDE_DIRECTORIES} )
+    include_directories( ${PARAPET_INCLUDE_DIRS} )
 endif()
 
 
