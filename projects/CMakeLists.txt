@@ -68,6 +68,7 @@ if (BUILD_BHV_REVERSEDIVE)
 endif()
 
 
+
 #===========================
 # iArchangelIMU
 #===========================
@@ -75,7 +76,6 @@ option(BUILD_APP_IARCHANGELIMU "Build iArchangelIMU MOOS instrument" ON )
 if (BUILD_APP_IARCHANGELIMU)
     add_subdirectory(iArchangelIMU)
 endif()
-
 
 #===========================
 # iBSDuC
@@ -94,6 +94,15 @@ add_subdirectory(iGPSd)
 endif()
 
 #===========================
+# iRevolutionCompass
+#===========================
+option( BUILD_APP_IREVOLUTIONCOMPASS "Build the iRevolutionCompass Utility" ON )
+if (BUILD_APP_IREVOLUTIONCOMPASS)
+add_subdirectory(iRevolutionCompass)
+endif()
+
+
+#===========================
 # iScotty
 #===========================
 option(BUILD_APP_ISCOTTY "Build the iScotty MOOS instrument (DEPRECATED)" ON )
@@ -105,7 +114,7 @@ endif()
 #===========================
 # iSpock
 #===========================
-option(BUILD_APP_ISPOCK "Build the iSpock MOOS instrument (DEPRECATED)" OFF )
+option(BUILD_APP_ISPOCK "Build the iSpock MOOS instrument (DEPRECATED)" ON )
 if (BUILD_APP_ISPOCK)
     add_subdirectory(iSpock)
 endif()
@@ -196,11 +205,4 @@ endif()
 #
 #
 #
-##===========================
-## iRevolutionCompass
-##===========================
-#option( BUILD_APP_IREVOLUTIONCOMPASS "Build the iRevolutionCompass Utility" ON )
-#if (BUILD_APP_IREVOLUTIONCOMPASS)
-#add_subdirectory(iRevolutionCompass)
-#endif()
 
