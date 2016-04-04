@@ -48,7 +48,6 @@ endif()
 #
 #if ( UNITTEST_MockSerialPort_ENABLED )
 #
-#    find_package( GTest REQUIRED )
 #    include_directories( ${GTEST_INCLUDE_DIRS} )
 #    
 #    add_executable( gtest_MockSerialPort UT_MockSerialPort.cpp )
@@ -127,7 +126,6 @@ set( UNITTEST_WindowedAverage_ENABLED ON CACHE BOOL
      
 if( UNITTEST_WindowedAverage_ENABLED )
     
-    find_package( GTest REQUIRED )
     include_directories( ${GTEST_INCLUDE_DIRS} )
     
     add_executable( gtest_WindowedAverage UT_WindowedAverage.cpp )
@@ -157,7 +155,6 @@ set( UNITTEST_ScalarPIDController_ENABLED ON CACHE BOOL
      
 if( UNITTEST_ScalarPIDController_ENABLED )
     
-    find_package( GTest REQUIRED )
     include_directories( ${GTEST_INCLUDE_DIRS} )
     
     add_executable( gtest_ScalarPIDController UT_ScalarPIDController.cpp )
@@ -185,7 +182,6 @@ set( UNITTEST_StringUtilities_ENABLED ON CACHE BOOL
      
 if( UNITTEST_StringUtilities_ENABLED )
     
-    find_package( GTest REQUIRED )
     include_directories( ${GTEST_INCLUDE_DIRS} )
     
     add_executable( gtest_StringUtilities UT_StringUtilities.cpp )

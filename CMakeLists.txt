@@ -234,6 +234,10 @@ endif()
      
 if( BUILD_UNIT_TESTS )
 	message( STATUS "Unit tests will be built.  Run ctest to execute." )
+	add_subdirectory( googletest )
+	set( gtest_dir "${CMAKE_CURRENT_SOURCE_DIR}/googletest" )
+   set( GTEST_INCLUDE_DIRS "${gtest_dir}/include" )
+   set( GTEST_BOTH_LIBRARIES gtest gtest_main )
 	ENABLE_TESTING()
 endif()
 
