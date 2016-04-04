@@ -257,6 +257,8 @@ int LibBunnySockTest::Run( int argc, const char* argv[] )
 	VersionPacket.GetHeader()->SourceId = m_DeviceId;
 	VersionPacket.GetHeader()->DestId = 100;
 
+	bool using_udp = MOOSStrCmp(m_sNodeType, "UDP");
+
 	// Create a new BunnySock node
 	if ( MOOSStrCmp(m_sNodeType, "TCP") )
 	{
@@ -276,8 +278,9 @@ int LibBunnySockTest::Run( int argc, const char* argv[] )
 	else if ( MOOSStrCmp(m_sNodeType, "UDP") )
 	{
 		BunnySockUdpNode* pUdpNode;
-		pUdpNode = new BunnySockUdpNode(m_NetworkPort, m_DeviceId);
+		pUdpNode = new BunnySockUdpNode(m_NetworkPort, m_DeviceId, m_Verbosity);
 		assert(pUdpNode != NULL);
+		pUdpNode->Start();
 		m_pNode = pUdpNode;
 
 		/*MOOSTrace("Sorry.  BunnySock UDP nodes are not implemented yet...  "
@@ -289,10 +292,8 @@ int LibBunnySockTest::Run( int argc, const char* argv[] )
 	// Register this object as a listener for the BunnySock nodes
 	m_pNode->AddListener(this);
 
-
-
 	// Wait for the nodes to connect to each other
-	while ( !m_pNode->IsConnected() )
+	while ( !using_udp && !m_pNode->IsConnected() )
 	{
 		MOOSPause(100);
 	}
