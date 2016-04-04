@@ -22,9 +22,9 @@ ProcessConfig = ANTLER
 
     //crucial processes
     Run = MOOSDB        @   NewConsole = true
-  	//Run = iSpock		@	NewConsole = true
-  	Run = uMS
-  	
+     //Run = iSpock      @   NewConsole = true
+     Run = uMS
+     
    //this next line sets the executable paths explicitly
    //ExecutablePath = /media/RINGO/moos-ivp/MOOS/YellowSub/iSpock/src
 
@@ -48,28 +48,29 @@ VEHICLE_CONFIG_FILE_PATH = "vehicleconfig.moos"
 //---------------------------------------
 ProcessConfig = iSpock
 {
-	//------------------------------------
-	// *** MOOS APPLICATION PARAMETERS
-	// How fast should iterate be called?
-	// This determines the rate at which sensor packets will be requested from
-	// the SPOCK module.
-	AppTick= 8
+   //------------------------------------
+   // *** MOOS APPLICATION PARAMETERS
+   // How fast should iterate be called?
+   // This determines the rate at which sensor packets will be requested from
+   // the SPOCK module.
+   AppTick= 8
 
-	// How responsive should comms be?
-	CommsTick = 10
+   // How responsive should comms be?
+   CommsTick = 10
 
-	// Hostname or IP address of the SPOCK module
-	SPOCK_HOSTNAME = 192.168.1.103
-	//SPOCK_HOSTNAME = 192.168.2.3
-	
-	// Network port to connect to on the SPOCK module
-	SPOCK_PORT = 20023
-	
-	//PUBLISH_ONLY_CHANGES = TRUE		// Publish only sensors values that have
-									// changed
-	
-	VERBOSITY = 4;
-	
-	// Set alternate MOOS variables SPOCK sensors should be published to
-	//COMPASS_HEADING_PUBLISHTO = NAV_HEADING 
+   // Hostname or IP address of the SPOCK module or "UDP" to receive UDP
+   // multicast sensor packets
+   //SPOCK_HOSTNAME = 192.168.1.103
+   SPOCK_HOSTNAME = UDP
+   
+   // Network port to connect to on the SPOCK module
+   SPOCK_PORT = 20000
+   
+   //PUBLISH_ONLY_CHANGES = TRUE      // Publish only sensors values that have
+                                      // changed
+   
+   VERBOSITY = 4;
+   
+   // Set alternate MOOS variables SPOCK sensors should be published to
+   //COMPASS_HEADING_PUBLISHTO = NAV_HEADING 
 }

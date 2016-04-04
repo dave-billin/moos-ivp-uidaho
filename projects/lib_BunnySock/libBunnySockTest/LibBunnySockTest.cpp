@@ -278,7 +278,8 @@ int LibBunnySockTest::Run( int argc, const char* argv[] )
 	else if ( MOOSStrCmp(m_sNodeType, "UDP") )
 	{
 		BunnySockUdpNode* pUdpNode;
-		pUdpNode = new BunnySockUdpNode(m_NetworkPort, m_DeviceId, m_Verbosity);
+		pUdpNode = new BunnySockUdpNode( m_NetworkPort, m_DeviceId,
+                                       m_Verbosity );
 		assert(pUdpNode != NULL);
 		pUdpNode->Start();
 		m_pNode = pUdpNode;

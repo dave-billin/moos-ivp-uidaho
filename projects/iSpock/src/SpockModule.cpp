@@ -56,6 +56,7 @@ enum e_SensorZeroIds
 //=============================================================================
 SpockModule::SpockModule( string& sHostName, uint16_t Port, int Verbosity )
 : m_pNode(NULL),
+  m_receiving_udp(false),
   m_Verbosity(Verbosity),
   m_AutoReportingEnabled(false),
   m_SensorValuesAreFresh(false),
@@ -78,28 +79,53 @@ SpockModule::SpockModule( string& sHostName, uint16_t Port, int Verbosity )
   m_CompassRoll(0.0),
   m_CompassDip(0.0)
 {
-	BunnySockTcpNode* pTcpNode;
 
-	pTcpNode = new BunnySockTcpNode( BunnySockTcpNode::CLIENT, /* mode */
-									 sHostName,		/* Remote host */
-									 Port, 			/* Remote Port */
-									 LOCAL_DEVICEID,/* Device ID to send as */
-									 1, 			/* Retry period (sec) */
-									 3000, 		/* Connection timeout (ms) */
-									 Verbosity );	/* Verbosity */
-
-	// Verify that we created a BunnySock node
-	if (pTcpNode == NULL)
+	if ( MOOSStrCmp("UDP", sHostName) )
 	{
-		string s = "SpockModule: Failed to create BunnySock TCP client node "
-				   "to connect to " + sHostName +
-				   MOOSFormat(":%d",Port) + "\n";
-		throw CMOOSException(s);
+	   m_receiving_udp = true;
+      BunnySockUdpNode* pUdpNode =
+         new BunnySockUdpNode( Port,         /* Remote Port */
+                               LOCAL_DEVICEID,/* Device ID to send as */
+                               Verbosity );  /* Verbosity */
+
+      // Verify that we created a BunnySock node
+      if (pUdpNode == NULL)
+      {
+         string s = "SpockModule: Failed to create BunnySock TCP client node "
+                  "to connect to " + sHostName +
+                  MOOSFormat(":%d",Port) + "\n";
+         throw CMOOSException(s);
+      }
+
+      m_pNode = pUdpNode;
+      pUdpNode->Start(); // Start the BunnySock connection's network thread
+	}
+	else
+	{
+	   BunnySockTcpNode* pTcpNode =
+         new BunnySockTcpNode( BunnySockTcpNode::CLIENT, /* mode */
+	                            sHostName,    /* Remote host */
+	                            Port,         /* Remote Port */
+	                            LOCAL_DEVICEID,/* Device ID to send as */
+	                            1,         /* Retry period (sec) */
+	                            3000,      /* Connection timeout (ms) */
+	                            Verbosity );  /* Verbosity */
+
+	   // Verify that we created a BunnySock node
+	   if (pTcpNode == NULL)
+	   {
+	      string s = "SpockModule: Failed to create BunnySock TCP client node "
+	               "to connect to " + sHostName +
+	               MOOSFormat(":%d",Port) + "\n";
+	      throw CMOOSException(s);
+	   }
+
+	   m_pNode = pTcpNode;
+	   pTcpNode->Start(); // Start the BunnySock connection's network thread
+
 	}
 
-	m_pNode = pTcpNode;
 	m_pNode->AddListener(this);	// Register for BunnySock packets and events
-	m_pNode->Start();	// Start the BunnySock connection's network thread
 }
 
 

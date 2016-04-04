@@ -48,7 +48,8 @@ public:
 	 * thread
 	 *
 	 * @param HostName
-	 *	Hostname or IP address of the SPOCK module to connect to
+	 *	Hostname or IP address of the SPOCK module to connect to, or "UDP" to
+	 *	receive sensor packets sent in UDP broadcast datagrams
 	 *
 	 * @param TcpPort
 	 *	Network port the target SPOCK module is listening on for a BunnySock
@@ -211,7 +212,9 @@ public:
 
 
 private:
-	BunnySock::BunnySockTcpNode* m_pNode;	/**< Connection to SCOTTY */
+	BunnySock::BunnySockNode* m_pNode;	/**< Connection to SCOTTY */
+	bool m_receiving_udp;   /**< true if receiving sensor packets via UDP */
+
 	int m_Verbosity;			/**< Verbosity level for debugging messages */
 
 	bool m_AutoReportingEnabled;/**< true if SPOCK should automatically report
