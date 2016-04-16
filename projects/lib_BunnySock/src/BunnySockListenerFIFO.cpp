@@ -31,8 +31,8 @@ using namespace::BunnySock;
 BunnySockListenerFIFO::BunnySockListenerFIFO( BunnySockNode& NodeToListenTo )
 : m_FifoLock(false)
 {
-	NodeToListenTo.AddListener(this);	// Register this FIFO to receive packets
-										// and events from the target node
+   // Register this FIFO to receive packets and events from the target node
+	NodeToListenTo.AddListener(*this);
 }
 
 

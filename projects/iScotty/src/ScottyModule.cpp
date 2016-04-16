@@ -76,7 +76,7 @@ ScottyModule::ScottyModule( std::string& sHostName, uint16_t Port, int Verbosity
 	}
 
 	m_pNode = pTcpNode;
-	m_pNode->AddListener(this);	// Register for BunnySock packets and events
+	m_pNode->AddListener(*this);	// Register for BunnySock packets and events
 	m_pNode->Start();	// Start the BunnySock connection's network thread
 }
 
@@ -356,8 +356,10 @@ void ScottyModule::OnPacketReceived( BunnySockPacket& RxPacket,
 
 
 //=============================================================================
-void ScottyModule::OnConnectionEvent( int EventId, BunnySockNode& Node,
-									  double TimeStamp_sec )
+void ScottyModule::OnConnectionEvent(
+                                 BunnySockListener::ConnectionEventId EventId,
+                                 BunnySockNode& Node,
+                                 double TimeStamp_sec )
 {
 	string s;
 

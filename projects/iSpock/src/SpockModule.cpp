@@ -125,7 +125,7 @@ SpockModule::SpockModule( string& sHostName, uint16_t Port, int Verbosity )
 
 	}
 
-	m_pNode->AddListener(this);	// Register for BunnySock packets and events
+	m_pNode->AddListener(*this);	// Register for BunnySock packets and events
 }
 
 
@@ -292,8 +292,9 @@ void SpockModule::OnPacketReceived( BunnySockPacket& RxPacket,
 
 
 //=============================================================================
-void SpockModule::OnConnectionEvent( int EventId, BunnySockNode& Node,
-									 double TimeStamp_sec )
+void SpockModule::OnConnectionEvent( BunnySockListener::ConnectionEventId EventId,
+                                     BunnySockNode& Node,
+                                     double TimeStamp_sec )
 {
 	string s;
 

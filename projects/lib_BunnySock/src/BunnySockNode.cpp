@@ -71,13 +71,13 @@ BunnySockNode::BunnySockNode( void )
 
 
 //=============================================================================
-BunnySockNode::BunnySockNode( BunnySockListener* pListener, uint16_t DeviceId,
+BunnySockNode::BunnySockNode( BunnySockListener& listener, uint16_t DeviceId,
 							  uint16_t Verbosity)
 : m_IsConnected(false),
   m_Verbosity(Verbosity),
   m_DeviceId(DeviceId)
 {
-	AddListener(pListener);
+	AddListener(listener);
 }
 
 
@@ -89,33 +89,28 @@ BunnySockNode::~BunnySockNode()
 
 
 //=============================================================================
-void BunnySockNode::AddListener( BunnySockListener* pNewListener )
+void BunnySockNode::AddListener( BunnySockListener& listener )
 {
-	if (pNewListener != NULL)
-	{
-		m_ListenerListLock.Lock();
-		m_ListenerList.push_back(pNewListener);
-		m_ListenerListLock.UnLock();
-	}
+   m_ListenerListLock.Lock();
+   m_ListenerList.push_back(&listener);
+   m_ListenerListLock.UnLock();
 }
 
 
 
 //=============================================================================
-void BunnySockNode::RemoveListener( BunnySockListener* TargetListener )
+void BunnySockNode::RemoveListener( BunnySockListener& listener )
 {
-	if (TargetListener != NULL)
-	{
-		m_ListenerListLock.Lock();
-		m_ListenerList.remove(TargetListener);
-		m_ListenerListLock.UnLock();
-	}
+   m_ListenerListLock.Lock();
+   m_ListenerList.remove(&listener);
+   m_ListenerListLock.UnLock();
 }
 
 
 
 //=============================================================================
-void BunnySockNode::ReportConnectionEvent( int EventId )
+void BunnySockNode::ReportConnectionEvent(
+                                 BunnySockListener::ConnectionEventId EventId )
 {
 	BunnySockListener* pListener;
 

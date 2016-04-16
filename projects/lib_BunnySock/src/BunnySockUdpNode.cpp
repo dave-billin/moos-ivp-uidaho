@@ -133,7 +133,7 @@ static int initialize_udp_socket( uint16_t port )
 //=============================================================================
 BunnySockUdpNode::BunnySockUdpNode( uint16_t Port, uint16_t DeviceId,
                                     uint16_t Verbosity )
-: BunnySockNode(NULL, DeviceId, Verbosity),
+: BunnySockNode(),
   m_Port(Port),
   m_TxLock(false),
   m_sockfd(INVALID_SOCKET_FD),
