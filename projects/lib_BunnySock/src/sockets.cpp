@@ -39,33 +39,6 @@
 using namespace BunnySock::Sockets;
 
 //=============================================================================
-inline static int socket_type_to_int( Address_info::Socket_type type)
-{
-   return (Address_info::UDP_SOCKET == type) ? SOCK_DGRAM : SOCK_STREAM;
-}
-
-//=============================================================================
-inline static void copy_addrinfo(struct addrinfo& to_addr,
-      struct addrinfo const& from_addr)
-{
-   memcpy(&to_addr, &from_addr, sizeof(struct addrinfo));
-
-   if (0 != from_addr.ai_addrlen)
-   {
-      assert(NULL != from_addr.ai_addr);
-      to_addr.ai_addr = reinterpret_cast<sockaddr*>(new uint8_t[from_addr.ai_addrlen]);
-      memcpy(to_addr.ai_addr, from_addr.ai_addr, from_addr.ai_addrlen);
-   }
-
-   if ( NULL != from_addr.ai_canonname)
-   {
-      size_t canonname_len = strlen(from_addr.ai_canonname);
-      to_addr.ai_canonname = new char[canonname_len + 1];
-      strcpy(to_addr.ai_canonname, from_addr.ai_canonname);
-   }
-}
-
-//=============================================================================
 inline static std::string uint16_to_string( uint16_t value )
 {
    std::ostringstream oss;
@@ -79,14 +52,14 @@ inline static std::string uint16_to_string( uint16_t value )
 namespace BunnySock { namespace Sockets
 {
 
-//=============================================================================
+///////////////////////////////////////////////////////////////////////////////
 Socket_exception::Socket_exception(char const* description)
   : m_description(description),
     m_errno(0)
 {
 }
 
-//=============================================================================
+///////////////////////////////////////////////////////////////////////////////
 Socket_exception::Socket_exception( int errno_value, char const* prefix )
   : m_errno(errno_value)
 {
@@ -95,26 +68,184 @@ Socket_exception::Socket_exception( int errno_value, char const* prefix )
    m_description = oss.str();
 }
 
-//=============================================================================
-/// Helper struct to keep socket headers out of sockets.h
-struct addr_info
+///////////////////////////////////////////////////////////////////////////////
+/// Helper class that wraps the implementation of a Socket_address
+///////////////////////////////////////////////////////////////////////////////
+class Socket_address_impl
 {
-   struct addrinfo info;
+public:
+
+   //////////////////////////////////////////////////////////////////
+   /// Creates the object from an existing socket address
+   /// @param address   Socket address to copy
+   Socket_address_impl( struct sockaddr const& address )
+   {
+      m_addr.generic = NULL;
+      copy_address(address);
+   }
+
+   //////////////////////////////////////////////////////////////////
+   /// Called when the object goes out of scope
+   ~Socket_address_impl()
+   {
+      if ( NULL != m_addr.generic )
+      {
+         delete m_addr.generic;
+         m_addr.generic = NULL;
+      }
+   }
+
+   //////////////////////////////////////////////////////////////////
+   /// Assignment operator overload
+   Socket_address_impl& operator=( Socket_address_impl const& other )
+   {
+      if ( (&other != this) && (NULL != m_addr.generic) )
+      {
+         delete m_addr.generic;
+         m_addr.generic = NULL;
+         if ( NULL != other.m_addr.generic )
+         {
+            copy_address(*other.m_addr.generic);
+         }
+      }
+
+      return *this;
+   }
+
+
+   //////////////////////////////////////////////////////////////////
+   /// @return A reference to the object's socket address
+   struct sockaddr const& addr() const
+   { return *m_addr.generic; }
+
+   //////////////////////////////////////////////////////////////////
+   /// @return A mutable reference to the object's socket address
+   struct sockaddr& addr()
+   { return *m_addr.generic; }
+
+   //////////////////////////////////////////////////////////////////
+   /// @return The size of the socket address structure in Bytes
+   socklen_t addr_len() const
+   {
+      return (AF_INET == m_addr.generic->sa_family) ?
+         sizeof(struct sockaddr_in) : sizeof(struct sockaddr_in6);
+   }
+
+   //////////////////////////////////////////////////////////////////
+   /// @return A reference to the network address as an IPv4 address
+   struct in_addr const& ipv4_in_addr() const
+   { return m_addr.ipv4->sin_addr; }
+
+   //////////////////////////////////////////////////////////////////
+   /// @return A reference to the network address as an IPv6 address
+   struct in6_addr const& ipv6_in_addr() const
+   { return m_addr.ipv6->sin6_addr; }
+
+
+   //////////////////////////////////////////////////////////////////
+   /// @return  The port number from the socket address
+   uint16_t port() const
+   {
+      uint16_t port_number = 0;
+
+      // Extract port number from the active socket address structure
+      if ( AF_INET == m_addr.generic->sa_family )
+      {
+         port_number = m_addr.ipv4->sin_port;
+      }
+      else if ( AF_INET6 == m_addr.generic->sa_family )
+      {
+         port_number = m_addr.ipv6->sin6_port;
+      }
+      else
+      {
+         assert(false);    // Invalid socket family!
+      }
+
+      return port_number;
+   }
+
+
+   //////////////////////////////////////////////////////////////////
+   /// Set the port number in the socket address
+   /// @param value  Port number to assign
+   void port( uint16_t value ) const
+   {
+      // Assign port number to the active socket address
+      if ( AF_INET == m_addr.generic->sa_family )
+      {
+         m_addr.ipv4->sin_port = value;
+      }
+      else if ( AF_INET6 == m_addr.generic->sa_family )
+      {
+         m_addr.ipv6->sin6_port = value;
+      }
+      else
+      {
+         assert(false);    // Invalid socket family!
+      }
+   }
+
+
+private:
+
+   /// A union of all sockaddr pointer types for easy translation
+   union Address_union
+   {
+      struct sockaddr*     generic;
+      struct sockaddr_in*  ipv4;
+      struct sockaddr_in6* ipv6;
+   };
+
+   Address_union m_addr;
+
+   //////////////////////////////////////////////////////////////////
+   /// Helper function to allocate and copy a socket address struct
+   /// @param address   Address to copy into the object
+   void copy_address( struct sockaddr const& address )
+   {
+      assert( NULL == m_addr.generic );   // Existing address must be NULL!
+
+      switch (address.sa_family)
+      {
+         case AF_INET:  // IPv4
+         {
+            m_addr.ipv4 = new struct sockaddr_in;
+            memcpy(m_addr.ipv4,
+                   reinterpret_cast<struct sockaddr_in const*>(&address),
+                   sizeof(struct sockaddr_in));
+            break;
+         }
+
+         case AF_INET6:  // IPv6
+         {
+            m_addr.ipv6 = new struct sockaddr_in6;
+            memcpy(m_addr.ipv6,
+                   reinterpret_cast<struct sockaddr_in6 const*>(&address),
+                   sizeof(struct sockaddr_in6));
+            break;
+         }
+
+         default:
+         {
+            assert(false); // Invalid address family!
+            break;
+         }
+      }
+   }
 
 };
 
 
-Address_info const Address_info::LOOPBACK("127.0.0.1");
+///////////////////////////////////////////////////////////////////////////////
+Socket_address const Socket_address::LOOPBACK("127.0.0.1");
+Socket_address const Socket_address::GLOBAL_BROADCAST("255.255.255.255");
+Socket_address const Socket_address::ANY_ADDRESS("0.0.0.0");
 
-/// IPv4 UDP global broadcast address (255.255.255.255)
-Address_info const Address_info::GLOBAL_BROADCAST("255.255.255.255");
 
-/// Wildcard used to specify "any IP address"
-Address_info const Address_info::ANY_ADDRESS("0.0.0.0");
-
-//=============================================================================
-Address_info::Address_info( std::string const& hostname, uint16_t port )
-  : m_addr_info( new addr_info )
+///////////////////////////////////////////////////////////////////////////////
+Socket_address::Socket_address( std::string const& hostname, uint16_t port )
+  : m_address_impl(NULL)
 {
    struct addrinfo hints;
    struct addrinfo* servinfo = NULL;  // will point to the results
@@ -134,62 +265,65 @@ Address_info::Address_info( std::string const& hostname, uint16_t port )
       throw Socket_exception(gai_strerror(status));
    }
 
-   copy_addrinfo(m_addr_info->info, *servinfo);      // Copy in address info
+   // Validate address info length
+   if ( AF_INET == servinfo->ai_addr->sa_family )
+   {
+      assert( sizeof(struct sockaddr_in) == servinfo->ai_addrlen );  // IPv4
+   }
+   else
+   {
+      assert( sizeof(struct sockaddr_in) == servinfo->ai_addrlen );  // IPv6
+   }
+
+   // Copy in the address
+   m_address_impl = new Socket_address_impl(*servinfo->ai_addr);
 
    freeaddrinfo(servinfo); // free heap memory pointed to by servinfo
 }
 
-//=============================================================================
-Address_info::Address_info( Address_info const& other )
-  : m_addr_info( new addr_info )
+///////////////////////////////////////////////////////////////////////////////
+Socket_address::Socket_address( Socket_address const& other )
+  : m_address_impl(NULL)
 {
-   memset(&m_addr_info, 0, sizeof(struct addrinfo)); // Initialize the struct
-
-   // Copy the address info
-   assert( NULL != other.m_addr_info );
-   copy_addrinfo(m_addr_info->info, other.m_addr_info->info);
+   assert( NULL != other.m_address_impl );
+   m_address_impl = new Socket_address_impl( other.address_impl().addr() );
 }
 
-//=============================================================================
-Address_info::~Address_info()
+///////////////////////////////////////////////////////////////////////////////
+Socket_address::~Socket_address()
 {
-   delete_info();       // Delete heap memory in info
-   delete m_addr_info;  // Delete the info
+   delete m_address_impl;  // Delete the socket address
 }
 
-//=============================================================================
-Address_info& Address_info::operator=( Address_info const& other )
+///////////////////////////////////////////////////////////////////////////////
+Socket_address& Socket_address::operator=( Socket_address const& other )
 {
    if ( &other != this )   // Bypass self-assignment
    {
-      delete_info();    // Delete existing info, then copy other's info
-      copy_addrinfo(m_addr_info->info, other.m_addr_info->info);
+      delete m_address_impl; // Delete existing address, then copy other's
+      m_address_impl = other.m_address_impl;
    }
 
    return *this;
 }
 
-//=============================================================================
-std::string Address_info::as_string() const
+///////////////////////////////////////////////////////////////////////////////
+std::string Socket_address::as_string() const
 {
-   // Make sure the address is valid
-   throw_if_invalid();
-
-   struct addrinfo& info = m_addr_info->info;
+   assert( NULL != m_address_impl );
 
    char buf[INET6_ADDRSTRLEN];
-   struct sockaddr const* sa = info.ai_addr;
 
-   switch (info.ai_addr->sa_family)
+   switch ( m_address_impl->addr().sa_family )
    {
       case AF_INET:
       {
-         inet_ntop(AF_INET, &(((struct sockaddr_in *)sa)->sin_addr), buf, INET6_ADDRSTRLEN);
+         inet_ntop(AF_INET, &m_address_impl->ipv4_in_addr(), buf, INET6_ADDRSTRLEN);
          break;
       }
       case AF_INET6:
       {
-         inet_ntop(AF_INET6, &(((struct sockaddr_in6 *) sa)->sin6_addr), buf, INET6_ADDRSTRLEN);
+         inet_ntop(AF_INET6, &m_address_impl->ipv6_in_addr(), buf, INET6_ADDRSTRLEN);
          break;
       }
 
@@ -202,110 +336,35 @@ std::string Address_info::as_string() const
    return std::string(buf);
 }
 
-
 //=============================================================================
-Address_info::Socket_type Address_info::socket_type() const
+uint16_t Socket_address::port() const
 {
-   throw_if_invalid();
-   return (SOCK_DGRAM == m_addr_info->info.ai_socktype) ? UDP_SOCKET : TCP_SOCKET;
+   assert( NULL != m_address_impl );
+   return m_address_impl->port();
 }
 
 //=============================================================================
-void Address_info::socket_type( Address_info::Socket_type type )
+void Socket_address::port(uint16_t value)
 {
-   m_addr_info->info.ai_socktype = socket_type_to_int(type);
+   assert( NULL != m_address_impl );
+   m_address_impl->port(value);
 }
 
 //=============================================================================
-uint16_t Address_info::port() const
+struct Socket_address_impl const& Socket_address::address_impl() const
 {
-   throw_if_invalid();  // Make sure address info is valid
-
-   struct addrinfo const& info = m_addr_info->info;
-   uint16_t port_number = 0;
-
-   // Port number is extracted from the (family-dependent) socket address structure
-   switch (info.ai_addr->sa_family)
-   {
-      case AF_INET:     // IPv4
-      {
-         assert( sizeof(sockaddr_in) == info.ai_addrlen );
-         struct sockaddr_in const* address_in =
-                     reinterpret_cast<struct sockaddr_in const*>(info.ai_addr);
-         port_number = address_in->sin_port;
-         break;
-      }
-
-      case AF_INET6:    // IPv6
-      {
-         assert( sizeof(sockaddr_in6) == info.ai_addrlen );
-         struct sockaddr_in6 const* address_in =
-                     reinterpret_cast<struct sockaddr_in6 const*>(info.ai_addr);
-         port_number = address_in->sin6_port;
-         break;
-      }
-
-      default:
-      {
-         assert(false); // Invalid socket family!
-         break;
-      }
-   }
-
-   return port_number;
-}
-
-//=============================================================================
-void Address_info::port(uint16_t value)
-{
-   m_addr_info->info.ai_protocol = value;
-}
-
-//=============================================================================
-struct addr_info const& Address_info::addrinfo() const
-{
-   throw_if_invalid();
-   return *m_addr_info;
-}
-
-//=============================================================================
-void Address_info::delete_info()
-{
-   assert( NULL != m_addr_info );
-   struct addrinfo& info = m_addr_info->info;
-
-   if ( NULL != info.ai_addr)      // Free struct sockaddr heap memory
-   {
-      delete info.ai_addr;
-      info.ai_addr = NULL;
-   }
-
-   if ( NULL != info.ai_canonname) // Free canonical name heap memory
-   {
-      delete[] info.ai_canonname;
-      info.ai_canonname = NULL;
-   }
-}
-
-//=============================================================================
-void Address_info::throw_if_invalid() const
-{
-   // Make sure address info is valid
-   if ( NULL == m_addr_info->info.ai_addr )
-   {
-      throw Socket_exception("Address_info is not initialized");
-   }
+   assert( NULL != m_address_impl );
+   return *m_address_impl;
 }
 
 
 
 //=============================================================================
-UDP_socket::UDP_socket( Address_info const& address )
-  : m_should_broadcast( &Address_info::GLOBAL_BROADCAST == &address )
+UDP_socket::UDP_socket( Socket_address const& address )
+  : m_should_broadcast( &Socket_address::GLOBAL_BROADCAST == &address )
 {
-   struct addrinfo const& addrinfo = address.addrinfo().info;
-   m_socket_fd = socket( addrinfo.ai_family, addrinfo.ai_socktype,
-                         addrinfo.ai_protocol );
+   struct sockaddr const& sock_addr = address.address_impl().addr();
+   m_socket_fd = socket( sock_addr.sa_family, SOCK_DGRAM, 0 );
    if ( -1 == m_socket_fd )
    {
       throw Socket_exception(errno);
@@ -313,9 +372,9 @@ UDP_socket::UDP_socket( Address_info const& address )
 
    // Bind to the specified address
    // If broadcast is enabled, bind to "any address"; otherwise bind to the specified address
-   Address_info const& bind_addr = m_should_broadcast ? Address_info::ANY_ADDRESS : address;
-   struct addrinfo const& bindaddrinfo = bind_addr.addrinfo().info;
-   if ( -1 == bind(m_socket_fd, bindaddrinfo.ai_addr, bindaddrinfo.ai_addrlen) )
+   Socket_address_impl const& bind_addr = m_should_broadcast ?
+         Socket_address::ANY_ADDRESS.address_impl() : address.address_impl();
+   if ( -1 == bind(m_socket_fd, &bind_addr.addr(), bind_addr.addr_len()) )
    {
       throw Socket_exception(errno, "bind() failed on UDP socket");
    }
@@ -344,15 +403,15 @@ UDP_socket::~UDP_socket()
 }
 
 //=============================================================================
-void UDP_socket::sendto( Address_info const& address, uint8_t const* data,
+void UDP_socket::sendto( Socket_address const& address, uint8_t const* data,
                          size_t num_bytes )
 {
-   struct addrinfo const& info = (m_should_broadcast) ?
-                     address.addrinfo().info : Address_info::GLOBAL_BROADCAST.addrinfo().info;
+   Socket_address_impl const& addr_impl = (m_should_broadcast) ?
+                     Socket_address::GLOBAL_BROADCAST.address_impl() : address.address_impl();
    int result = ::sendto( m_socket_fd,
                           data, num_bytes,
                           0,
-                          info.ai_addr, info.ai_addrlen );
+                          &addr_impl.addr(), addr_impl.addr_len() );
 
    if (-1 == result)
    {

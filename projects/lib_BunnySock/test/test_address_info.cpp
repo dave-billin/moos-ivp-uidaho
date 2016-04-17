@@ -23,24 +23,22 @@ struct Socket_accessor
 //=============================================================================
 TEST( Test_Address_info, address_constants )
 {
-   EXPECT_EQ( std::string("127.0.0.1"), Address_info::LOOPBACK.as_string() );
-   EXPECT_EQ( 0, Address_info::LOOPBACK.port() );
-   EXPECT_EQ( Address_info::TCP_SOCKET, Address_info::LOOPBACK.socket_type() );
+   EXPECT_EQ( std::string("127.0.0.1"), Socket_address::LOOPBACK.as_string() );
+   EXPECT_EQ( 0, Socket_address::LOOPBACK.port() );
 
-   EXPECT_EQ( std::string("255.255.255.255"), Address_info::GLOBAL_BROADCAST.as_string() );
-   EXPECT_EQ( 0, Address_info::GLOBAL_BROADCAST.port() );
-   EXPECT_EQ( Address_info::TCP_SOCKET, Address_info::LOOPBACK.socket_type() );
+   EXPECT_EQ( std::string("255.255.255.255"), Socket_address::GLOBAL_BROADCAST.as_string() );
+   EXPECT_EQ( 0, Socket_address::GLOBAL_BROADCAST.port() );
 
-   EXPECT_EQ( std::string("0.0.0.0"), Address_info::ANY_ADDRESS.as_string() );
-   EXPECT_EQ( 0, Address_info::ANY_ADDRESS.port() );
-   EXPECT_EQ( Address_info::TCP_SOCKET, Address_info::LOOPBACK.socket_type() );
+   EXPECT_EQ( std::string("0.0.0.0"), Socket_address::ANY_ADDRESS.as_string() );
+   EXPECT_EQ( 0, Socket_address::ANY_ADDRESS.port() );
 }
 
 //=============================================================================
 TEST( Test_Address_info, test_udp_socket )
 {
-   Address_info reader_address( Address_info::LOOPBACK.as_string(), 0 );
-   UDP_socket writer( Address_info::LOOPBACK );
+   Socket_address reader_address( Socket_address::LOOPBACK.as_string(), 0 );
+
+   UDP_socket writer( Socket_address::LOOPBACK );
 
    EXPECT_NE( -1, UnitTest::Socket_accessor::file_descriptor(writer) );
 

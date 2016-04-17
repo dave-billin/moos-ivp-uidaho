@@ -76,29 +76,27 @@ private:
 
 
 
-struct addr_info;    // Forward-declaration
+class Socket_address_impl;    // Forward-declaration
 
 /////////////////////////////////////////////////////////////////////
 // Data structure used to resolve and wrap a socket address
 /////////////////////////////////////////////////////////////////////
-class Address_info
+class Socket_address
 {
 public:
 
    /// IPv4 Loopback address (127.0.0.1)
-   static Address_info const LOOPBACK;
+   static Socket_address const LOOPBACK;
 
    /// IPv4 UDP global broadcast address (255.255.255.255)
-   static Address_info const GLOBAL_BROADCAST;
+   static Socket_address const GLOBAL_BROADCAST;
 
    /// Wildcard used to specify "any IP address"
-   static Address_info const ANY_ADDRESS;
+   static Socket_address const ANY_ADDRESS;
 
-   enum Socket_type
-   {
-      TCP_SOCKET = 0,    ///< TCP (streaming) socket
-      UDP_SOCKET = 1,    ///< UDP (datagram) socket
-   };
+   /// Wildcard used to indicate "any available port"
+   static uint16_t const ANY_PORT = 0;
+
 
    //////////////////////////////////////////////////////////////////
    /// Create, resolving a hostname to an address
@@ -106,18 +104,18 @@ public:
    /// @param port      Network port or zero to indicate "any" port
    /// @throw     Socket_exception on failure to resolve hostname
    /// @remarks   The socket type of the object defaults to TCP_SOCKET
-   Address_info( std::string const& hostname, uint16_t port = 0 );
+   Socket_address( std::string const& hostname, uint16_t port = ANY_PORT );
 
    //////////////////////////////////////////////////////////////////
    /// Copy constructor
-   Address_info( Address_info const& other );
+   Socket_address( Socket_address const& other );
 
    /// Called when the object goes out of scope
-   ~Address_info();
+   ~Socket_address();
 
    //////////////////////////////////////////////////////////////////
    /// Assignment operator overload
-   Address_info& operator=( Address_info const& other );
+   Socket_address& operator=( Socket_address const& other );
 
 
    //////////////////////////////////////////////////////////////////
@@ -125,14 +123,6 @@ public:
    ///   A textual representation of the network address
    ///   (e.g. dotted quad representation for an IPv4 address)
    std::string as_string() const;
-
-
-   //////////////////////////////////////////////////////////////////
-   /// @return the type of socket indicated by the address
-   Socket_type socket_type() const;
-
-   /// Sets the type of socket indicated by the address
-   void socket_type(Socket_type type);
 
 
    //////////////////////////////////////////////////////////////////
@@ -144,11 +134,13 @@ public:
 
 
    //////////////////////////////////////////////////////////////////
-   /// @internal
-   struct addr_info const& addrinfo() const;
+   /// @internal  Returns the address implementation
+   struct Socket_address_impl const& address_impl() const;
 
 private:
-   struct addr_info* m_addr_info;
+
+   // @internal   Internal abstraction of a socket address
+   Socket_address_impl* m_address_impl;
 
    /// Delete heap memory in m_addr_info
    void delete_info();
@@ -176,7 +168,7 @@ public:
    ///   UDP broadcast is automatically enabled if address is
    ///   Address_info::GLOBAL_BROADCAST.
    ///
-   UDP_socket( Address_info const& address );
+   UDP_socket( Socket_address const& address );
 
    //////////////////////////////////////////////////////////////////
    /// Called when the object goes out of scope
@@ -197,7 +189,7 @@ public:
    ///   If UDP broadcast packets have been enabled on the socket,
    ///   the contents of address are ignored.
    ///
-   void sendto( Address_info const& address, uint8_t const* data,
+   void sendto( Socket_address const& address, uint8_t const* data,
                 size_t num_bytes );
 
 
