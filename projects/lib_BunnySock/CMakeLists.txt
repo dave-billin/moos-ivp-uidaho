@@ -51,6 +51,7 @@ set( SOURCE_FILES
      ${src_dir}/BunnySockUdpNode.cpp
      ${src_dir}/FileSelector.cpp
      ${src_dir}/LibBunnySock.cpp
+     ${src_dir}/sockets.cpp
      ${src_dir}/XPTcpSocketEx.cpp
    )
 
@@ -109,6 +110,9 @@ INSTALL( TARGETS BunnySock
 if( BUILD_UNIT_TESTS )
    # Offer a cache option to build unit tests
    set( BUILD_BUNNYSOCK_TESTS ON CACHE BOOL "Build the libBunnySock test application" )
+   
+   # Build gtest unit tests
+   add_subdirectory(test)
    
    IF ( BUILD_BUNNYSOCK_TESTS )
       include_directories( ${CMAKE_CURRENT_SOURCE_DIR} )
