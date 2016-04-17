@@ -137,6 +137,15 @@ public:
    /// @internal  Returns the address implementation
    struct Socket_address_impl const& address_impl() const;
 
+   //////////////////////////////////////////////////////////////////
+   /// @return
+   ///   A textual representation of a network address (e.g. dotted
+   ///   quad for an IPv4 address)
+   ///
+   /// @param addr Network address to string-ify
+   ///
+   static std::string to_string( Socket_address_impl const& addr );
+
 private:
 
    // @internal   Internal abstraction of a socket address
@@ -189,8 +198,29 @@ public:
    ///   If UDP broadcast packets have been enabled on the socket,
    ///   the contents of address are ignored.
    ///
-   void sendto( Socket_address const& address, uint8_t const* data,
+   void sendto( Socket_address const& address, uint8_t const* buf,
                 size_t num_bytes );
+
+   //////////////////////////////////////////////////////////////////
+   /// Receives a UDP datagram over the socket
+   ///
+   /// @param buf        Pointer to a buffer to receive the datagram
+   /// @param num_bytes  Size of buf in Bytes
+   ///
+   /// @param[out] address
+   ///   Pointer to receive the address of an object that may be
+   ///   used to obtain the network address the datagram was sent from
+   ///
+   /// @return The number of Bytes read into buf
+   ///
+   /// @throw Socket_exception on error
+   ///
+   /// @remarks
+   ///   Caller is blocked until a datagram is received or the
+   ///   socket is deleted
+   ///
+   uint32_t recvfrom( uint8_t* buf, size_t num_bytes,
+                      Socket_address_impl const*& address );
 
 
    //////////////////////////////////////////////////////////////////

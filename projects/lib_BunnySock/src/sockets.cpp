@@ -64,7 +64,12 @@ Socket_exception::Socket_exception( int errno_value, char const* prefix )
   : m_errno(errno_value)
 {
    std::ostringstream oss;
-   oss << ((NULL != prefix) ? prefix : "") << strerror(errno);
+   if ( NULL != prefix )
+   {
+      oss << prefix << ": ";
+   }
+   oss << strerror(errno);
+
    m_description = oss.str();
 }
 
@@ -75,71 +80,98 @@ class Socket_address_impl
 {
 public:
 
+   /// Creates an empty address object
+   Socket_address_impl()
+   {
+      memset(&m_addr.ipv6, 0, sizeof(sockaddr_in6) );
+   }
+
    //////////////////////////////////////////////////////////////////
    /// Creates the object from an existing socket address
    /// @param address   Socket address to copy
    Socket_address_impl( struct sockaddr const& address )
    {
-      m_addr.generic = NULL;
+      // Allocate for worst-case size for simpler copy/assignment
+      memset(&m_addr.ipv6, 0, sizeof(sockaddr_in6) );
       copy_address(address);
    }
 
    //////////////////////////////////////////////////////////////////
    /// Called when the object goes out of scope
    ~Socket_address_impl()
-   {
-      if ( NULL != m_addr.generic )
-      {
-         delete m_addr.generic;
-         m_addr.generic = NULL;
-      }
-   }
+   {}
 
    //////////////////////////////////////////////////////////////////
    /// Assignment operator overload
    Socket_address_impl& operator=( Socket_address_impl const& other )
    {
-      if ( (&other != this) && (NULL != m_addr.generic) )
+      if ( &other != this )
       {
-         delete m_addr.generic;
-         m_addr.generic = NULL;
-         if ( NULL != other.m_addr.generic )
-         {
-            copy_address(*other.m_addr.generic);
-         }
+         copy_address( other.addr() );
       }
 
       return *this;
+   }
+
+   //////////////////////////////////////////////////////////////////
+   /// Helper function to copy a socket address struct
+   /// @param address   Address to copy into the object
+   void copy_address( struct sockaddr const& address )
+   {
+      switch (address.sa_family)
+      {
+         case AF_INET:  // IPv4
+         {
+            memcpy(&m_addr.ipv4,
+                   reinterpret_cast<struct sockaddr_in const*>(&address),
+                   sizeof(struct sockaddr_in));
+            break;
+         }
+
+         case AF_INET6:  // IPv6
+         {
+            memcpy(&m_addr.ipv6,
+                   reinterpret_cast<struct sockaddr_in6 const*>(&address),
+                   sizeof(struct sockaddr_in6));
+            break;
+         }
+
+         default:
+         {
+            assert(false); // Invalid address family!
+            break;
+         }
+      }
    }
 
 
    //////////////////////////////////////////////////////////////////
    /// @return A reference to the object's socket address
    struct sockaddr const& addr() const
-   { return *m_addr.generic; }
+   { return m_addr.generic; }
 
    //////////////////////////////////////////////////////////////////
    /// @return A mutable reference to the object's socket address
    struct sockaddr& addr()
-   { return *m_addr.generic; }
+   { return m_addr.generic; }
 
    //////////////////////////////////////////////////////////////////
    /// @return The size of the socket address structure in Bytes
    socklen_t addr_len() const
    {
-      return (AF_INET == m_addr.generic->sa_family) ?
+      return (AF_INET == m_addr.generic.sa_family) ?
          sizeof(struct sockaddr_in) : sizeof(struct sockaddr_in6);
    }
 
    //////////////////////////////////////////////////////////////////
    /// @return A reference to the network address as an IPv4 address
    struct in_addr const& ipv4_in_addr() const
-   { return m_addr.ipv4->sin_addr; }
+   { return m_addr.ipv4.sin_addr; }
 
    //////////////////////////////////////////////////////////////////
    /// @return A reference to the network address as an IPv6 address
    struct in6_addr const& ipv6_in_addr() const
-   { return m_addr.ipv6->sin6_addr; }
+   { return m_addr.ipv6.sin6_addr; }
 
 
    //////////////////////////////////////////////////////////////////
@@ -149,13 +181,13 @@ public:
       uint16_t port_number = 0;
 
       // Extract port number from the active socket address structure
-      if ( AF_INET == m_addr.generic->sa_family )
+      if ( AF_INET == m_addr.generic.sa_family )
       {
-         port_number = m_addr.ipv4->sin_port;
+         port_number = m_addr.ipv4.sin_port;
       }
-      else if ( AF_INET6 == m_addr.generic->sa_family )
+      else if ( AF_INET6 == m_addr.generic.sa_family )
       {
-         port_number = m_addr.ipv6->sin6_port;
+         port_number = m_addr.ipv6.sin6_port;
       }
       else
       {
@@ -169,16 +201,16 @@ public:
    //////////////////////////////////////////////////////////////////
    /// Set the port number in the socket address
    /// @param value  Port number to assign
-   void port( uint16_t value ) const
+   void port( uint16_t value )
    {
       // Assign port number to the active socket address
-      if ( AF_INET == m_addr.generic->sa_family )
+      if ( AF_INET == m_addr.generic.sa_family )
       {
-         m_addr.ipv4->sin_port = value;
+         m_addr.ipv4.sin_port = value;
       }
-      else if ( AF_INET6 == m_addr.generic->sa_family )
+      else if ( AF_INET6 == m_addr.generic.sa_family )
       {
-         m_addr.ipv6->sin6_port = value;
+         m_addr.ipv6.sin6_port = value;
       }
       else
       {
@@ -192,47 +224,12 @@ private:
    /// A union of all sockaddr pointer types for easy translation
    union Address_union
    {
-      struct sockaddr*     generic;
-      struct sockaddr_in*  ipv4;
-      struct sockaddr_in6* ipv6;
+      struct sockaddr     generic;
+      struct sockaddr_in  ipv4;
+      struct sockaddr_in6 ipv6;
    };
 
    Address_union m_addr;
-
-   //////////////////////////////////////////////////////////////////
-   /// Helper function to allocate and copy a socket address struct
-   /// @param address   Address to copy into the object
-   void copy_address( struct sockaddr const& address )
-   {
-      assert( NULL == m_addr.generic );   // Existing address must be NULL!
-
-      switch (address.sa_family)
-      {
-         case AF_INET:  // IPv4
-         {
-            m_addr.ipv4 = new struct sockaddr_in;
-            memcpy(m_addr.ipv4,
-                   reinterpret_cast<struct sockaddr_in const*>(&address),
-                   sizeof(struct sockaddr_in));
-            break;
-         }
-
-         case AF_INET6:  // IPv6
-         {
-            m_addr.ipv6 = new struct sockaddr_in6;
-            memcpy(m_addr.ipv6,
-                   reinterpret_cast<struct sockaddr_in6 const*>(&address),
-                   sizeof(struct sockaddr_in6));
-            break;
-         }
-
-         default:
-         {
-            assert(false); // Invalid address family!
-            break;
-         }
-      }
-   }
 
 };
 
@@ -311,19 +308,45 @@ Socket_address& Socket_address::operator=( Socket_address const& other )
 std::string Socket_address::as_string() const
 {
    assert( NULL != m_address_impl );
+   return to_string( *m_address_impl );
+}
 
+///////////////////////////////////////////////////////////////////////////////
+uint16_t Socket_address::port() const
+{
+   assert( NULL != m_address_impl );
+   return m_address_impl->port();
+}
+
+///////////////////////////////////////////////////////////////////////////////
+void Socket_address::port(uint16_t value)
+{
+   assert( NULL != m_address_impl );
+   m_address_impl->port(value);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+struct Socket_address_impl const& Socket_address::address_impl() const
+{
+   assert( NULL != m_address_impl );
+   return *m_address_impl;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+std::string Socket_address::to_string( Socket_address_impl const& addr_impl )
+{
    char buf[INET6_ADDRSTRLEN];
 
-   switch ( m_address_impl->addr().sa_family )
+   switch ( addr_impl.addr().sa_family )
    {
       case AF_INET:
       {
-         inet_ntop(AF_INET, &m_address_impl->ipv4_in_addr(), buf, INET6_ADDRSTRLEN);
+         inet_ntop(AF_INET, &addr_impl.ipv4_in_addr(), buf, INET6_ADDRSTRLEN);
          break;
       }
       case AF_INET6:
       {
-         inet_ntop(AF_INET6, &m_address_impl->ipv6_in_addr(), buf, INET6_ADDRSTRLEN);
+         inet_ntop(AF_INET6, &addr_impl.ipv6_in_addr(), buf, INET6_ADDRSTRLEN);
          break;
       }
 
@@ -336,30 +359,7 @@ std::string Socket_address::as_string() const
    return std::string(buf);
 }
 
-//=============================================================================
-uint16_t Socket_address::port() const
-{
-   assert( NULL != m_address_impl );
-   return m_address_impl->port();
-}
-
-//=============================================================================
-void Socket_address::port(uint16_t value)
-{
-   assert( NULL != m_address_impl );
-   m_address_impl->port(value);
-}
-
-//=============================================================================
-struct Socket_address_impl const& Socket_address::address_impl() const
-{
-   assert( NULL != m_address_impl );
-   return *m_address_impl;
-}
-
-
-
-//=============================================================================
+///////////////////////////////////////////////////////////////////////////////
 UDP_socket::UDP_socket( Socket_address const& address )
   : m_should_broadcast( &Socket_address::GLOBAL_BROADCAST == &address )
 {
@@ -393,7 +393,7 @@ UDP_socket::UDP_socket( Socket_address const& address )
    }
 }
 
-//=============================================================================
+///////////////////////////////////////////////////////////////////////////////
 UDP_socket::~UDP_socket()
 {
    if ( INVALID_FILE_DESCRIPTOR != m_socket_fd )
@@ -402,14 +402,14 @@ UDP_socket::~UDP_socket()
    }
 }
 
-//=============================================================================
-void UDP_socket::sendto( Socket_address const& address, uint8_t const* data,
+///////////////////////////////////////////////////////////////////////////////
+void UDP_socket::sendto( Socket_address const& address, uint8_t const* buf,
                          size_t num_bytes )
 {
    Socket_address_impl const& addr_impl = (m_should_broadcast) ?
                      Socket_address::GLOBAL_BROADCAST.address_impl() : address.address_impl();
    int result = ::sendto( m_socket_fd,
-                          data, num_bytes,
+                          buf, num_bytes,
                           0,
                           &addr_impl.addr(), addr_impl.addr_len() );
 
@@ -419,5 +419,60 @@ void UDP_socket::sendto( Socket_address const& address, uint8_t const* data,
    }
 }
 
+///////////////////////////////////////////////////////////////////////////////
+uint32_t UDP_socket::recvfrom( uint8_t* buf, size_t num_bytes,
+                               Socket_address_impl const*& address )
+{
+   static Socket_address_impl sender_address;
+
+   assert( NULL != buf );
+
+   uint32_t num_bytes_received = 0;
+   address = NULL;
+
+   if ( (NULL != buf) && (num_bytes > 0) )
+   {
+      struct sockaddr_storage their_addr;
+      socklen_t addr_len = sizeof(their_addr);
+      int result = ::recvfrom( m_socket_fd,
+                               reinterpret_cast<char*>(buf), num_bytes,
+                               0,   // flags
+                               reinterpret_cast<struct sockaddr*>(&their_addr),
+                               &addr_len );
+      if ( -1 != result )
+      {
+         sender_address.copy_address( reinterpret_cast<struct sockaddr&>(their_addr) );
+         num_bytes_received = result;
+         address = &sender_address;
+      }
+      else
+      {
+         throw Socket_exception(errno, "UDP recvfrom error");
+      }
+   }
+
+   return num_bytes_received;
 }
-}  // END namespace BunnySock::Sockets
+
+///////////////////////////////////////////////////////////////////////////////
+void UDP_socket::should_broadcast( bool enable_broadcast )
+{
+   int broadcast = 1;
+   if ( -1 == ::setsockopt( m_socket_fd, SOL_SOCKET, SO_BROADCAST,
+                            &broadcast, sizeof(broadcast)) )
+   {
+      throw Socket_exception(errno, "Can't enable UDP broadcast");
+   }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+bool UDP_socket::should_broadcast() const
+{
+   int optval;
+   socklen_t optlen;
+   ::getsockopt( m_socket_fd, SOL_SOCKET, SO_BROADCAST, &optval, &optlen);
+
+   return (0 != optval);
+}
+
+}}  // END namespace BunnySock::Sockets
