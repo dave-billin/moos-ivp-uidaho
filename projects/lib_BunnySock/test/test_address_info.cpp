@@ -46,7 +46,8 @@ TEST( Test_Address_info, test_udp_broadcast_socket )
    UDP_socket writer( writer_address );
    writer.should_broadcast(true);   // Enable UDP broadcast
 
-   Socket_address reader_address( Socket_address::LOOPBACK.as_string(), UDP_PORT );
+   std::string const LOOPBACK_ADDRESS = Socket_address::LOOPBACK.as_string();
+   Socket_address reader_address( LOOPBACK_ADDRESS, UDP_PORT );
    UDP_socket reader( reader_address );
 
    EXPECT_NE( -1, UnitTest::Socket_accessor::file_descriptor(reader) );
@@ -66,6 +67,8 @@ TEST( Test_Address_info, test_udp_broadcast_socket )
                                                      p_sender_address );
       EXPECT_EQ( (message.size() + 1), num_bytes_received );
       EXPECT_EQ( message, std::string(&received_msg[0]) );
+      ASSERT_TRUE( NULL != p_sender_address );
+      EXPECT_EQ( LOOPBACK_ADDRESS, Socket_address::to_string(*p_sender_address) );
    }
 
    /*
