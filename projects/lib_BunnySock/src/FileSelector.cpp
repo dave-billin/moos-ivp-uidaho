@@ -137,15 +137,6 @@ int FileSelector::WaitForReadiness(int ReadWriteFlags, long TimeOut_ms)
 	}
 
 	m_ReadWriteStatus = 0;
-	if ( FD_ISSET(m_TargetFd, &ReadableFdSet) )
-	{
-		m_ReadWriteStatus |= FileSelector::Readable;
-	}
-	if ( FD_ISSET(m_TargetFd, &WritableFdSet) )
-	{
-		m_ReadWriteStatus |= FileSelector::Writable;
-	}
-
 	m_ReadWriteStatus |= ( FD_ISSET(m_TargetFd, &ReadableFdSet) )
 								? FileSelector::Readable : 0;
 

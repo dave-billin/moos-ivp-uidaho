@@ -291,8 +291,7 @@ bool iSpock::OnStartUp( void )
 	//----------------------------------------
 	try
 	{
-		m_pSpock = new SpockModule( m_SpockHostname, m_SpockPort,
-									m_Verbosity );
+		m_pSpock = new SpockModule( m_SpockHostname, m_SpockPort, m_Verbosity );
 	}
 	catch (CMOOSException& e)
 	{

@@ -93,11 +93,12 @@ public:
 	 *	Larger values result in more messages being printed.  The default value
 	 *	of zero disables all debugging and status message printing.
 	 */
-	BunnySockTcpNode( int ConnectionMode, std::string& sTargetHostName,
-					  uint16_t Port, uint16_t DeviceId,
-					  uint32_t RetryPeriodSec = 2,
-					  uint32_t ConnectionTimeoutMs = BUNNYSOCK_DEFAULT_CONNECTION_TIMEOUT_MS,
-					  uint16_t Verbosity = 0 );
+	BunnySockTcpNode( int ConnectionMode,
+	                  std::string const& sTargetHostName,
+	                  uint16_t Port, uint16_t DeviceId,
+	                  uint32_t RetryPeriodSec = 2,
+	                  uint32_t ConnectionTimeoutMs = BUNNYSOCK_DEFAULT_CONNECTION_TIMEOUT_MS,
+	                  uint16_t Verbosity = 0 );
 
 
 	/** Called when the node goes out of scope */

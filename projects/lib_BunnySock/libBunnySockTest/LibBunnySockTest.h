@@ -43,10 +43,10 @@ class LibBunnySockTest : BunnySock::BunnySockListener
 public:
 	/** Creates an instance of the object */
 	LibBunnySockTest();
-	
+
 	/** Called when the object goes out of scope */
 	virtual ~LibBunnySockTest();
-	
+
 	/** Runs the test driver as the execution body of a normal application */
 	int Run( int argc, const char* argv[] );
 
@@ -57,7 +57,7 @@ public:
 	//========================================
 	// BunnySockListener interface functions
 	//========================================
-	
+
 	//=========================================================================
 	/** Function called when a packet is received on a BunnySock node.
 	 * @note
@@ -74,7 +74,7 @@ public:
 	 */
 	void OnPacketReceived( BunnySock::BunnySockPacket& RxPacket,
 	                       BunnySock::BunnySockNode& Node,
-						   double TimeStamp_sec );
+	                       double TimeStamp_sec );
 
 
 	//=========================================================================
@@ -95,17 +95,18 @@ public:
 	 * @param [out] TimeStamp_sec
 	 *	LocalHost time when the packet was received.
 	*/
-	void OnConnectionEvent( int EventId, BunnySock::BunnySockNode& Node,
-							double TimeStamp_sec );
-	
-	
+	void OnConnectionEvent( BunnySockListener::ConnectionEventId EventId,
+	                        BunnySock::BunnySockNode& Node,
+	                        double TimeStamp_sec );
+
+
 	/** Used to wait for incoming packets */
 	enum e_PacketFlagMasks
 	{
 		SoftwareVersionPacketMask = 0x01,
 		NUM_RXPACKETFLAGS
 	};
-	
+
 	/** Device ID's used for the test nodes */
 	enum e_NodeDeviceIds
 	{
@@ -113,10 +114,10 @@ public:
 		ListenNodeDeviceId,
 		NUM_NODE_DEVICE_IDS
 	};
-	
+
 private:
 	BunnySock::BunnySockNode* m_pNode;	/**< BunnySock node under test */
-	
+
 	std::string m_sNodeType;	/**< Type of node being tested ("TCP", "UDP") */
 	std::string m_sConnectionMode;	/**< Connection mode ("CLIENT", "SERVER") */
 	std::string m_sRemoteHost;	/**< Remote host name from command line */

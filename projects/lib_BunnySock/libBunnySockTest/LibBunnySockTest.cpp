@@ -157,8 +157,10 @@ void LibBunnySockTest::OnPacketReceived( BunnySockPacket& RxPacket,
 
 
 //=============================================================================
-void LibBunnySockTest::OnConnectionEvent( int EventId, BunnySockNode& Node,
-										  double TimeStamp_sec )
+void LibBunnySockTest::OnConnectionEvent(
+                                 BunnySockListener::ConnectionEventId EventId,
+                                 BunnySockNode& Node,
+                                 double TimeStamp_sec )
 {
 	BunnySockTcpNode* pTcpNode = dynamic_cast<BunnySockTcpNode*>(&Node);
 	string sMessage;
@@ -278,7 +280,8 @@ int LibBunnySockTest::Run( int argc, const char* argv[] )
 	else if ( MOOSStrCmp(m_sNodeType, "UDP") )
 	{
 		BunnySockUdpNode* pUdpNode;
-		pUdpNode = new BunnySockUdpNode(m_NetworkPort, m_DeviceId, m_Verbosity);
+		pUdpNode = new BunnySockUdpNode( m_NetworkPort, m_DeviceId,
+                                       m_Verbosity );
 		assert(pUdpNode != NULL);
 		pUdpNode->Start();
 		m_pNode = pUdpNode;
@@ -290,7 +293,7 @@ int LibBunnySockTest::Run( int argc, const char* argv[] )
 	}
 
 	// Register this object as a listener for the BunnySock nodes
-	m_pNode->AddListener(this);
+	m_pNode->AddListener(*this);
 
 	// Wait for the nodes to connect to each other
 	while ( !using_udp && !m_pNode->IsConnected() )
