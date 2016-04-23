@@ -142,7 +142,6 @@ import_ivp_include_dirs( "${MOOSIVP_SOURCE_TREE_DIR}" "${ivp_all_libnames}" )
 include_directories( ${IVP_INCLUDE_DIRS} )
 
 
-
 #=================================
 # Find libproj4
 #=================================

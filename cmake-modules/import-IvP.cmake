@@ -123,7 +123,7 @@ function( import_ivp_include_dirs  ivp_base_dir ivp_lib_names )
    set( IVP_INCLUDE_DIRS "" )
    
    foreach( libname IN LISTS ivp_lib_names )
-      set( dir "${ivp_src_dir}/lib_${libname}" )
+      get_filename_component( dir "${ivp_src_dir}/lib_${libname}" REALPATH )
       if(IS_DIRECTORY "${dir}" )
          list( APPEND IVP_INCLUDE_DIRS "${dir}" )
       endif()
@@ -131,5 +131,4 @@ function( import_ivp_include_dirs  ivp_base_dir ivp_lib_names )
    endforeach()
    
    set( IVP_INCLUDE_DIRS "${IVP_INCLUDE_DIRS}" PARENT_SCOPE )
-   
 endfunction()

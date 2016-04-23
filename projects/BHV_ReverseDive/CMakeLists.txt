@@ -44,6 +44,7 @@ set( BHV_ReverseDive_SOURCES
      BHV_ReverseDive.cpp
    )
 
+message( STATUS "IVP_INCLUDE_DIRS = ${IVP_INCLUDE_DIRS}" )
 include_directories( ${CMAKE_CURRENT_SOURCE_DIR}
                      ${CMAKE_CURRENT_BINARY_DIR}
                      ${MOOS_INCLUDE_DIRS}
