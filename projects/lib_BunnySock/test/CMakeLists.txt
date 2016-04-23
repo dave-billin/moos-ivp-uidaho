@@ -18,7 +18,6 @@ include_directories( ${LIBBUNNYSOCK_INCLUDE_DIRS}
                    )
 
 enable_testing()
-find_package( GTest REQUIRED )
 include_directories( ${GTEST_INCLUDE_DIRS} )
 
 #============================
