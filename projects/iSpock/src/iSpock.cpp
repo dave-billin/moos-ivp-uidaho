@@ -291,6 +291,8 @@ bool iSpock::OnStartUp( void )
 	//----------------------------------------
 	try
 	{
+	   MOOSTrace( "Connecting to SPOCK module " + m_SpockHostname
+	              + MOOSFormat(":%d\n", m_SpockPort) );
 		m_pSpock = new SpockModule( m_SpockHostname, m_SpockPort, m_Verbosity );
 	}
 	catch (CMOOSException& e)

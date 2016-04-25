@@ -31,10 +31,13 @@
 #include "MOOS/libMOOS/Utils/MOOSUtilityFunctions.h"
 #include "PrecisionTime.h"
 #include "LibBunnySockTest.h"
+#include "sockets.h"
+
 
 using namespace std;
 using namespace YellowSubUtils;
 using namespace BunnySock;
+using namespace BunnySock::Sockets;
 
 #define SOFTWARE_VERSION_PACKET_TYPE	100
 
@@ -279,8 +282,14 @@ int LibBunnySockTest::Run( int argc, const char* argv[] )
 	}
 	else if ( MOOSStrCmp(m_sNodeType, "UDP") )
 	{
+	   bool is_udp_listener = !MOOSStrCmp(m_sConnectionMode, "Client");
+	   uint16_t rx_port = (is_udp_listener) ?
+	                           m_NetworkPort : (m_NetworkPort + 1);
+	   uint16_t tx_port = (is_udp_listener) ?
+	                           Socket_address::ANY_PORT : m_NetworkPort;
+
 		BunnySockUdpNode* pUdpNode;
-		pUdpNode = new BunnySockUdpNode( m_NetworkPort, m_DeviceId,
+		pUdpNode = new BunnySockUdpNode( rx_port, tx_port, m_DeviceId,
                                        m_Verbosity );
 		assert(pUdpNode != NULL);
 		pUdpNode->Start();
@@ -301,14 +310,20 @@ int LibBunnySockTest::Run( int argc, const char* argv[] )
 		MOOSPause(100);
 	}
 
+	bool is_udp_listener =
+      MOOSStrCmp(m_sNodeType, "UDP") && !MOOSStrCmp(m_sConnectionMode, "Client");
+
 	// Send a test packet from the seek node to the listen node
 	PrecisionTime Midnight = PrecisionTime::Midnight();
 	while ( (m_RxPacketFlags & SoftwareVersionPacketMask) == 0)
 	{
-		VersionPacket.GetHeader()->MsTimeStamp =
-               Midnight.ElapsedTime().As( PrecisionTimeInterval::MILLISECONDS);
-		m_pNode->SendPacket( VersionPacket );
-		MOOSPause(3000);
+	   if ( !is_udp_listener )
+	   {
+         VersionPacket.GetHeader()->MsTimeStamp =
+                  Midnight.ElapsedTime().As( PrecisionTimeInterval::MILLISECONDS);
+         m_pNode->SendPacket( VersionPacket );
+         MOOSPause(3000);
+	   }
 	}
 
 	return 0;
