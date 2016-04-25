@@ -26,6 +26,7 @@
 #include "BunnySockUdpNode.h"
 #include "LibBunnySock.h"
 #include "FileSelector.h"
+#include "PrecisionTime.h"
 #include <MOOS/libMOOS/Utils/MOOSUtilityFunctions.h>
 
 #include <unistd.h>
@@ -42,7 +43,9 @@
 
 using namespace::std;
 using namespace::BunnySock;
+using namespace BunnySock::Sockets;
 using YellowSubUtils::TimedLock;
+using YellowSubUtils::PrecisionTime;
 
 
 // Maximum time (milliseconds) that UDP sockets will block when receiving data
@@ -66,83 +69,25 @@ static bool BunnySockUdpThreadLauncher( void* pObject )
 }
 
 //=============================================================================
-// get sockaddr, IPv4 or IPv6:
-static void *get_in_addr(struct sockaddr *sa)
-{
-    if (sa->sa_family == AF_INET) {
-        return &(((struct sockaddr_in*)sa)->sin_addr);
-    }
-
-    return &(((struct sockaddr_in6*)sa)->sin6_addr);
-}
-
-
-//=============================================================================
-/** Helper function to open a UDP socket on a specified port
- *  @param port   Port to open a UDP socket on
- *  @return A UDP socket file descriptor
- */
-static int initialize_udp_socket( uint16_t port )
-{
-   int sockfd = INVALID_SOCKET_FD;
-   struct addrinfo hints, *servinfo, *p;
-   std::ostringstream oss;
-   oss << port;
-
-   memset(&hints, 0, sizeof hints);
-   hints.ai_family = AF_UNSPEC; // set to AF_INET to force IPv4
-   hints.ai_socktype = SOCK_DGRAM;
-   hints.ai_flags = AI_PASSIVE; // use my IP
-
-   int result = getaddrinfo(NULL, oss.str().c_str(), &hints, &servinfo);
-   if (0 != result)
-   {
-      MOOSTrace( BUNNYSOCK_UDP_NODE_STRING +
-                 MOOSFormat(" getaddrinfo error: %s\n", gai_strerror(result))
-               );
-
-       return 1;
-   }
-
-   // loop through all the results and bind to the first we can
-   for(p = servinfo; p != NULL; p = p->ai_next)
-   {
-      sockfd = socket(p->ai_family, p->ai_socktype, p->ai_protocol);
-      if (INVALID_SOCKET_FD == sockfd)
-      {
-         MOOSTrace("Failed to create UDP socket");
-         continue;
-      }
-
-      if (bind(sockfd, p->ai_addr, p->ai_addrlen) == -1)
-      {
-         close(sockfd);
-         sockfd = INVALID_SOCKET_FD;
-         MOOSTrace("Failed to bind UDP socket");
-         continue;
-      }
-
-      break;
-   }
-
-   freeaddrinfo(servinfo);
-   return sockfd;
-}
-
-
-//=============================================================================
-BunnySockUdpNode::BunnySockUdpNode( uint16_t Port, uint16_t DeviceId,
-                                    uint16_t Verbosity )
+BunnySockUdpNode::BunnySockUdpNode( uint16_t rx_port, uint16_t tx_port,
+                                    uint16_t device_id,
+                                    uint16_t verbosity )
 : BunnySockNode(),
-  m_Port(Port),
+  m_rx_port(rx_port),
+  m_tx_port(tx_port),
   m_TxLock(false),
-  m_sockfd(INVALID_SOCKET_FD),
   m_WorkerThread()
 {
-   m_IsConnected = false;
+   // Create a UDP socket that will send broadcast datagrams and receive
+   // from any IP address
+   Sockets::Socket_address address( Socket_address::IPv4_ANY_ADDRESS, rx_port );
+   m_udp_socket.reset( new UDP_broadcast_socket(address) );
+   m_IsConnected = true;
 
    // Initialize the node's worker thread
    m_WorkerThread.Initialise(BunnySockUdpThreadLauncher, this);
+
+   m_Verbosity = verbosity;
 }
 
 
@@ -174,22 +119,16 @@ bool BunnySockUdpNode::SendPacket( BunnySockPacket& PacketToSend )
       // Lock the socket for writing to prevent re-entrancy of this function
       if ( m_TxLock.Lock(100) )
       {
-         struct sockaddr_in their_addr; // connector's address information
-         their_addr.sin_family = AF_INET;     // host byte order
-         their_addr.sin_port = htons(m_Port); // short, network byte order
-         their_addr.sin_addr.s_addr = 0xffffffff;    // broadcast address
-         memset(their_addr.sin_zero, '\0', sizeof their_addr.sin_zero);
-
-         int numbytes = sendto(m_sockfd,
-                               PacketToSend.GetRawBytes(),
-                               BUNNYSOCK_PACKET_SIZE, 0,
-                               (struct sockaddr *)&their_addr,
-                               sizeof their_addr);
-
-         if (-1 == numbytes)
+         try
+         {
+            m_udp_socket->send( m_tx_port,
+                        reinterpret_cast<uint8_t*>(PacketToSend.GetRawBytes()),
+                        BUNNYSOCK_PACKET_SIZE );
+         }
+         catch (Socket_exception& e)
          {
             BSOCK_VERBOSE1( MOOSTrace(BUNNYSOCK_UDP_NODE_STRING +
-                                      " sendto() failed on UDP socket\n") );
+                                      " failed to send data on UDP socket\n") );
             PacketWasSent = false;
          }
 
@@ -211,15 +150,6 @@ bool BunnySockUdpNode::SendPacket( BunnySockPacket& PacketToSend )
    return PacketWasSent;
 }
 
-
-
-//=============================================================================
-int BunnySockUdpNode::GetPort( void ) const
-{
-   return m_Port;
-}
-
-
 //=============================================================================
 void BunnySockUdpNode::Start( void )
 {
@@ -235,9 +165,10 @@ void BunnySockUdpNode::WorkerThreadBody( void )
 {
    FileSelector Selector;   // Used to receive data
    BunnySockPacket RxPacket;      // Buffer for receiving packets
-   char* pRxPacketBytes;         // Pointer to Rx Buffer
+   uint8_t* pRxPacketBytes;       // Pointer to Rx Buffer
    int Flags;         // Used to calculate blocking time
-   double LastRxTime;
+   Socket_address sender_address(Socket_address::IPv4_ANY_ADDRESS,
+                                 Socket_address::ANY_PORT);
 
    IgnoreSigPipe();   // Ignore broken pipe signals under UNIX
 
@@ -245,32 +176,13 @@ void BunnySockUdpNode::WorkerThreadBody( void )
    // This executes as long as the BunnySockUdpNode object is running
    while ( !m_WorkerThread.IsQuitRequested() )
    {
-      //---------------------------
-      // Create a UDP socket
-      //---------------------------
-      m_sockfd = initialize_udp_socket(m_Port);
-
-      // allow broadcast packets to be sent:
-      {
-         int broadcast = 1;
-         if ( -1 == setsockopt(m_sockfd, SOL_SOCKET, SO_BROADCAST, &broadcast,
-                               sizeof broadcast) )
-         {
-            BSOCK_VERBOSE2( MOOSTrace(BUNNYSOCK_UDP_NODE_STRING +
-                            "setsockopt (SO_BROADCAST) failed for UDP socket!\n")
-                          );
-             break;
-         }
-      }
-      m_IsConnected = true;
 
       //--------------------------------------------
       // Reset connection variables and packet times.
       RxPacket.Clear();   // Clear the Rx buffer
-      pRxPacketBytes = (char*)RxPacket.GetRawBytes();
 
       // Set up a file selector to block for received packets
-      Selector.SetFile(m_sockfd, FileSelector::Readable);
+      Selector.SetFile(m_udp_socket->file_descriptor(), FileSelector::Readable);
 
       //------------------------------------------------------------------
       // Inner loop - we do these things as long as the node is connected
@@ -298,31 +210,33 @@ void BunnySockUdpNode::WorkerThreadBody( void )
          //--------------------------------------------------
          if (Flags & FileSelector::Readable)
          {
-            struct sockaddr_storage their_addr;
-            socklen_t addr_len = sizeof their_addr;
-            int numbytes = recvfrom( m_sockfd, pRxPacketBytes,
-                                     BUNNYSOCK_PACKET_SIZE , 0,
-                                     (struct sockaddr *)&their_addr, &addr_len );
-
-            if ( -1 == numbytes )
+            int numbytes = 0;
+            static size_t const num_bytes_to_rx = BUNNYSOCK_PACKET_SIZE;
+            try
+            {
+               numbytes = m_udp_socket->recvfrom(
+                           reinterpret_cast<uint8_t*>( RxPacket.GetRawBytes() ),
+                           BUNNYSOCK_PACKET_SIZE, sender_address );
+            }
+            catch (Socket_exception& e)
             {
                BSOCK_VERBOSE2( MOOSTrace(BUNNYSOCK_UDP_NODE_STRING +
-                               "recvfrom() failed on UDP socket!\n"));
+                               "recvfrom() failed on UDP socket: " +
+                               e.what() ));
                 break;
             }
 
             // If a full packet has been received, process it
             assert(numbytes == BUNNYSOCK_PACKET_SIZE);
 
-            LastRxTime = HPMOOSTime(false);   // Capture Rx time
+            PrecisionTime LastRxTime = PrecisionTime::Now(true);   // Get Rx time
 
+            if ( m_Verbosity >= 2 )
             {
-               char s[INET6_ADDRSTRLEN];
-               BSOCK_VERBOSE2( MOOSTrace( BUNNYSOCK_UDP_NODE_STRING +
-                     MOOSFormat( " Received a packet from %s\n",
-                                 inet_ntop(their_addr.ss_family,
-                                           get_in_addr((struct sockaddr *)&their_addr),
-                                           s, sizeof s)) ));
+               MOOSTrace( BUNNYSOCK_UDP_NODE_STRING +
+                     MOOSFormat( " Received a UDP packet from %s\n",
+                              sender_address.as_string().c_str() ) );
+
             }
 
             // Report the received packet to listeners
@@ -331,11 +245,9 @@ void BunnySockUdpNode::WorkerThreadBody( void )
                 iter != m_ListenerList.end(); iter++)
             {
                pListener = *iter;
-               pListener->OnPacketReceived(RxPacket, *this, LastRxTime);
+               pListener->OnPacketReceived(RxPacket, *this,
+                                           LastRxTime.AsDouble());
             }
-
-            // Reset pointer and counter
-            pRxPacketBytes = (char*)RxPacket.GetRawBytes();
 
          }   // END if (Selector.FileIsReadable())
 
@@ -350,13 +262,6 @@ void BunnySockUdpNode::WorkerThreadBody( void )
       // Notify all listeners that the node is disconnected
       m_IsConnected = false;
       ReportConnectionEvent(BunnySockListener::DISCONNECTED);
-
-      // Close and delete the socket
-      if (INVALID_SOCKET_FD != m_sockfd)
-      {
-         close(m_sockfd);
-         m_sockfd = INVALID_SOCKET_FD;
-      }
 
    }   // END while ( !m_WorkerThread.IsQuitRequested() )
 

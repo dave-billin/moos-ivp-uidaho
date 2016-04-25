@@ -37,8 +37,11 @@
 #endif
 
 #include "MOOS/libMOOS/Utils/MOOSThread.h"
+#include "sockets.h"
 #include "YellowSubUtils.h"         // Needed for timed lock object
 #include "BunnySockNode.h"
+
+#include <memory>
 #include <stdint.h>
 
 
@@ -48,17 +51,17 @@ namespace BunnySock
 {
 
 //=============================================================================
-/** An object encapsulating a single BunnySock node capable of sending and
- *  receiving using connectionless UDP broadcast packets.
+/** A class that implements a BunnySock node that communicates using UDP
+ *  broadcast datagrams
  *
  * @details
  *   BunnySock UDP nodes are provided as an adjunct to the normal (TCP) method
  *   of network communication.  They are <i>specifically intended</i> for the
  *   situation where a time-critical packet is being sent to <i>multiple</i>
- *   devices at once.  Unfortunately, due to the nature of the connection-less
- *   UDP protocol, there is no guarantee that packets sent from the node will
- *   actually be received by their respective destination.  As such, <b><i>TCP
- *   nodes should be favored over UDP nodes whenever possible</i></b>.
+ *   devices at once.  Due to the nature of the connectionless UDP protocol,
+ *   there is no guarantee that data sent from the node will actually reach its
+ *   destination.  Consequently, <b><i>TCP nodes should be favored over UDP
+ *   nodes whenever possible</i></b>.
  */
 class BunnySockUdpNode : public BunnySockNode
 {
@@ -74,22 +77,26 @@ public:
    /** Creates a BunnySock Udp Node that communicates over a specified network
     *  port
     *
-    * @param Port
-    *    Network port used for sending and receiving packets
+    * @param rx_port
+    *    Network port the node will receive on
+    *
+    * @param tx_port
+    *    Remote network port the node will send to
     *
     * @param DeviceId
     *    Device ID to report in the SourceID field of packets
     */
-   BunnySockUdpNode( uint16_t Port, uint16_t DeviceId, uint16_t Verbosity = 0);
+   BunnySockUdpNode( uint16_t rx_port, uint16_t tx_port, uint16_t DeviceId,
+                     uint16_t Verbosity = 0);
 
 
    /** Called when the node goes out of scope */
    virtual ~BunnySockUdpNode();
 
 
-   //========================================
-   // Inherited from BunnySockNode
-   //========================================
+   ////////////////////////////////////////////////////////////////////////////
+   /// @addtogroup impl Implementation of BunnySockNode methods
+   /// @{
 
    /** Inherited from the BunnySockNode class.  Does nothing, since UDP is
     *  connectionless.
@@ -110,24 +117,15 @@ public:
     */
    bool SendPacket( BunnySockPacket& PacketToSend );
 
-   //========================================
+   /// @}
+   ////////////////////////////////////////////////////////////////////////////
 
 
    //=========================================================================
-   /** If the node's connection mode is CLIENT, this returns the TCP port on the
-    *  remote host that the node will attempt to connect to.  Otherwise, if
-    *  the connection mode is SERVER, this returns the TCP port on the local
-    *  machine to listen on for incoming connections.
+   /** Starts a worker thread that receives data from the node.  This must be
+    *  called in order for the node to receive any data.
     */
-   int GetPort( void ) const;
-
-
-
-   //=========================================================================
-   /** Starts the node running.  This must be called before the node will
-    *  connect to a remote host and data can be sent or received */
    void Start( void );
-
 
    //=========================================================================
    /** Execution body of the internal worker thread used to send and receive
@@ -136,9 +134,12 @@ public:
 
 
 private:
-   uint16_t m_Port;     /**< UDP port to communicate on */
+   uint16_t m_rx_port;  /**< Port to receive data on */
+   uint16_t m_tx_port;  /**< Remote port to send data to */
    TimedLock m_TxLock;  /**< Mutex used to synchronize access to the socket */
-   int m_sockfd;        /**< socket file descriptor */
+
+   typedef std::auto_ptr<Sockets::UDP_broadcast_socket> UDP_socket_ptr;
+   UDP_socket_ptr m_udp_socket;
 
    CMOOSThread m_WorkerThread;   /**< Worker thread used to receive packets */
 
