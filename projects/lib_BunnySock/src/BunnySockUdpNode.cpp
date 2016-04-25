@@ -165,7 +165,6 @@ void BunnySockUdpNode::WorkerThreadBody( void )
 {
    FileSelector Selector;   // Used to receive data
    BunnySockPacket RxPacket;      // Buffer for receiving packets
-   uint8_t* pRxPacketBytes;       // Pointer to Rx Buffer
    int Flags;         // Used to calculate blocking time
    Socket_address sender_address(Socket_address::IPv4_ANY_ADDRESS,
                                  Socket_address::ANY_PORT);
@@ -211,7 +210,6 @@ void BunnySockUdpNode::WorkerThreadBody( void )
          if (Flags & FileSelector::Readable)
          {
             int numbytes = 0;
-            static size_t const num_bytes_to_rx = BUNNYSOCK_PACKET_SIZE;
             try
             {
                numbytes = m_udp_socket->recvfrom(

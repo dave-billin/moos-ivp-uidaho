@@ -56,7 +56,7 @@ enum e_SensorZeroIds
 //=============================================================================
 SpockModule::SpockModule( string& sHostName, uint16_t Port, int Verbosity )
 : m_pNode(NULL),
-  m_receiving_udp(false),
+  m_receiving_udp( MOOSStrCmp("UDP", sHostName) ),
   m_Verbosity(Verbosity),
   m_AutoReportingEnabled(false),
   m_SensorValuesAreFresh(false),
@@ -80,20 +80,21 @@ SpockModule::SpockModule( string& sHostName, uint16_t Port, int Verbosity )
   m_CompassDip(0.0)
 {
 
-	if ( MOOSStrCmp("UDP", sHostName) )
+   // If the hostname specified for SPOCK is "UDP", create a UDP socket to
+   // receive from
+	if (m_receiving_udp)
 	{
-	   m_receiving_udp = true;
       BunnySockUdpNode* pUdpNode =
-         new BunnySockUdpNode( Port,         /* Remote Port */
+         new BunnySockUdpNode( Port,          /* rx_port */
+                               0,             /* tx_port (nothing is sent) */
                                LOCAL_DEVICEID,/* Device ID to send as */
                                Verbosity );  /* Verbosity */
 
       // Verify that we created a BunnySock node
       if (pUdpNode == NULL)
       {
-         string s = "SpockModule: Failed to create BunnySock TCP client node "
-                  "to connect to " + sHostName +
-                  MOOSFormat(":%d",Port) + "\n";
+         string s = "SpockModule: Failed to create BunnySock UDP client node "
+                    "on port " + MOOSFormat(":%d",Port) + "\n";
          throw CMOOSException(s);
       }
 
@@ -153,7 +154,7 @@ bool SpockModule::IsConnected( void ) const
 //=============================================================================
 void SpockModule::RequestMultiSensors( void )
 {
-	if ( m_pNode->IsConnected() )
+	if ( (! m_receiving_udp) && m_pNode->IsConnected() )
 	{
 		BunnySockPacket ReqPacket;
 		CommandPacket_t* pPacket = (CommandPacket_t*)ReqPacket.GetRawBytes();
@@ -172,7 +173,7 @@ void SpockModule::RequestMultiSensors( void )
 //=============================================================================
 void SpockModule::RequestDepth( void )
 {
-	if (m_pNode->IsConnected())
+	if ( (! m_receiving_udp) && m_pNode->IsConnected() )
 	{
 		BunnySockPacket ReqPacket;
 		CommandPacket_t* pPacket = (CommandPacket_t*)ReqPacket.GetRawBytes();
@@ -193,7 +194,7 @@ void SpockModule::SetAutoReportingEnablement( bool EnableAutoReporting )
 {
 	m_AutoReportingEnabled = EnableAutoReporting;
 
-	if (m_pNode->IsConnected())
+	if ( (! m_receiving_udp) && m_pNode->IsConnected() )
 	{
 		BunnySockPacket ReqPacket;
 		CommandPacket_t* pPacket = (CommandPacket_t*)ReqPacket.GetRawBytes();
@@ -223,7 +224,7 @@ void SpockModule::SetAutoReportingEnablement( bool EnableAutoReporting )
 //=============================================================================
 void SpockModule::ZeroSensor( int SensorID )
 {
-	if (m_pNode->IsConnected())
+	if ( (! m_receiving_udp) && m_pNode->IsConnected() )
 	{
 		BunnySockPacket ReqPacket;
 		CommandPacket_t* pPacket = (CommandPacket_t*)ReqPacket.GetRawBytes();

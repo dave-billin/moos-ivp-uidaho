@@ -75,7 +75,7 @@ MISSION_FILE
 	Variable:			Description
 	-----------------	------------------------------------------------------
 	ISPOCK_CMD			The following string values may be published to this
-						variable to issue commands to the SPOCK module:
+						   variable to issue commands to the SPOCK module:
 						
 						"AllSensorZero"		
 							Registers current SPOCK sensor readings as the 
@@ -97,7 +97,16 @@ MISSION_FILE
 	Parameter:			Description:
 	-----------------	-------------------------------------------------------
 	SPOCK_HOSTNAME		Hostname or dotted IP address string of the SPOCK module
-	SPOCK_PORT			Network port to connect to on the SPOCK module
+	                  To have iSpock listen for UDP sensor packets sent by the
+	                  SPOCK module (instead of the TCP connection normally
+	                  employed, the hostname "UDP" may be used here.  Note that
+	                  in this mode, it is not possible to issue commands to the
+	                  SPOCK module via the ISPOCK_CMD MOOS variable.
+	                  
+	SPOCK_PORT			Network port to connect to on the SPOCK module; or if 
+	                  "UDP" was specified for SPOCK_HOSTNAME, this gives the
+	                  port number to listen on for UDP sensor packets sent by
+	                  the SPOCK module. 
 
 
 ============================

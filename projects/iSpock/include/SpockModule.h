@@ -252,7 +252,7 @@ public:
 
 private:
    BunnySock::BunnySockNode* m_pNode; /**< Connection to SCOTTY */
-   bool m_receiving_udp; /**< true if receiving sensor packets via UDP */
+   bool m_receiving_udp; /**< true to receive UDP broadcast sensor packets */
 
    int m_Verbosity; /**< Verbosity level for debugging messages */
 
