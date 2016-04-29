@@ -47,12 +47,12 @@ public:
     *	Hostname or IP address of the SPOCK module to connect to, or "UDP" to
     *	receive sensor packets sent in UDP broadcast datagrams
     *
-    * @param TcpPort
-    *	Network port the target SPOCK module is listening on for a BunnySock
-    *	TCP connection
+    * @param TCP_port
+    *	Network port to connect a TCP socket to on the target SPOCK module
     *
-    * @param UdpPort
-    * 	Network port SPOCK uses to broadcast sensor packets
+    * @param UDP_port
+    * Network port SPOCK broadcasts sensor packets on or zero to disable
+    * listening for sensor packets
     *
     * @param Verbosity
     *	Verbosity level to use when printing debug messages (0 = none, 1+ gives
@@ -62,7 +62,8 @@ public:
     * 	A CMOOSException on failure to create a BunnySock network socket to
     * 	communicate with SPOCK
     */
-   SpockModule(std::string& HostName, uint16_t Port, int Verbosity = 0);
+   SpockModule( std::string& HostName, uint16_t TCP_port, uint16_t UDP_port,
+                int Verbosity = 0);
 
    //=========================================================================
    /** Called when the object goes out of scope */
@@ -96,7 +97,7 @@ public:
    void SetAutoReportingEnablement(bool EnableAutoReporting);
 
    //=========================================================================
-   /** Tells SCOTTY to "zero" a specified sensor (i.e. use the current sensor
+   /** Tells SPOCK to "zero" a specified sensor (i.e. use the current sensor
     * measurement as a zero reference)
     *
     * @param SensorID
@@ -251,8 +252,12 @@ public:
    };
 
 private:
-   BunnySock::BunnySockNode* m_pNode; /**< Connection to SCOTTY */
-   bool m_receiving_udp; /**< true to receive UDP broadcast sensor packets */
+	BunnySock::BunnySockTcpNode* m_TCP_Node;	/**< TCP connection to SPOCK */
+   BunnySock::BunnySockUdpNode* m_UDP_Node; /**< Used to receive UDP packets */
+
+   /** true to receive sensor packets sent by SPOCK in UDP broadcast packets;
+    *  else false to only receive packets from a TCP connection to SPOCK */
+   bool m_receive_udp_sensor_packets;
 
    int m_Verbosity; /**< Verbosity level for debugging messages */
 

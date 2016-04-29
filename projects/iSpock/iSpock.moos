@@ -60,12 +60,15 @@ ProcessConfig = iSpock
 
    // Hostname or IP address of the SPOCK module or "UDP" to receive UDP
    // multicast sensor packets
-   //SPOCK_HOSTNAME = 192.168.1.103
-   SPOCK_HOSTNAME = UDP
+   SPOCK_HOSTNAME = 192.168.1.103
    
-   // Network port to connect to on the SPOCK module
-   SPOCK_PORT = 20000
-   
+   // Network port to open a TCP connection to on the SPOCK module
+   SPOCK_TCP_PORT = 20000
+
+   // Network port that SPOCK sends UDP broadcast sensor packets on
+   // (zero or omitted to obtain sensor values via a TCP connection to SPOCK) 
+   SPOCK_UDP_PORT = 20001
+      
    //PUBLISH_ONLY_CHANGES = TRUE      // Publish only sensors values that have
                                       // changed
    
