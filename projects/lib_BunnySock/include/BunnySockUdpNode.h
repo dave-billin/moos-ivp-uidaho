@@ -70,7 +70,7 @@ public:
    //=========================================================================
    /** Creates a (useless) BunnySock UDP node with a device ID and verbosity
     *   of zero */
-   BunnySockUdpNode( void );
+   BunnySockUdpNode();
 
 
    //=========================================================================
@@ -101,7 +101,7 @@ public:
    /** Inherited from the BunnySockNode class.  Does nothing, since UDP is
     *  connectionless.
     */
-   void ResetConnection( void );
+   void ResetConnection();
 
 
    /** Sends a BunnySock packet to the connected peer.
@@ -125,12 +125,12 @@ public:
    /** Starts a worker thread that receives data from the node.  This must be
     *  called in order for the node to receive any data.
     */
-   void Start( void );
+   void Start();
 
    //=========================================================================
    /** Execution body of the internal worker thread used to send and receive
       packets.  Not intended to be called directly.  */
-   void WorkerThreadBody( void );
+   void WorkerThreadBody();
 
 
 private:

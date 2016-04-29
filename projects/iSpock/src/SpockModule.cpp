@@ -28,6 +28,8 @@
 #include "MOOS/libMOOS/Utils/MOOSException.h"
 #include "SpockModule.h"
 
+#include <sstream>
+
 using namespace std;
 using namespace BunnySock;
 
@@ -54,9 +56,11 @@ enum e_SensorZeroIds
 
 
 //=============================================================================
-SpockModule::SpockModule( string& sHostName, uint16_t Port, int Verbosity )
-: m_pNode(NULL),
-  m_receiving_udp( MOOSStrCmp("UDP", sHostName) ),
+SpockModule::SpockModule( string& sHostName, uint16_t TCP_port,
+                          uint16_t UDP_port, int Verbosity )
+: m_TCP_Node(NULL),
+  m_UDP_Node(NULL),
+  m_receive_udp_sensor_packets(0 != UDP_port),
   m_Verbosity(Verbosity),
   m_AutoReportingEnabled(false),
   m_SensorValuesAreFresh(false),
@@ -80,53 +84,62 @@ SpockModule::SpockModule( string& sHostName, uint16_t Port, int Verbosity )
   m_CompassDip(0.0)
 {
 
+   m_TCP_Node =
+      new BunnySockTcpNode( BunnySockTcpNode::CLIENT, // communication mode
+                            sHostName,      // Remote host
+                            TCP_port,       // Remote Port
+                            LOCAL_DEVICEID, // Device ID to send as
+                            1,              // Retry period (sec)
+                            3000,           // Connection timeout (ms)
+                            Verbosity );    // Verbosity
+
+   // Verify that we created a BunnySock node
+   if (m_TCP_Node == NULL)
+   {
+      std::ostringstream oss;
+      oss << "SpockModule: Failed to create BunnySock TCP client node "
+             "to connect to " << sHostName << ":" << TCP_port;
+      throw CMOOSException(oss.str());
+   }
+
+   // Register to be notified of connection events and received TCP packets
+   m_TCP_Node->AddListener(*this);
+
    // If the hostname specified for SPOCK is "UDP", create a UDP socket to
    // receive from
-	if (m_receiving_udp)
-	{
-      BunnySockUdpNode* pUdpNode =
-         new BunnySockUdpNode( Port,          /* rx_port */
-                               0,             /* tx_port (nothing is sent) */
-                               LOCAL_DEVICEID,/* Device ID to send as */
-                               Verbosity );  /* Verbosity */
-
-      // Verify that we created a BunnySock node
-      if (pUdpNode == NULL)
+   if (m_receive_udp_sensor_packets)
+   {
+      try
       {
-         string s = "SpockModule: Failed to create BunnySock UDP client node "
-                    "on port " + MOOSFormat(":%d",Port) + "\n";
-         throw CMOOSException(s);
+         m_UDP_Node =
+            new BunnySockUdpNode( UDP_port,       // rx_port
+                                  0,              // tx_port (nothing is sent)
+                                  LOCAL_DEVICEID, // Device ID to send as
+                                  Verbosity );    // Verbosity
+      }
+      catch (BunnySock::Sockets::Socket_exception& e)
+      {
+         std::ostringstream oss;
+         oss << "Unhandled Socket_exception: " << e.what() << std::endl;
+         MOOSTrace(oss.str());
+         throw(e);
       }
 
-      m_pNode = pUdpNode;
-      pUdpNode->Start(); // Start the BunnySock connection's network thread
-	}
-	else
-	{
-	   BunnySockTcpNode* pTcpNode =
-         new BunnySockTcpNode( BunnySockTcpNode::CLIENT, /* mode */
-	                            sHostName,    /* Remote host */
-	                            Port,         /* Remote Port */
-	                            LOCAL_DEVICEID,/* Device ID to send as */
-	                            1,         /* Retry period (sec) */
-	                            3000,      /* Connection timeout (ms) */
-	                            Verbosity );  /* Verbosity */
+      // Verify that we created a BunnySock node
+      if (m_UDP_Node == NULL)
+      {
+         std::ostringstream oss;
+         oss << "SpockModule: Failed to create BunnySock UDP client node "
+                "on port " << UDP_port;
+         throw CMOOSException(oss.str());
+      }
 
-	   // Verify that we created a BunnySock node
-	   if (pTcpNode == NULL)
-	   {
-	      string s = "SpockModule: Failed to create BunnySock TCP client node "
-	               "to connect to " + sHostName +
-	               MOOSFormat(":%d",Port) + "\n";
-	      throw CMOOSException(s);
-	   }
+      // Register to be notified of UDP sensor packets
+      m_TCP_Node->AddListener(*this);
+      m_UDP_Node->Start(); // Start receiving UDP packets
+   }
 
-	   m_pNode = pTcpNode;
-	   pTcpNode->Start(); // Start the BunnySock connection's network thread
-
-	}
-
-	m_pNode->AddListener(*this);	// Register for BunnySock packets and events
+   m_TCP_Node->Start(); // Start the TCP node
 }
 
 
@@ -135,9 +148,9 @@ SpockModule::SpockModule( string& sHostName, uint16_t Port, int Verbosity )
 //=============================================================================
 SpockModule::~SpockModule()
 {
-	if (m_pNode != NULL)
+	if (m_TCP_Node != NULL)
 	{
-		delete m_pNode;
+		delete m_TCP_Node;
 	}
 }
 
@@ -146,7 +159,7 @@ SpockModule::~SpockModule()
 //=============================================================================
 bool SpockModule::IsConnected( void ) const
 {
-	return m_pNode->IsConnected();
+	return m_TCP_Node->IsConnected();
 }
 
 
@@ -154,7 +167,8 @@ bool SpockModule::IsConnected( void ) const
 //=============================================================================
 void SpockModule::RequestMultiSensors( void )
 {
-	if ( (! m_receiving_udp) && m_pNode->IsConnected() )
+   // Don't request sensors if receiving UDP sensor packets
+	if ( (! m_receive_udp_sensor_packets) && m_TCP_Node->IsConnected() )
 	{
 		BunnySockPacket ReqPacket;
 		CommandPacket_t* pPacket = (CommandPacket_t*)ReqPacket.GetRawBytes();
@@ -164,7 +178,7 @@ void SpockModule::RequestMultiSensors( void )
 		pPacket->CommandId = CMD_REQUEST_SENSORS;
 		pPacket->Parameter[0] = SENSORS;
 
-		m_pNode->SendPacket(ReqPacket);
+		m_TCP_Node->SendPacket(ReqPacket);
 	}
 }
 
@@ -173,7 +187,8 @@ void SpockModule::RequestMultiSensors( void )
 //=============================================================================
 void SpockModule::RequestDepth( void )
 {
-	if ( (! m_receiving_udp) && m_pNode->IsConnected() )
+   // Don't request depth packets if receiving UDP sensor packets
+	if ( (! m_receive_udp_sensor_packets) && m_TCP_Node->IsConnected() )
 	{
 		BunnySockPacket ReqPacket;
 		CommandPacket_t* pPacket = (CommandPacket_t*)ReqPacket.GetRawBytes();
@@ -183,7 +198,7 @@ void SpockModule::RequestDepth( void )
 		pPacket->CommandId = CMD_REQUEST_SENSORS;
 		pPacket->Parameter[0] = HI_RATE_DEPTH;
 
-		m_pNode->SendPacket(ReqPacket);
+		m_TCP_Node->SendPacket(ReqPacket);
 	}
 }
 
@@ -192,9 +207,11 @@ void SpockModule::RequestDepth( void )
 //=============================================================================
 void SpockModule::SetAutoReportingEnablement( bool EnableAutoReporting )
 {
-	m_AutoReportingEnabled = EnableAutoReporting;
+   // Enable auto-reporting if receiving UDP sensor packets
+	m_AutoReportingEnabled = EnableAutoReporting &&
+	                         (! m_receive_udp_sensor_packets);
 
-	if ( (! m_receiving_udp) && m_pNode->IsConnected() )
+	if ( m_TCP_Node->IsConnected() )
 	{
 		BunnySockPacket ReqPacket;
 		CommandPacket_t* pPacket = (CommandPacket_t*)ReqPacket.GetRawBytes();
@@ -214,7 +231,7 @@ void SpockModule::SetAutoReportingEnablement( bool EnableAutoReporting )
 			pPacket->Parameter[4] = 0xfc04;
 		}
 
-		m_pNode->SendPacket(ReqPacket);
+		m_TCP_Node->SendPacket(ReqPacket);
 	}
 }
 
@@ -224,7 +241,7 @@ void SpockModule::SetAutoReportingEnablement( bool EnableAutoReporting )
 //=============================================================================
 void SpockModule::ZeroSensor( int SensorID )
 {
-	if ( (! m_receiving_udp) && m_pNode->IsConnected() )
+	if ( m_TCP_Node->IsConnected() )
 	{
 		BunnySockPacket ReqPacket;
 		CommandPacket_t* pPacket = (CommandPacket_t*)ReqPacket.GetRawBytes();
@@ -244,7 +261,7 @@ void SpockModule::ZeroSensor( int SensorID )
 				break;
 		}
 
-		m_pNode->SendPacket(ReqPacket);
+		m_TCP_Node->SendPacket(ReqPacket);
 	}
 }
 
@@ -261,33 +278,30 @@ bool SpockModule::SensorValuesAreFresh( void )
 
 //=============================================================================
 void SpockModule::OnPacketReceived( BunnySockPacket& RxPacket,
-									BunnySockNode& Node,
-									double TimeStamp_sec )
+                                    BunnySockNode& Node,
+                                    double TimeStamp_sec )
 {
-	SensorPacket_t* pSensorPacket;
-	DepthPacket_t* pDepthPacket;
+   switch ( RxPacket.GetHeader()->PacketType )
+   {
+      case TYPE_SENSOR:
+      {
+         SensorPacket_t* pSensorPacket =
+                  reinterpret_cast <SensorPacket_t*>(RxPacket.GetRawBytes());
+         HandleMultiSensorPacket(pSensorPacket);
+         break;
+      }
 
-	switch (RxPacket.GetHeader()->PacketType)
-	{
-		case TYPE_SENSOR:
-		{
-			pSensorPacket =
-					reinterpret_cast<SensorPacket_t*>(RxPacket.GetRawBytes());
-			HandleMultiSensorPacket(pSensorPacket);
-			break;
-		}
+      case TYPE_DEPTH:
+      {
+         DepthPacket_t* pDepthPacket =
+                  reinterpret_cast <DepthPacket_t*>(RxPacket.GetRawBytes());
+         HandleDepthPacket(pDepthPacket);
+         break;
+      }
 
-		case TYPE_DEPTH:
-		{
-			pDepthPacket =
-					reinterpret_cast<DepthPacket_t*>(RxPacket.GetRawBytes());
-			HandleDepthPacket(pDepthPacket);
-			break;
-		}
-
-		default:
-			return;
-	}
+      default:
+         return;
+   }
 }
 
 
@@ -305,7 +319,7 @@ void SpockModule::OnConnectionEvent( BunnySockListener::ConnectionEventId EventI
 			s = "Connected to SPOCK\n";
 			break;
 
-		// If SCOTTY disconnects, reset all reported variable values
+		// If SPOCK disconnects, reset all reported variable values
 		case BunnySockListener::CONNECTION_TIMEOUT:
 			s = "Connection to SPOCK timed out!\n";
 			break;
